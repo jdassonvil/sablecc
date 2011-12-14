@@ -62,7 +62,7 @@ public class GrammarSimplificator
 
         this.alternatives = new LinkedList<Alternative>();
 
-        if (node.getContext() instanceof Context.NamedContext) {
+        if (node.getContext().isNamed()) {
             throw new InternalException("Context are not supported yet");
         }
 

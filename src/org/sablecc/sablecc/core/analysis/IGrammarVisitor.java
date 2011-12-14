@@ -29,11 +29,8 @@ public interface IGrammarVisitor {
     void visitGrammar(
             Grammar node);
 
-    void visitNamedContext(
-            Context.NamedContext node);
-
-    void visitAnonymousContext(
-            Context.AnonymousContext node);
+    void visitContext(
+            Context node);
 
     void visitLexer(
             Lexer node);

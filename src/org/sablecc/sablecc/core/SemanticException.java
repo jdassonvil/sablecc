@@ -726,7 +726,7 @@ public class SemanticException
 
     public static SemanticException spuriousParserNamedContextDeclaration(
             AParserContext declaration,
-            Context.NamedContext namedContext) {
+            Context namedContext) {
 
         String name = declaration.getName().getText();
         if (!name.equals(namedContext.getName())) {

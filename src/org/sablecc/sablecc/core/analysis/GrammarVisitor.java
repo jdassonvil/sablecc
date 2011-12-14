@@ -37,11 +37,12 @@ public class GrammarVisitor
     public void visitGrammar(
             Grammar node) {
 
-        for (Context.NamedContext context : node.getNamedContexts()) {
+        for (Context context : node.getNamedContexts()) {
             context.apply(this);
         }
 
-        Context.AnonymousContext context = node.getGlobalAnonymousContext();
+        Context context = node.getGlobalAnonymousContext();
+
         if (context != null) {
             context.apply(this);
         }
@@ -57,16 +58,8 @@ public class GrammarVisitor
     }
 
     @Override
-    public void visitNamedContext(
-            Context.NamedContext node) {
-
-        // Leaf
-
-    }
-
-    @Override
-    public void visitAnonymousContext(
-            Context.AnonymousContext node) {
+    public void visitContext(
+            Context node) {
 
         // Leaf
 

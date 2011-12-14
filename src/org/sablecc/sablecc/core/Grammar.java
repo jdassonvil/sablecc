@@ -55,13 +55,13 @@ public class Grammar
 
     private final Map<String, LexerExpression> stringToLexerExpression = new HashMap<String, LexerExpression>();
 
-    private Context.AnonymousContext globalAnonymousContext;
+    private Context globalAnonymousContext;
 
     private LexerExpression.StartExpression globalStartExpression;
 
     private LexerExpression.EndExpression globalEndExpression;
 
-    private final List<Context.NamedContext> namedContexts = new LinkedList<Context.NamedContext>();
+    private final List<Context> namedContexts = new LinkedList<Context>();
 
     private final Lexer lexer = new Lexer();
 
@@ -143,12 +143,12 @@ public class Grammar
         return "grammar";
     }
 
-    public List<Context.NamedContext> getNamedContexts() {
+    public List<Context> getNamedContexts() {
 
         return this.namedContexts;
     }
 
-    public Context.AnonymousContext getGlobalAnonymousContext() {
+    public Context getGlobalAnonymousContext() {
 
         return this.globalAnonymousContext;
     }
@@ -244,8 +244,7 @@ public class Grammar
                     ALexerContext node) {
 
                 if (node.getName() != null) {
-                    Context.NamedContext namedContext = new Context.NamedContext(
-                            node, this.grammar);
+                    Context namedContext = new Context(this.grammar, node);
                     this.globalNameSpace.add(namedContext);
                     Grammar.this.namedContexts.add(namedContext);
                 }
@@ -264,15 +263,14 @@ public class Grammar
 
                 if (node.getName() != null) {
                     String name = node.getName().getText();
-                    Context.NamedContext namedContext = this.globalNameSpace
+                    Context namedContext = this.globalNameSpace
                             .getNamedContext(name);
 
                     if (namedContext != null) {
                         namedContext.addDeclaration(node);
                     }
                     else {
-                        namedContext = new Context.NamedContext(node,
-                                this.grammar);
+                        namedContext = new Context(this.grammar, node);
                         this.globalNameSpace.add(namedContext);
                         Grammar.this.namedContexts.add(namedContext);
                     }
@@ -406,8 +404,8 @@ public class Grammar
                                 "globalAnonymousContext should not have been created yet");
                     }
 
-                    Grammar.this.globalAnonymousContext = new Context.AnonymousContext(
-                            node, this.grammar);
+                    Grammar.this.globalAnonymousContext = new Context(
+                            this.grammar, node);
                 }
             }
 
@@ -417,8 +415,8 @@ public class Grammar
 
                 if (node.getName() == null) {
                     if (Grammar.this.globalAnonymousContext == null) {
-                        Grammar.this.globalAnonymousContext = new Context.AnonymousContext(
-                                node, this.grammar);
+                        Grammar.this.globalAnonymousContext = new Context(
+                                this.grammar, node);
                     }
                     else {
                         Grammar.this.globalAnonymousContext
@@ -647,7 +645,7 @@ public class Grammar
             throw new InternalException("not implemented");
         }
 
-        for (Context.NamedContext context : this.namedContexts) {
+        for (Context context : this.namedContexts) {
             context.computeAutomaton();
         }
 
@@ -954,9 +952,14 @@ public class Grammar
         }
 
         private void add(
-                Context.NamedContext namedContext) {
+                Context context) {
 
-            internalAdd(namedContext);
+            if (!context.isNamed()) {
+                throw new InternalException(
+                        "The anonymous context shouldn't be added to the global namespace");
+            }
+
+            internalAdd(context);
         }
 
         private void add(
@@ -1003,12 +1006,12 @@ public class Grammar
             return null;
         }
 
-        private Context.NamedContext getNamedContext(
+        private Context getNamedContext(
                 String name) {
 
             INameDeclaration nameDeclaration = getNameDeclaration(name);
-            if (nameDeclaration instanceof Context.NamedContext) {
-                return (Context.NamedContext) nameDeclaration;
+            if (nameDeclaration instanceof Context) {
+                return (Context) nameDeclaration;
             }
             return null;
         }

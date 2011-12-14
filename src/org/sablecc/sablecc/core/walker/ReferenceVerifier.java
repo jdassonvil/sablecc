@@ -76,15 +76,8 @@ public abstract class ReferenceVerifier
         }
 
         @Override
-        public void visitNamedContext(
-                Context.NamedContext node) {
-
-            node.resolveTokensAndIgnored();
-        }
-
-        @Override
-        public void visitAnonymousContext(
-                Context.AnonymousContext node) {
+        public void visitContext(
+                Context node) {
 
             node.resolveTokensAndIgnored();
         }
