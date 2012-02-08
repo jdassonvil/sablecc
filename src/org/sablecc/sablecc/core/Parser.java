@@ -1295,6 +1295,16 @@ public class Parser
                 return explicitName;
             }
 
+            public String getLeft() {
+
+                return new InformationExtractor(this).getLeftText();
+            }
+
+            public String getRight() {
+
+                return new InformationExtractor(this).getRightText();
+            }
+
             @Override
             public void setName(
                     String name) {
@@ -1468,6 +1478,16 @@ public class Parser
                 }
 
                 return explicitName;
+            }
+
+            public String getLeft() {
+
+                return new InformationExtractor(this).getLeftText();
+            }
+
+            public String getRight() {
+
+                return new InformationExtractor(this).getRightText();
             }
 
             @Override

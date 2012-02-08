@@ -535,8 +535,22 @@ public abstract class AlternativeTransformationListElement
             if (this.reference instanceof Parser.ParserElement) {
                 cardinality = ((Parser.ParserElement) this.reference)
                         .getCardinality();
-                rightName = ((Parser.ParserElement) this.reference)
-                        .getElement();
+                if(this.reference instanceof Parser.ParserElement.NormalElement)
+                {
+                    rightName = ((Parser.ParserElement.NormalElement) this.reference)
+                    .getElement();
+                }
+                else if(this.reference instanceof Parser.ParserElement.SeparatedElement)
+                {
+                    rightName = ((Parser.ParserElement.SeparatedElement)this.reference).getRight();
+                    leftName = ((Parser.ParserElement.SeparatedElement)this.reference).getLeft();
+                }
+                else
+                {
+                    rightName = ((Parser.ParserElement.AlternatedElement)this.reference).getRight();
+                    leftName = ((Parser.ParserElement.AlternatedElement)this.reference).getLeft();
+                }
+                
             }
             else {
 
@@ -1179,13 +1193,13 @@ public abstract class AlternativeTransformationListElement
 
             if (referencedType instanceof Type.SimpleType.AlternatedType) {
                 elementName = ((Type.SimpleType.AlternatedType) referencedType)
-                        .getLeftElementName();
+                        .getRightElementName();
                 intermediateInterval = ((Type.SimpleType.AlternatedType) referencedType)
                         .getCardinality();
             }
             else if (referencedType instanceof Type.SimpleType.SeparatedType) {
                 elementName = ((Type.SimpleType.SeparatedType) referencedType)
-                        .getLeftElementName();
+                        .getRightElementName();
 
                 intermediateInterval = ((Type.SimpleType.SeparatedType) referencedType)
                         .getCardinality();

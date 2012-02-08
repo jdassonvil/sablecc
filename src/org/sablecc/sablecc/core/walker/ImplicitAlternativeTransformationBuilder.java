@@ -620,21 +620,9 @@ public class ImplicitAlternativeTransformationBuilder
         else {
             List<AlternativeTransformationListElement> listElements = new LinkedList<AlternativeTransformationListElement>();
 
-            if (parserElement instanceof Parser.ParserElement.AlternatedElement
-                    || parserElement instanceof Parser.ParserElement.SeparatedElement) {
-                listElements
-                        .add(new AlternativeTransformationListElement.ImplicitLeftListElement(
-                                parserElement, this.grammar));
-                listElements
-                        .add(new AlternativeTransformationListElement.ImplicitRightListElement(
-                                parserElement, this.grammar));
-
-            }
-            else {
-                listElements
-                        .add(new AlternativeTransformationListElement.ImplicitNormalListElement(
-                                parserElement, this.grammar));
-            }
+            listElements
+                    .add(new AlternativeTransformationListElement.ImplicitNormalListElement(
+                            parserElement, this.grammar));
 
             return new AlternativeTransformationElement.ImplicitListElement(
                     this.grammar, listElements);
