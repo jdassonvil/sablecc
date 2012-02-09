@@ -969,6 +969,8 @@ public class Parser
             return this.alternative.getElements().indexOf(this);
         }
 
+        public abstract Node getDeclaration();
+
         public abstract String getName();
 
         public abstract Token getNameToken();
@@ -1111,6 +1113,7 @@ public class Parser
                 }
             }
 
+            @Override
             public Node getDeclaration() {
 
                 return this.declaration;
@@ -1342,6 +1345,7 @@ public class Parser
                 }
             }
 
+            @Override
             public ASeparatedElement getDeclaration() {
 
                 return this.declaration;
@@ -1493,6 +1497,7 @@ public class Parser
                         this.cardinality);
             }
 
+            @Override
             public AAlternatedElement getDeclaration() {
 
                 return this.declaration;

@@ -625,12 +625,11 @@ public class ImplicitAlternativeTransformationBuilder
 
         switch (element.getElementType()) {
         case NORMAL:
-            operator = ((ANormalElement) ((Parser.ParserElement.SingleElement) element)
-                    .getDeclaration()).getUnaryOperator();
+            operator = ((ANormalElement) element.getDeclaration())
+                    .getUnaryOperator();
             break;
         case DANGLING:
-            operator = ((ADanglingElement) ((Parser.ParserElement.SingleElement) element)
-                    .getDeclaration()).getQMark();
+            operator = ((ADanglingElement) element.getDeclaration()).getQMark();
             break;
         case SEPARATED:
             operator = ((Parser.ParserElement.SeparatedElement) element)

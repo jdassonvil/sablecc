@@ -892,8 +892,7 @@ public abstract class ReferenceVerifier
                         element.getNameType(), expectedNames);
             }
 
-            PUnit unit = ((ANormalElement) ((Parser.ParserElement.SingleElement) element)
-                    .getDeclaration()).getUnit();
+            PUnit unit = ((ANormalElement) element.getDeclaration()).getUnit();
 
             if (!(unit instanceof ANameUnit)) {
                 throw SemanticException.badProductionReference(typeIdentifier,
