@@ -413,8 +413,8 @@ public class GrammarVisitor
     }
 
     @Override
-    public void visitParserNormalElement(
-            Parser.ParserElement.NormalElement node) {
+    public void visitParserSingleElement(
+            Parser.ParserElement.SingleElement node) {
 
         visitParserElement(node);
 
@@ -432,13 +432,6 @@ public class GrammarVisitor
             Parser.ParserElement.AlternatedElement node) {
 
         visitParserElement(node);
-    }
-
-    @Override
-    public void visitParserDanglingElement(
-            Parser.ParserElement.DanglingElement node) {
-
-        // Leaf
     }
 
     @Override

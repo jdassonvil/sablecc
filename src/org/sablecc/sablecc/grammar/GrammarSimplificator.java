@@ -24,7 +24,9 @@ import org.sablecc.exception.*;
 import org.sablecc.sablecc.core.*;
 import org.sablecc.sablecc.core.Parser.ParserAlternative;
 import org.sablecc.sablecc.core.Parser.ParserElement.AlternatedElement;
+import org.sablecc.sablecc.core.Parser.ParserElement.ElementType;
 import org.sablecc.sablecc.core.Parser.ParserElement.SeparatedElement;
+import org.sablecc.sablecc.core.Parser.ParserElement.SingleElement;
 import org.sablecc.sablecc.core.Parser.ParserPriority.LeftPriority;
 import org.sablecc.sablecc.core.Parser.ParserPriority.RightPriority;
 import org.sablecc.sablecc.core.Parser.ParserPriority.UnaryPriority;
@@ -152,36 +154,37 @@ public class GrammarSimplificator
     }
 
     @Override
-    public void visitParserNormalElement(
-            Parser.ParserElement.NormalElement node) {
+    public void visitParserSingleElement(
+            SingleElement node) {
 
-        if (!node.getCardinality().equals(CardinalityInterval.ZERO_ZERO)) {
-            Element simpleElement;
+        if (node.getElementType() == ElementType.NORMAL) {
+            if (!node.getCardinality().equals(CardinalityInterval.ZERO_ZERO)) {
+                Element simpleElement;
+                PUnit unit = ((ANormalElement) node.getDeclaration()).getUnit();
+                if (node.getReference() instanceof Parser.ParserProduction) {
+                    String prodName = ((ANameUnit) unit).getIdentifier()
+                            .getText();
 
-            if (node.getReference() instanceof Parser.ParserProduction) {
-                String prodName = ((ANameUnit) node.getDeclaration().getUnit())
-                        .getIdentifier().getText();
+                    simpleElement = new Element.ProductionElement(
+                            GrammarSimplificator.grammar
+                                    .getProduction(prodName));
+                }
+                else {
+                    simpleElement = new Element.TokenElement(unit);
+                }
 
-                simpleElement = new Element.ProductionElement(
-                        GrammarSimplificator.grammar.getProduction(prodName));
+                if (node.getCardinality().equals(CardinalityInterval.ONE_ONE)) {
+                    this.elements.add(simpleElement);
+                }
+                else {
+                    Element complexElement = new Element.ProductionElement(
+                            newNormalProduction(node, simpleElement,
+                                    node.getCardinality()));
+                    this.elements.add(complexElement);
+                }
+
             }
-            else {
-                simpleElement = new Element.TokenElement(node.getDeclaration()
-                        .getUnit());
-            }
-
-            if (node.getCardinality().equals(CardinalityInterval.ONE_ONE)) {
-                this.elements.add(simpleElement);
-            }
-            else {
-                Element complexElement = new Element.ProductionElement(
-                        newNormalProduction(node, simpleElement,
-                                node.getCardinality()));
-                this.elements.add(complexElement);
-            }
-
         }
-
     }
 
     @Override
@@ -276,7 +279,7 @@ public class GrammarSimplificator
     }
 
     private static Production newNormalProduction(
-            Parser.ParserElement.NormalElement node,
+            Parser.ParserElement.SingleElement node,
             Element element,
             CardinalityInterval cardinality) {
 
@@ -443,7 +446,7 @@ public class GrammarSimplificator
 
     private static class NormalProductionBuilder {
 
-        private final Parser.ParserElement.NormalElement parserElement;
+        private final Parser.ParserElement.SingleElement parserElement;
 
         private final Element sElement;
 
@@ -454,7 +457,7 @@ public class GrammarSimplificator
         private SGrammar grammar;
 
         public NormalProductionBuilder(
-                Parser.ParserElement.NormalElement parserElement,
+                Parser.ParserElement.SingleElement parserElement,
                 Element sElement,
                 CardinalityInterval cardinality,
                 SGrammar grammar) {
@@ -463,6 +466,10 @@ public class GrammarSimplificator
             this.sElement = sElement;
             this.cardinality = cardinality;
             this.grammar = grammar;
+
+            if (parserElement.getElementType() == ElementType.DANGLING) {
+                throw new InternalException("The element shouldn't be dangling");
+            }
 
             if (cardinality.equals(CardinalityInterval.ZERO_ONE)) {
 

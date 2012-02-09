@@ -22,9 +22,9 @@ import java.util.*;
 import org.sablecc.exception.*;
 import org.sablecc.sablecc.core.*;
 import org.sablecc.sablecc.core.Parser.ParserElement.AlternatedElement;
-import org.sablecc.sablecc.core.Parser.ParserElement.DanglingElement;
-import org.sablecc.sablecc.core.Parser.ParserElement.NormalElement;
+import org.sablecc.sablecc.core.Parser.ParserElement.ElementType;
 import org.sablecc.sablecc.core.Parser.ParserElement.SeparatedElement;
+import org.sablecc.sablecc.core.Parser.ParserElement.SingleElement;
 import org.sablecc.sablecc.core.Parser.ParserProduction.DanglingProduction;
 import org.sablecc.sablecc.core.Parser.ParserProduction.NormalProduction;
 import org.sablecc.sablecc.core.Parser.ParserProduction.TokenProduction;
@@ -405,21 +405,37 @@ public class ImplicitAlternativeTransformationBuilder
         }
 
         @Override
-        public void visitParserNormalElement(
-                NormalElement node) {
+        public void visitParserSingleElement(
+                SingleElement node) {
 
             if (this.treeElement instanceof Tree.TreeElement.NormalElement) {
 
                 if (node.getCardinality().equals(
                         this.treeElement.getCardinality())) {
-
                     Tree.TreeElement.NormalElement treeNormalElement = (Tree.TreeElement.NormalElement) this.treeElement;
 
-                    if (match(node.getDeclaration().getUnit(),
-                            treeNormalElement.getDeclaration().getUnit())) {
-                        this.matchResult = true;
+                    if (node.getElementType() == ElementType.NORMAL) {
+                        if (match(
+                                ((ANormalElement) node.getDeclaration())
+                                        .getUnit(),
+                                treeNormalElement.getDeclaration().getUnit())) {
+                            this.matchResult = true;
+                        }
                     }
+                    else // ElementType.DANGLING
+                    {
+                        if (treeNormalElement.getDeclaration().getUnit() instanceof ANameUnit) {
 
+                            ANameUnit treeUnit = (ANameUnit) treeNormalElement
+                                    .getDeclaration().getUnit();
+
+                            if (((ADanglingElement) node.getDeclaration())
+                                    .getIdentifier().getText()
+                                    .equals(treeUnit.getIdentifier().getText())) {
+                                this.matchResult = true;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -464,33 +480,6 @@ public class ImplicitAlternativeTransformationBuilder
                     }
                 }
             }
-        }
-
-        @Override
-        public void visitParserDanglingElement(
-                DanglingElement node) {
-
-            if (this.treeElement instanceof Tree.TreeElement.NormalElement) {
-
-                if (node.getCardinality().equals(
-                        this.treeElement.getCardinality())) {
-
-                    Tree.TreeElement.NormalElement treeNormalElement = (Tree.TreeElement.NormalElement) this.treeElement;
-
-                    if (treeNormalElement.getDeclaration().getUnit() instanceof ANameUnit) {
-
-                        ANameUnit treeUnit = (ANameUnit) treeNormalElement
-                                .getDeclaration().getUnit();
-
-                        if (node.getDeclaration().getIdentifier().getText()
-                                .equals(treeUnit.getIdentifier().getText())) {
-                            this.matchResult = true;
-                        }
-                    }
-
-                }
-            }
-            ;
         }
 
         private boolean match(
@@ -632,19 +621,30 @@ public class ImplicitAlternativeTransformationBuilder
     private Node getOperator(
             Parser.ParserElement element) {
 
-        if (element instanceof Parser.ParserElement.NormalElement) {
-            return ((Parser.ParserElement.NormalElement) element)
-                    .getDeclaration().getUnaryOperator();
-        }
-        else if (element instanceof Parser.ParserElement.SeparatedElement) {
-            return ((Parser.ParserElement.SeparatedElement) element)
+        Node operator;
+
+        switch (element.getElementType()) {
+        case NORMAL:
+            operator = ((ANormalElement) ((Parser.ParserElement.SingleElement) element)
+                    .getDeclaration()).getUnaryOperator();
+            break;
+        case DANGLING:
+            operator = ((ADanglingElement) ((Parser.ParserElement.SingleElement) element)
+                    .getDeclaration()).getQMark();
+            break;
+        case SEPARATED:
+            operator = ((Parser.ParserElement.SeparatedElement) element)
                     .getDeclaration().getManyOperator();
-        }
-        else if (element instanceof Parser.ParserElement.AlternatedElement) {
-            return ((Parser.ParserElement.AlternatedElement) element)
+            break;
+        case ALTERNATED:
+            operator = ((Parser.ParserElement.AlternatedElement) element)
                     .getDeclaration().getManyOperator();
+            break;
+        default:
+            throw new InternalException("Element type " + element.getNameType()
+                    + " not handle");
         }
 
-        return null;
+        return operator;
     }
 }

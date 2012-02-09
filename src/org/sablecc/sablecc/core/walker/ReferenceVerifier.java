@@ -21,6 +21,8 @@ import java.util.*;
 
 import org.sablecc.exception.*;
 import org.sablecc.sablecc.core.*;
+import org.sablecc.sablecc.core.Parser.ParserElement.ElementType;
+import org.sablecc.sablecc.core.Parser.ParserElement.SingleElement;
 import org.sablecc.sablecc.core.Parser.ParserProduction.TokenProduction;
 import org.sablecc.sablecc.core.analysis.*;
 import org.sablecc.sablecc.core.interfaces.*;
@@ -154,61 +156,83 @@ public abstract class ReferenceVerifier
         }
 
         @Override
-        public void visitParserNormalElement(
-                Parser.ParserElement.NormalElement node) {
+        public void visitParserSingleElement(
+                SingleElement node) {
 
-            PUnit pUnit = node.getDeclaration().getUnit();
+            if (node.getElementType() == ElementType.NORMAL) {
+                PUnit pUnit = ((ANormalElement) node.getDeclaration())
+                        .getUnit();
 
-            if (pUnit instanceof ANameUnit) {
-                ANameUnit unit = (ANameUnit) pUnit;
-                IReferencable reference = tokenOrParserProductionExpected(
-                        this.grammar, unit.getIdentifier());
-                node.addReference(reference);
-            }
-            else if (pUnit instanceof AStringUnit) {
-                AStringUnit unit = (AStringUnit) pUnit;
-
-                node.addReference(this.grammar.getStringExpression(unit
-                        .getString().getText()));
-            }
-            else if (pUnit instanceof ACharacterUnit) {
-                ACharacterUnit unit = (ACharacterUnit) pUnit;
-                PCharacter pCharacter = unit.getCharacter();
-
-                if (pCharacter instanceof ACharCharacter) {
-                    ACharCharacter character = (ACharCharacter) pCharacter;
-
-                    node.addReference(this.grammar.getCharExpression(character
-                            .getChar().getText()));
+                if (pUnit instanceof ANameUnit) {
+                    ANameUnit unit = (ANameUnit) pUnit;
+                    IReferencable reference = tokenOrParserProductionExpected(
+                            this.grammar, unit.getIdentifier());
+                    node.addReference(reference);
                 }
-                else if (pCharacter instanceof ADecCharacter) {
-                    ADecCharacter character = (ADecCharacter) pCharacter;
+                else if (pUnit instanceof AStringUnit) {
+                    AStringUnit unit = (AStringUnit) pUnit;
 
-                    node.addReference(this.grammar.getDecExpression(character
-                            .getDecChar().getText()));
+                    node.addReference(this.grammar.getStringExpression(unit
+                            .getString().getText()));
                 }
-                else if (pCharacter instanceof AHexCharacter) {
-                    AHexCharacter character = (AHexCharacter) pCharacter;
+                else if (pUnit instanceof ACharacterUnit) {
+                    ACharacterUnit unit = (ACharacterUnit) pUnit;
+                    PCharacter pCharacter = unit.getCharacter();
 
-                    node.addReference(this.grammar.getHexExpression(character
-                            .getHexChar().getText()));
+                    if (pCharacter instanceof ACharCharacter) {
+                        ACharCharacter character = (ACharCharacter) pCharacter;
+
+                        node.addReference(this.grammar
+                                .getCharExpression(character.getChar()
+                                        .getText()));
+                    }
+                    else if (pCharacter instanceof ADecCharacter) {
+                        ADecCharacter character = (ADecCharacter) pCharacter;
+
+                        node.addReference(this.grammar
+                                .getDecExpression(character.getDecChar()
+                                        .getText()));
+                    }
+                    else if (pCharacter instanceof AHexCharacter) {
+                        AHexCharacter character = (AHexCharacter) pCharacter;
+
+                        node.addReference(this.grammar
+                                .getHexExpression(character.getHexChar()
+                                        .getText()));
+                    }
+                    else {
+                        throw new InternalException("unhandled character type");
+                    }
+                }
+                else if (pUnit instanceof AStartUnit) {
+                    node.addReference(this.grammar.getStartExpression());
+                }
+                else if (pUnit instanceof AEndUnit) {
+                    node.addReference(this.grammar.getEndExpression());
                 }
                 else {
-                    throw new InternalException("unhandled character type");
+                    throw new InternalException("unhandled unit type");
                 }
-            }
-            else if (pUnit instanceof AStartUnit) {
-                node.addReference(this.grammar.getStartExpression());
-            }
-            else if (pUnit instanceof AEndUnit) {
-                node.addReference(this.grammar.getEndExpression());
+
+                node.getAlternative().getProduction().getContext()
+                        .addTokenIfNecessary(pUnit);
             }
             else {
-                throw new InternalException("unhandled unit type");
+                TIdentifier elementIdentifier = ((ADanglingElement) node
+                        .getDeclaration()).getIdentifier();
+
+                INameDeclaration declaration = findGlobalDeclaration(
+                        this.grammar, elementIdentifier);
+
+                if (!(declaration instanceof Parser.ParserProduction.DanglingProduction)) {
+                    String[] expectedNames = { "dangling parser production" };
+                    throw SemanticException.badReference(elementIdentifier,
+                            declaration.getNameType(), expectedNames);
+                }
+
+                node.addReference((Parser.ParserProduction.DanglingProduction) declaration);
             }
 
-            node.getAlternative().getProduction().getContext()
-                    .addTokenIfNecessary(pUnit);
         }
 
         @Override
@@ -265,25 +289,6 @@ public abstract class ReferenceVerifier
                     .addTokenIfNecessary(leftUnit);
             node.getAlternative().getProduction().getContext()
                     .addTokenIfNecessary(rightUnit);
-        }
-
-        @Override
-        public void visitParserDanglingElement(
-                Parser.ParserElement.DanglingElement node) {
-
-            TIdentifier elementIdentifier = node.getDeclaration()
-                    .getIdentifier();
-
-            INameDeclaration declaration = findGlobalDeclaration(this.grammar,
-                    elementIdentifier);
-
-            if (!(declaration instanceof Parser.ParserProduction.DanglingProduction)) {
-                String[] expectedNames = { "dangling parser production" };
-                throw SemanticException.badReference(elementIdentifier,
-                        declaration.getNameType(), expectedNames);
-            }
-
-            node.addReference((Parser.ParserProduction.DanglingProduction) declaration);
         }
 
         @Override
@@ -881,14 +886,14 @@ public abstract class ReferenceVerifier
             Parser.ParserElement element = findElement(typeIdentifier,
                     this.currentAlternative);
 
-            if (!(element instanceof Parser.ParserElement.NormalElement)) {
+            if (!(element.getElementType() == ElementType.NORMAL)) {
                 String[] expectedNames = { "normal parser element" };
                 throw SemanticException.badReference(typeIdentifier,
                         element.getNameType(), expectedNames);
             }
 
-            PUnit unit = ((Parser.ParserElement.NormalElement) element)
-                    .getDeclaration().getUnit();
+            PUnit unit = ((ANormalElement) ((Parser.ParserElement.SingleElement) element)
+                    .getDeclaration()).getUnit();
 
             if (!(unit instanceof ANameUnit)) {
                 throw SemanticException.badProductionReference(typeIdentifier,

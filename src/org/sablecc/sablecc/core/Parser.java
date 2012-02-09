@@ -852,7 +852,7 @@ public class Parser
                 public void inANormalElement(
                         ANormalElement node) {
 
-                    ParserElement.NormalElement normalElement = new ParserElement.NormalElement(
+                    ParserElement.SingleElement normalElement = new ParserElement.SingleElement(
                             node, ParserAlternative.this.grammar,
                             this.parserAlternative);
 
@@ -886,7 +886,7 @@ public class Parser
                 public void inADanglingElement(
                         ADanglingElement node) {
 
-                    ParserElement.DanglingElement danglingElement = new ParserElement.DanglingElement(
+                    ParserElement.SingleElement danglingElement = new ParserElement.SingleElement(
                             node, ParserAlternative.this.grammar,
                             this.parserAlternative);
 
@@ -928,13 +928,23 @@ public class Parser
     public static abstract class ParserElement
             implements ImplicitExplicit, IReferencable, IVisitableGrammarPart {
 
+        public static enum ElementType {
+            NORMAL,
+            DANGLING,
+            SEPARATED,
+            ALTERNATED
+        }
+
         private final Grammar grammar;
 
         private final ParserAlternative alternative;
 
+        private final ElementType elementType;
+
         public ParserElement(
                 Grammar grammar,
-                ParserAlternative alternative) {
+                ParserAlternative alternative,
+                ElementType elementType) {
 
             if (grammar == null) {
                 throw new InternalException("grammar may not be null");
@@ -946,6 +956,7 @@ public class Parser
 
             this.grammar = grammar;
             this.alternative = alternative;
+            this.elementType = elementType;
         }
 
         public ParserAlternative getAlternative() {
@@ -973,14 +984,19 @@ public class Parser
 
         public abstract Type.SimpleType getType();
 
-        public static class NormalElement
+        public ElementType getElementType() {
+
+            return this.elementType;
+        }
+
+        public static class SingleElement
                 extends ParserElement {
 
-            private final ANormalElement declaration;
+            private final Node declaration;
 
             private String name;
 
-            private Token token;
+            private Token nameToken;
 
             private IReferencable reference;
 
@@ -992,12 +1008,12 @@ public class Parser
 
             private Type.SimpleType type;
 
-            public NormalElement(
+            public SingleElement(
                     ANormalElement declaration,
                     Grammar grammar,
                     ParserAlternative alternative) {
 
-                super(grammar, alternative);
+                super(grammar, alternative, ElementType.NORMAL);
 
                 if (declaration == null) {
                     throw new InternalException("declaration may not be null");
@@ -1006,10 +1022,31 @@ public class Parser
                 this.declaration = declaration;
 
                 this.cardinality = new CardinalityInterval(
-                        this.declaration.getUnaryOperator());
+                        declaration.getUnaryOperator());
 
                 this.element = new InformationExtractor(this)
                         .getReferenceText();
+
+                constructType();
+            }
+
+            public SingleElement(
+                    ADanglingElement declaration,
+                    Grammar grammar,
+                    ParserAlternative alternative) {
+
+                super(grammar, alternative, ElementType.DANGLING);
+
+                if (declaration == null) {
+                    throw new InternalException("declaration may not be null");
+                }
+
+                this.declaration = declaration;
+
+                this.element = new InformationExtractor(this)
+                        .getReferenceText();
+
+                this.cardinality = CardinalityInterval.ZERO_ONE;
 
                 constructType();
             }
@@ -1074,7 +1111,7 @@ public class Parser
                 }
             }
 
-            public ANormalElement getDeclaration() {
+            public Node getDeclaration() {
 
                 return this.declaration;
             }
@@ -1084,11 +1121,18 @@ public class Parser
 
                 String implicitName = null;
 
-                if (this.declaration.getUnit() instanceof ANameUnit
-                        && (this.declaration.getUnaryOperator() == null || this.declaration
-                                .getUnaryOperator() instanceof AZeroOrOneUnaryOperator)) {
+                if (getElementType() == ElementType.NORMAL) {
+                    PUnit unit = ((ANormalElement) this.declaration).getUnit();
 
-                    implicitName = ((ANameUnit) this.declaration.getUnit())
+                    if (unit instanceof ANameUnit
+                            && this.cardinality
+                                    .isIncludedIn(CardinalityInterval.ZERO_ONE)) {
+                        implicitName = ((ANameUnit) unit).getIdentifier()
+                                .getText();
+                    }
+                }
+                else {
+                    implicitName = ((ADanglingElement) this.declaration)
                             .getIdentifier().getText();
                 }
 
@@ -1099,22 +1143,26 @@ public class Parser
             public String getExplicitName() {
 
                 String explicitName = null;
+                TElementName elementName = null;
 
-                if (this.declaration.getElementName() != null) {
-                    explicitName = this.declaration.getElementName().getText();
+                switch (getElementType()) {
+                case NORMAL:
+                    elementName = ((ANormalElement) this.declaration)
+                            .getElementName();
+                    break;
+                case DANGLING:
+                    elementName = ((ADanglingElement) this.declaration)
+                            .getElementName();
+                    break;
+                }
+
+                if (elementName != null) {
+                    explicitName = elementName.getText();
                     explicitName = explicitName.substring(1,
                             explicitName.length() - 2);
                 }
 
                 return explicitName;
-            }
-
-            @Override
-            public void setName(
-                    String name) {
-
-                this.name = name;
-
             }
 
             @Override
@@ -1126,28 +1174,45 @@ public class Parser
             @Override
             public Token getNameToken() {
 
-                if (this.token == null) {
+                if (this.nameToken == null) {
                     if (getExplicitName() != null
                             && getExplicitName().equals(this.name)) {
-                        this.token = this.declaration.getElementName();
+                        if (getElementType() == ElementType.NORMAL) {
+                            this.nameToken = ((ANormalElement) this.declaration)
+                                    .getElementName();
+                        }
+                        else {
+                            this.nameToken = ((ANormalElement) this.declaration)
+                                    .getElementName();
+                        }
+
                     }
                     else if (getImplicitName().equals(this.name)) {
-                        if (!(this.declaration.getUnit() instanceof ANameUnit)) {
-                            throw new InternalException("unit may not be a "
-                                    + this.declaration.getUnit().getClass());
+
+                        if (getElementType() == ElementType.NORMAL) {
+                            this.nameToken = ((ANameUnit) ((ANormalElement) this.declaration)
+                                    .getUnit()).getIdentifier();
                         }
-                        this.token = ((ANameUnit) this.declaration.getUnit())
-                                .getIdentifier();
+                        else {
+                            this.nameToken = ((ADanglingElement) this.declaration)
+                                    .getElementName();
+                        }
                     }
                 }
 
-                return this.token;
+                return this.nameToken;
             }
 
             @Override
             public String getNameType() {
 
-                return "parser normal element";
+                if (getElementType() == ElementType.NORMAL) {
+                    return "parser normal element";
+                }
+                else {
+                    return "parser dangling element";
+                }
+
             }
 
             @Override
@@ -1180,13 +1245,20 @@ public class Parser
             }
 
             @Override
-            public void apply(
-                    IGrammarVisitor visitor) {
+            public void setName(
+                    String name) {
 
-                visitor.visitParserNormalElement(this);
+                this.name = name;
 
             }
 
+            @Override
+            public void apply(
+                    IGrammarVisitor visitor) {
+
+                visitor.visitParserSingleElement(this);
+
+            }
         }
 
         public static class SeparatedElement
@@ -1213,7 +1285,7 @@ public class Parser
                     Grammar grammar,
                     ParserAlternative alternative) {
 
-                super(grammar, alternative);
+                super(grammar, alternative, ElementType.SEPARATED);
 
                 if (declaration == null) {
                     throw new InternalException("declaration may not be null");
@@ -1398,7 +1470,7 @@ public class Parser
                     Grammar grammar,
                     ParserAlternative alternative) {
 
-                super(grammar, alternative);
+                super(grammar, alternative, ElementType.ALTERNATED);
 
                 if (declaration == null) {
                     throw new InternalException("declaration may not be null");
@@ -1559,169 +1631,6 @@ public class Parser
 
         }
 
-        public static class DanglingElement
-                extends ParserElement {
-
-            private final ADanglingElement declaration;
-
-            private String name;
-
-            private Token nameToken;
-
-            private Parser.ParserProduction.DanglingProduction reference;
-
-            private Token elementToken;
-
-            private String element;
-
-            private CardinalityInterval cardinality;
-
-            private Type.SimpleType type;
-
-            public DanglingElement(
-                    ADanglingElement declaration,
-                    Grammar grammar,
-                    ParserAlternative alternative) {
-
-                super(grammar, alternative);
-
-                if (declaration == null) {
-                    throw new InternalException("declaration may not be null");
-                }
-
-                this.declaration = declaration;
-
-                this.element = new InformationExtractor(this)
-                        .getReferenceText();
-
-                this.cardinality = CardinalityInterval.ZERO_ONE;
-
-                constructType();
-            }
-
-            private void constructType() {
-
-                this.type = new Type.SimpleType.HomogeneousType(this.element,
-                        this.cardinality);
-            }
-
-            public ADanglingElement getDeclaration() {
-
-                return this.declaration;
-            }
-
-            public void addReference(
-                    Parser.ParserProduction.DanglingProduction reference) {
-
-                if (this.reference == null) {
-                    this.reference = reference;
-                }
-                else {
-                    throw new InternalException(
-                            "addReference shouldn't be used twice");
-                }
-            }
-
-            public Parser.ParserProduction.DanglingProduction getReference() {
-
-                return this.reference;
-            }
-
-            @Override
-            public String getImplicitName() {
-
-                return this.declaration.getIdentifier().getText();
-            }
-
-            @Override
-            public String getExplicitName() {
-
-                String explicitName = null;
-
-                if (this.declaration.getElementName() != null) {
-                    explicitName = this.declaration.getElementName().getText();
-                    explicitName = explicitName.substring(1,
-                            explicitName.length() - 2);
-                }
-
-                return explicitName;
-            }
-
-            @Override
-            public String getName() {
-
-                return this.name;
-            }
-
-            @Override
-            public void setName(
-                    String name) {
-
-                this.name = name;
-
-            }
-
-            @Override
-            public Token getNameToken() {
-
-                if (this.nameToken == null) {
-                    if (getExplicitName() != null
-                            && getExplicitName().equals(this.name)) {
-                        this.nameToken = this.declaration.getElementName();
-                    }
-                    else if (getImplicitName().equals(this.name)) {
-                        this.nameToken = this.declaration.getIdentifier();
-                    }
-                }
-
-                return this.nameToken;
-            }
-
-            @Override
-            public String getNameType() {
-
-                return "parser dangling element";
-            }
-
-            @Override
-            public Token getLocation() {
-
-                if (this.elementToken == null) {
-                    this.elementToken = new InformationExtractor(this)
-                            .getFirstToken();
-                }
-
-                return this.elementToken;
-            }
-
-            @Override
-            public String getElement() {
-
-                return this.element;
-            }
-
-            @Override
-            public CardinalityInterval getCardinality() {
-
-                return this.cardinality;
-            }
-
-            @Override
-            public Type.SimpleType getType() {
-
-                return this.type;
-            }
-
-            @Override
-            public void apply(
-                    IGrammarVisitor visitor) {
-
-                visitor.visitParserDanglingElement(this);
-
-            }
-
-        }
-
         private static class InformationExtractor
                 extends DepthFirstAdapter {
 
@@ -1734,7 +1643,7 @@ public class Parser
             private Token token;
 
             public InformationExtractor(
-                    Parser.ParserElement.NormalElement element) {
+                    Parser.ParserElement.SingleElement element) {
 
                 element.getDeclaration().apply(this);
             }
@@ -1747,12 +1656,6 @@ public class Parser
 
             public InformationExtractor(
                     Parser.ParserElement.SeparatedElement element) {
-
-                element.getDeclaration().apply(this);
-            }
-
-            public InformationExtractor(
-                    Parser.ParserElement.DanglingElement element) {
 
                 element.getDeclaration().apply(this);
             }

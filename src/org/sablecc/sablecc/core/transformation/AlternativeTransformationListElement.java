@@ -533,24 +533,30 @@ public abstract class AlternativeTransformationListElement
             String leftName = null;
 
             if (this.reference instanceof Parser.ParserElement) {
-                cardinality = ((Parser.ParserElement) this.reference)
-                        .getCardinality();
-                if(this.reference instanceof Parser.ParserElement.NormalElement)
-                {
-                    rightName = ((Parser.ParserElement.NormalElement) this.reference)
-                    .getElement();
+                Parser.ParserElement parserElement = (Parser.ParserElement) this.reference;
+                cardinality = parserElement.getCardinality();
+
+                switch (parserElement.getElementType()) {
+                case NORMAL:
+                    rightName = ((Parser.ParserElement.SingleElement) this.reference)
+                            .getElement();
+                    break;
+                case SEPARATED:
+                    rightName = ((Parser.ParserElement.SeparatedElement) this.reference)
+                            .getRight();
+                    leftName = ((Parser.ParserElement.SeparatedElement) this.reference)
+                            .getLeft();
+                    break;
+                case ALTERNATED:
+                    rightName = ((Parser.ParserElement.AlternatedElement) this.reference)
+                            .getRight();
+                    leftName = ((Parser.ParserElement.AlternatedElement) this.reference)
+                            .getLeft();
+                    break;
+                default:
+                    throw new InternalException("Unhandled element type "
+                            + parserElement.getNameType());
                 }
-                else if(this.reference instanceof Parser.ParserElement.SeparatedElement)
-                {
-                    rightName = ((Parser.ParserElement.SeparatedElement)this.reference).getRight();
-                    leftName = ((Parser.ParserElement.SeparatedElement)this.reference).getLeft();
-                }
-                else
-                {
-                    rightName = ((Parser.ParserElement.AlternatedElement)this.reference).getRight();
-                    leftName = ((Parser.ParserElement.AlternatedElement)this.reference).getLeft();
-                }
-                
             }
             else {
 
