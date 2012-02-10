@@ -45,16 +45,6 @@ public class Grammar
     private final TreeNameSpace treeNameSpace = new TreeNameSpace(
             this.globalNameSpace);
 
-    private final Map<String, LexerExpression.StringExpression> stringToStringExpression = new HashMap<String, LexerExpression.StringExpression>();
-
-    private final Map<String, LexerExpression.CharExpression> stringToCharExpression = new HashMap<String, LexerExpression.CharExpression>();
-
-    private final Map<String, LexerExpression.DecExpression> stringToDecExpression = new HashMap<String, LexerExpression.DecExpression>();
-
-    private final Map<String, LexerExpression.HexExpression> stringToHexExpression = new HashMap<String, LexerExpression.HexExpression>();
-
-    private final Map<String, LexerExpression> stringToLexerExpression = new HashMap<String, LexerExpression>();
-
     private Context globalAnonymousContext;
 
     private LexerExpression.StartExpression globalStartExpression;
@@ -235,8 +225,6 @@ public class Grammar
 
                 this.globalNameSpace.add(namedExpression);
                 Grammar.this.lexer.addNamedExpression(namedExpression);
-                Grammar.this.stringToLexerExpression.put(
-                        namedExpression.getExpressionName(), namedExpression);
             }
 
             @Override
@@ -512,105 +500,67 @@ public class Grammar
     void addStringExpression(
             LexerExpression.StringExpression stringExpression) {
 
-        String text = stringExpression.getText();
-
-        if (this.stringToStringExpression.containsKey(text)) {
-            throw new InternalException("multiple mappings for " + text);
-        }
-
-        this.stringToStringExpression.put(text, stringExpression);
-        this.stringToLexerExpression.put(stringExpression.getExpressionName(),
-                stringExpression);
+        this.globalNameSpace.add(stringExpression);
+        this.lexer.addInlineExpression(stringExpression);
     }
 
     void addCharExpression(
             LexerExpression.CharExpression charExpression) {
 
-        String text = charExpression.getText();
-
-        if (this.stringToCharExpression.containsKey(text)) {
-            throw new InternalException("multiple mappings for " + text);
-        }
-
-        this.stringToCharExpression.put(text, charExpression);
-        this.stringToLexerExpression.put(charExpression.getExpressionName(),
-                charExpression);
+        this.globalNameSpace.add(charExpression);
+        this.lexer.addInlineExpression(charExpression);
     }
 
     void addDecExpression(
             LexerExpression.DecExpression decExpression) {
 
-        String text = decExpression.getText();
-
-        if (this.stringToDecExpression.containsKey(text)) {
-            throw new InternalException("multiple mappings for " + text);
-        }
-
-        this.stringToDecExpression.put(text, decExpression);
-        this.stringToLexerExpression.put(decExpression.getExpressionName(),
-                decExpression);
+        this.globalNameSpace.add(decExpression);
+        this.lexer.addInlineExpression(decExpression);
     }
 
     void addHexExpression(
             LexerExpression.HexExpression hexExpression) {
 
-        String text = hexExpression.getText();
-
-        if (this.stringToHexExpression.containsKey(text)) {
-            throw new InternalException("multiple mappings for " + text);
-        }
-
-        this.stringToHexExpression.put(text, hexExpression);
-        this.stringToLexerExpression.put(hexExpression.getExpressionName(),
-                hexExpression);
+        this.globalNameSpace.add(hexExpression);
+        this.lexer.addInlineExpression(hexExpression);
     }
 
     void addStartExpression(
             LexerExpression.StartExpression startExpression) {
 
-        if (this.globalStartExpression != null) {
-            throw new InternalException("multiple starts");
-        }
-
         this.globalStartExpression = startExpression;
-        this.stringToLexerExpression.put(startExpression.getExpressionName(),
-                startExpression);
+        this.lexer.addInlineExpression(startExpression);
     }
 
     void addEndExpression(
             LexerExpression.EndExpression endExpression) {
 
-        if (this.globalEndExpression != null) {
-            throw new InternalException("multiple ends");
-        }
-
         this.globalEndExpression = endExpression;
-        this.stringToLexerExpression.put(endExpression.getExpressionName(),
-                endExpression);
+        this.lexer.addInlineExpression(endExpression);
     }
 
     public LexerExpression.StringExpression getStringExpression(
             String text) {
 
-        return this.stringToStringExpression.get(text);
+        return this.globalNameSpace.getStringExpression(text);
     }
 
     public LexerExpression.CharExpression getCharExpression(
             String text) {
 
-        return this.stringToCharExpression.get(text);
+        return this.globalNameSpace.getCharExpression(text);
     }
 
     public LexerExpression.DecExpression getDecExpression(
             String text) {
 
-        return this.stringToDecExpression.get(text);
+        return this.globalNameSpace.getDecExpression(text);
     }
 
     public LexerExpression.HexExpression getHexExpression(
             String text) {
 
-        return this.stringToHexExpression.get(text);
+        return this.globalNameSpace.getHexExpression(text);
     }
 
     public LexerExpression.StartExpression getStartExpression() {
@@ -626,7 +576,7 @@ public class Grammar
     public LexerExpression getLexerExpression(
             String expressionName) {
 
-        return this.stringToLexerExpression.get(expressionName);
+        return this.lexer.getExpression(expressionName);
     }
 
     public void compileLexer(
@@ -650,8 +600,7 @@ public class Grammar
         }
 
         // Look for useless LexerExpression
-        for (LexerExpression lexerExpression : this.stringToLexerExpression
-                .values()) {
+        for (LexerExpression lexerExpression : this.lexer.getExpressions()) {
             // If their is no automaton saved it means that the LexerExpression
             // was not used to build the big automaton.
             if (lexerExpression.getSavedAutomaton() == null) {
@@ -668,8 +617,7 @@ public class Grammar
             }
         }
 
-        for (LexerExpression lexerExpression : this.stringToLexerExpression
-                .values()) {
+        for (LexerExpression lexerExpression : this.lexer.getExpressions()) {
             // Note: getting the automaton forces the validation of the semantic
             // validity of (eg. cirularity)
             Automaton lexerAutomaton = lexerExpression.getAutomaton();
@@ -910,7 +858,7 @@ public class Grammar
         return automaton.resetAcceptations(newAccepts);
     }
 
-    private static class NameSpace {
+    static class NameSpace {
 
         private final Map<String, INameDeclaration> nameMap = new HashMap<String, INameDeclaration>();
 
@@ -984,6 +932,12 @@ public class Grammar
                 Investigator investigator) {
 
             internalAdd(investigator);
+        }
+
+        private void add(
+                LexerExpression.InlineExpression inlineExpression) {
+
+            internalAdd(inlineExpression);
         }
 
         private Grammar getGrammar(
@@ -1082,6 +1036,46 @@ public class Grammar
             INameDeclaration nameDeclaration = getNameDeclaration(name);
             if (nameDeclaration instanceof Investigator.ParserInvestigator) {
                 return (Investigator.ParserInvestigator) nameDeclaration;
+            }
+            return null;
+        }
+
+        private LexerExpression.StringExpression getStringExpression(
+                String name) {
+
+            INameDeclaration nameDeclaration = getNameDeclaration(name);
+            if (nameDeclaration instanceof LexerExpression.StringExpression) {
+                return (LexerExpression.StringExpression) nameDeclaration;
+            }
+            return null;
+        }
+
+        private LexerExpression.CharExpression getCharExpression(
+                String name) {
+
+            INameDeclaration nameDeclaration = getNameDeclaration(name);
+            if (nameDeclaration instanceof LexerExpression.CharExpression) {
+                return (LexerExpression.CharExpression) nameDeclaration;
+            }
+            return null;
+        }
+
+        private LexerExpression.DecExpression getDecExpression(
+                String name) {
+
+            INameDeclaration nameDeclaration = getNameDeclaration(name);
+            if (nameDeclaration instanceof LexerExpression.DecExpression) {
+                return (LexerExpression.DecExpression) nameDeclaration;
+            }
+            return null;
+        }
+
+        private LexerExpression.HexExpression getHexExpression(
+                String name) {
+
+            INameDeclaration nameDeclaration = getNameDeclaration(name);
+            if (nameDeclaration instanceof LexerExpression.HexExpression) {
+                return (LexerExpression.HexExpression) nameDeclaration;
             }
             return null;
         }

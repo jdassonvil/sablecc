@@ -55,9 +55,9 @@ public class SemanticException
             throw new InternalException("names must be identical");
         }
 
-        TIdentifier duplicateIdentifier = duplicateNameDeclaration
+        Token duplicateIdentifier = duplicateNameDeclaration
                 .getNameIdentifier();
-        TIdentifier olderIdentifier = olderNameDeclaration.getNameIdentifier();
+        Token olderIdentifier = olderNameDeclaration.getNameIdentifier();
 
         return new SemanticException(new MDuplicateDeclaration(name,
                 duplicateNameDeclaration.getNameType(),
@@ -290,7 +290,7 @@ public class SemanticException
     }
 
     public static SemanticException badReference(
-            TIdentifier referenceToken,
+            Token referenceToken,
             String className,
             String[] expectedNames) {
 
