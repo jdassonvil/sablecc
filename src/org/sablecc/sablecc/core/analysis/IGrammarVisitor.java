@@ -149,11 +149,8 @@ public interface IGrammarVisitor {
     void visitParserSingleElement(
             Parser.ParserElement.SingleElement node);
 
-    void visitParserSeparatedElement(
-            Parser.ParserElement.SeparatedElement node);
-
-    void visitParserAlternatedELement(
-            Parser.ParserElement.AlternatedElement node);
+    void visitParserDoubleElement(
+            Parser.ParserElement.DoubleElement node);
 
     void visitParserInvestigator(
             Investigator.ParserInvestigator node);

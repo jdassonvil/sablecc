@@ -21,9 +21,8 @@ import java.util.*;
 
 import org.sablecc.exception.*;
 import org.sablecc.sablecc.core.*;
-import org.sablecc.sablecc.core.Parser.ParserElement.AlternatedElement;
+import org.sablecc.sablecc.core.Parser.ParserElement.DoubleElement;
 import org.sablecc.sablecc.core.Parser.ParserElement.ElementType;
-import org.sablecc.sablecc.core.Parser.ParserElement.SeparatedElement;
 import org.sablecc.sablecc.core.Parser.ParserElement.SingleElement;
 import org.sablecc.sablecc.core.Parser.ParserProduction.DanglingProduction;
 import org.sablecc.sablecc.core.Parser.ParserProduction.NormalProduction;
@@ -441,39 +440,39 @@ public class ImplicitAlternativeTransformationBuilder
         }
 
         @Override
-        public void visitParserSeparatedElement(
-                SeparatedElement node) {
+        public void visitParserDoubleElement(
+                DoubleElement node) {
 
-            if (this.treeElement instanceof Tree.TreeElement.SeparatedElement) {
+            if (node.getElementType() == ElementType.SEPARATED
+                    && this.treeElement instanceof Tree.TreeElement.SeparatedElement) {
                 if (node.getCardinality().equals(
                         this.treeElement.getCardinality())) {
 
                     Tree.TreeElement.SeparatedElement treeSeparatedElement = (Tree.TreeElement.SeparatedElement) this.treeElement;
+                    ASeparatedElement declaration = (ASeparatedElement) node
+                            .getDeclaration();
 
-                    if (match(node.getDeclaration().getLeft(),
-                            treeSeparatedElement.getDeclaration().getLeft())
-                            && match(node.getDeclaration().getRight(),
+                    if (match(declaration.getLeft(), treeSeparatedElement
+                            .getDeclaration().getLeft())
+                            && match(declaration.getRight(),
                                     treeSeparatedElement.getDeclaration()
                                             .getRight())) {
                         this.matchResult = true;
                     }
                 }
             }
-        }
-
-        @Override
-        public void visitParserAlternatedELement(
-                AlternatedElement node) {
-
-            if (this.treeElement instanceof Tree.TreeElement.AlternatedElement) {
+            else if (node.getElementType() == ElementType.ALTERNATED
+                    && this.treeElement instanceof Tree.TreeElement.AlternatedElement) {
                 if (node.getCardinality().equals(
                         this.treeElement.getCardinality())) {
 
                     Tree.TreeElement.AlternatedElement treeAlternatedElement = (Tree.TreeElement.AlternatedElement) this.treeElement;
+                    AAlternatedElement declaration = (AAlternatedElement) node
+                            .getDeclaration();
 
-                    if (match(node.getDeclaration().getLeft(),
-                            treeAlternatedElement.getDeclaration().getLeft())
-                            && match(node.getDeclaration().getRight(),
+                    if (match(declaration.getLeft(), treeAlternatedElement
+                            .getDeclaration().getLeft())
+                            && match(declaration.getRight(),
                                     treeAlternatedElement.getDeclaration()
                                             .getRight())) {
                         this.matchResult = true;
@@ -632,12 +631,12 @@ public class ImplicitAlternativeTransformationBuilder
             operator = ((ADanglingElement) element.getDeclaration()).getQMark();
             break;
         case SEPARATED:
-            operator = ((Parser.ParserElement.SeparatedElement) element)
-                    .getDeclaration().getManyOperator();
+            operator = ((ASeparatedElement) element.getDeclaration())
+                    .getManyOperator();
             break;
         case ALTERNATED:
-            operator = ((Parser.ParserElement.AlternatedElement) element)
-                    .getDeclaration().getManyOperator();
+            operator = ((AAlternatedElement) element.getDeclaration())
+                    .getManyOperator();
             break;
         default:
             throw new InternalException("Element type " + element.getNameType()

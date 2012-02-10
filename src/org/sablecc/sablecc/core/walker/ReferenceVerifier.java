@@ -21,6 +21,7 @@ import java.util.*;
 
 import org.sablecc.exception.*;
 import org.sablecc.sablecc.core.*;
+import org.sablecc.sablecc.core.Parser.ParserElement.DoubleElement;
 import org.sablecc.sablecc.core.Parser.ParserElement.ElementType;
 import org.sablecc.sablecc.core.Parser.ParserElement.SingleElement;
 import org.sablecc.sablecc.core.Parser.ParserProduction.TokenProduction;
@@ -236,10 +237,29 @@ public abstract class ReferenceVerifier
         }
 
         @Override
-        public void visitParserSeparatedElement(
-                Parser.ParserElement.SeparatedElement node) {
+        public void visitParserDoubleElement(
+                DoubleElement node) {
 
-            PUnit leftUnit = node.getDeclaration().getLeft();
+            PUnit leftUnit;
+            PUnit rightUnit;
+
+            switch (node.getElementType()) {
+            case SEPARATED:
+                leftUnit = ((ASeparatedElement) node.getDeclaration())
+                        .getLeft();
+                rightUnit = ((ASeparatedElement) node.getDeclaration())
+                        .getRight();
+                break;
+            case ALTERNATED:
+                leftUnit = ((AAlternatedElement) node.getDeclaration())
+                        .getLeft();
+                rightUnit = ((AAlternatedElement) node.getDeclaration())
+                        .getRight();
+                break;
+            default:
+                throw new InternalException("Unhandled element type "
+                        + node.getNameType());
+            }
 
             if (leftUnit instanceof ANameUnit) {
 
@@ -247,36 +267,6 @@ public abstract class ReferenceVerifier
                         this.grammar, ((ANameUnit) leftUnit).getIdentifier());
                 node.addLeftReference(reference);
             }
-
-            PUnit rightUnit = node.getDeclaration().getRight();
-
-            if (rightUnit instanceof ANameUnit) {
-
-                IReferencable reference = tokenOrParserProductionExpected(
-                        this.grammar, ((ANameUnit) rightUnit).getIdentifier());
-                node.addRightReference(reference);
-            }
-
-            node.getAlternative().getProduction().getContext()
-                    .addTokenIfNecessary(leftUnit);
-            node.getAlternative().getProduction().getContext()
-                    .addTokenIfNecessary(rightUnit);
-        }
-
-        @Override
-        public void visitParserAlternatedELement(
-                Parser.ParserElement.AlternatedElement node) {
-
-            PUnit leftUnit = node.getDeclaration().getLeft();
-
-            if (leftUnit instanceof ANameUnit) {
-
-                IReferencable reference = tokenOrParserProductionExpected(
-                        this.grammar, ((ANameUnit) leftUnit).getIdentifier());
-                node.addLeftReference(reference);
-            }
-
-            PUnit rightUnit = node.getDeclaration().getRight();
 
             if (rightUnit instanceof ANameUnit) {
 

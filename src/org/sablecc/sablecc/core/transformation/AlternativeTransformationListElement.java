@@ -22,6 +22,7 @@ import java.util.*;
 
 import org.sablecc.exception.*;
 import org.sablecc.sablecc.core.*;
+import org.sablecc.sablecc.core.Parser.ParserElement.ElementType;
 import org.sablecc.sablecc.core.analysis.*;
 import org.sablecc.sablecc.core.interfaces.*;
 import org.sablecc.sablecc.syntax3.node.*;
@@ -542,15 +543,15 @@ public abstract class AlternativeTransformationListElement
                             .getElement();
                     break;
                 case SEPARATED:
-                    rightName = ((Parser.ParserElement.SeparatedElement) this.reference)
+                    rightName = ((Parser.ParserElement.DoubleElement) this.reference)
                             .getRight();
-                    leftName = ((Parser.ParserElement.SeparatedElement) this.reference)
+                    leftName = ((Parser.ParserElement.DoubleElement) this.reference)
                             .getLeft();
                     break;
                 case ALTERNATED:
-                    rightName = ((Parser.ParserElement.AlternatedElement) this.reference)
+                    rightName = ((Parser.ParserElement.DoubleElement) this.reference)
                             .getRight();
-                    leftName = ((Parser.ParserElement.AlternatedElement) this.reference)
+                    leftName = ((Parser.ParserElement.DoubleElement) this.reference)
                             .getLeft();
                     break;
                 default:
@@ -582,7 +583,8 @@ public abstract class AlternativeTransformationListElement
 
             }
 
-            if (this.reference instanceof Parser.ParserElement.SeparatedElement
+            if (this.reference instanceof Parser.ParserElement
+                    && ((Parser.ParserElement) this.reference).getElementType() == ElementType.SEPARATED
                     || this.reference instanceof ProductionTransformationElement.SeparatedElement) {
                 if (leftName == null) {
                     this.type = new Type.SimpleType.SeparatedType(rightName,
@@ -593,7 +595,8 @@ public abstract class AlternativeTransformationListElement
                             rightName, cardinality);
                 }
             }
-            else if (this.reference instanceof Parser.ParserElement.AlternatedElement
+            else if (this.reference instanceof Parser.ParserElement
+                    && ((Parser.ParserElement) this.reference).getElementType() == ElementType.ALTERNATED
                     || this.reference instanceof ProductionTransformationElement.AlternatedElement) {
                 if (leftName == null) {
                     this.type = new Type.SimpleType.AlternatedType(rightName,

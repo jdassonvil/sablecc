@@ -864,7 +864,7 @@ public class Parser
                 public void inASeparatedElement(
                         ASeparatedElement node) {
 
-                    ParserElement.SeparatedElement separatedElement = new ParserElement.SeparatedElement(
+                    ParserElement.DoubleElement separatedElement = new ParserElement.DoubleElement(
                             node, ParserAlternative.this.grammar,
                             this.parserAlternative);
 
@@ -875,7 +875,7 @@ public class Parser
                 public void inAAlternatedElement(
                         AAlternatedElement node) {
 
-                    ParserElement.AlternatedElement alternatedElement = new ParserElement.AlternatedElement(
+                    ParserElement.DoubleElement alternatedElement = new ParserElement.DoubleElement(
                             node, ParserAlternative.this.grammar,
                             this.parserAlternative);
 
@@ -1264,10 +1264,10 @@ public class Parser
             }
         }
 
-        public static class SeparatedElement
+        public static class DoubleElement
                 extends ParserElement {
 
-            private final ASeparatedElement declaration;
+            private final Node declaration;
 
             private String name;
 
@@ -1283,7 +1283,7 @@ public class Parser
 
             private Type.SimpleType type;
 
-            public SeparatedElement(
+            public DoubleElement(
                     ASeparatedElement declaration,
                     Grammar grammar,
                     ParserAlternative alternative) {
@@ -1297,179 +1297,12 @@ public class Parser
                 this.declaration = declaration;
 
                 this.cardinality = new CardinalityInterval(
-                        this.declaration.getManyOperator());
+                        declaration.getManyOperator());
 
                 constructType();
             }
 
-            private void constructType() {
-
-                InformationExtractor extractor = new InformationExtractor(this);
-
-                this.type = new Type.SimpleType.SeparatedType(
-                        extractor.getLeftText(), extractor.getRightText(),
-                        this.cardinality);
-            }
-
-            public IReferencable getLeftReference() {
-
-                return this.leftReference;
-            }
-
-            public void addLeftReference(
-                    IReferencable leftReference) {
-
-                if (this.leftReference == null) {
-                    this.leftReference = leftReference;
-                }
-                else {
-                    throw new InternalException(
-                            "addReference shouldn't be used twice");
-                }
-            }
-
-            public IReferencable getRightReference() {
-
-                return this.rightReference;
-            }
-
-            public void addRightReference(
-                    IReferencable rightReference) {
-
-                if (this.rightReference == null) {
-                    this.rightReference = rightReference;
-                }
-                else {
-                    throw new InternalException(
-                            "addReference shouldn't be used twice");
-                }
-            }
-
-            @Override
-            public ASeparatedElement getDeclaration() {
-
-                return this.declaration;
-            }
-
-            @Override
-            public String getImplicitName() {
-
-                return null;
-            }
-
-            @Override
-            public String getExplicitName() {
-
-                String explicitName = null;
-
-                if (this.declaration.getElementName() != null) {
-                    explicitName = this.declaration.getElementName().getText();
-                    explicitName = explicitName.substring(1,
-                            explicitName.length() - 2);
-                }
-
-                return explicitName;
-            }
-
-            public String getLeft() {
-
-                return new InformationExtractor(this).getLeftText();
-            }
-
-            public String getRight() {
-
-                return new InformationExtractor(this).getRightText();
-            }
-
-            @Override
-            public void setName(
-                    String name) {
-
-                this.name = name;
-
-            }
-
-            @Override
-            public String getName() {
-
-                return this.name;
-            }
-
-            @Override
-            public Token getNameToken() {
-
-                return this.declaration.getElementName();
-            }
-
-            @Override
-            public String getNameType() {
-
-                return "parser separated element";
-            }
-
-            @Override
-            public Token getLocation() {
-
-                if (this.elementToken == null) {
-                    this.elementToken = new InformationExtractor(this)
-                            .getFirstToken();
-                }
-
-                return this.elementToken;
-            }
-
-            @Override
-            public String getElement() {
-
-                if (this.element == null) {
-                    this.element = new InformationExtractor(this)
-                            .getReferenceText();
-                }
-
-                return this.element;
-            }
-
-            @Override
-            public CardinalityInterval getCardinality() {
-
-                return this.cardinality;
-            }
-
-            @Override
-            public Type.SimpleType getType() {
-
-                return this.type;
-            }
-
-            @Override
-            public void apply(
-                    IGrammarVisitor visitor) {
-
-                visitor.visitParserSeparatedElement(this);
-            }
-
-        }
-
-        public static class AlternatedElement
-                extends ParserElement {
-
-            private final AAlternatedElement declaration;
-
-            private String name;
-
-            private IReferencable leftReference;
-
-            private IReferencable rightReference;
-
-            private Token elementToken;
-
-            private String element;
-
-            private CardinalityInterval cardinality;
-
-            private Type.SimpleType type;
-
-            public AlternatedElement(
+            public DoubleElement(
                     AAlternatedElement declaration,
                     Grammar grammar,
                     ParserAlternative alternative) {
@@ -1483,7 +1316,7 @@ public class Parser
                 this.declaration = declaration;
 
                 this.cardinality = new CardinalityInterval(
-                        this.declaration.getManyOperator());
+                        declaration.getManyOperator());
 
                 constructType();
             }
@@ -1492,13 +1325,22 @@ public class Parser
 
                 InformationExtractor extractor = new InformationExtractor(this);
 
-                this.type = new Type.SimpleType.AlternatedType(
-                        extractor.getLeftText(), extractor.getRightText(),
-                        this.cardinality);
+                switch (getElementType()) {
+                case SEPARATED:
+                    this.type = new Type.SimpleType.SeparatedType(
+                            extractor.getLeftText(), extractor.getRightText(),
+                            this.cardinality);
+                    break;
+                case ALTERNATED:
+                    this.type = new Type.SimpleType.AlternatedType(
+                            extractor.getLeftText(), extractor.getRightText(),
+                            this.cardinality);
+                    break;
+                }
             }
 
             @Override
-            public AAlternatedElement getDeclaration() {
+            public Node getDeclaration() {
 
                 return this.declaration;
             }
@@ -1547,9 +1389,20 @@ public class Parser
             public String getExplicitName() {
 
                 String explicitName = null;
+                TElementName elementName = null;
+                switch (getElementType()) {
+                case SEPARATED:
+                    elementName = ((ASeparatedElement) this.declaration)
+                            .getElementName();
+                    break;
+                case ALTERNATED:
+                    elementName = ((AAlternatedElement) this.declaration)
+                            .getElementName();
+                    break;
+                }
 
-                if (this.declaration.getElementName() != null) {
-                    explicitName = this.declaration.getElementName().getText();
+                if (elementName != null) {
+                    explicitName = elementName.getText();
                     explicitName = explicitName.substring(1,
                             explicitName.length() - 2);
                 }
@@ -1568,13 +1421,6 @@ public class Parser
             }
 
             @Override
-            public void setName(
-                    String name) {
-
-                this.name = name;
-            }
-
-            @Override
             public String getName() {
 
                 return this.name;
@@ -1583,13 +1429,31 @@ public class Parser
             @Override
             public Token getNameToken() {
 
-                return this.declaration.getElementName();
+                TElementName elementName = null;
+
+                switch (getElementType()) {
+                case SEPARATED:
+                    elementName = ((ASeparatedElement) this.declaration)
+                            .getElementName();
+                    break;
+                case ALTERNATED:
+                    elementName = ((AAlternatedElement) this.declaration)
+                            .getElementName();
+                }
+
+                return elementName;
             }
 
             @Override
             public String getNameType() {
 
-                return "parser alternated element";
+                if (getElementType() == ElementType.SEPARATED) {
+                    return "parser separated element";
+                }
+                else {
+                    return "parser alternated element";
+                }
+
             }
 
             @Override
@@ -1627,13 +1491,19 @@ public class Parser
             }
 
             @Override
-            public void apply(
-                    IGrammarVisitor visitor) {
+            public void setName(
+                    String name) {
 
-                visitor.visitParserAlternatedELement(this);
+                this.name = name;
 
             }
 
+            @Override
+            public void apply(
+                    IGrammarVisitor visitor) {
+
+                visitor.visitParserDoubleElement(this);
+            }
         }
 
         private static class InformationExtractor
@@ -1654,13 +1524,7 @@ public class Parser
             }
 
             public InformationExtractor(
-                    Parser.ParserElement.AlternatedElement element) {
-
-                element.getDeclaration().apply(this);
-            }
-
-            public InformationExtractor(
-                    Parser.ParserElement.SeparatedElement element) {
+                    Parser.ParserElement.DoubleElement element) {
 
                 element.getDeclaration().apply(this);
             }

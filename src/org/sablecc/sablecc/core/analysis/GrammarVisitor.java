@@ -421,17 +421,11 @@ public class GrammarVisitor
     }
 
     @Override
-    public void visitParserSeparatedElement(
-            Parser.ParserElement.SeparatedElement node) {
+    public void visitParserDoubleElement(
+            Parser.ParserElement.DoubleElement node) {
 
         visitParserElement(node);
-    }
 
-    @Override
-    public void visitParserAlternatedELement(
-            Parser.ParserElement.AlternatedElement node) {
-
-        visitParserElement(node);
     }
 
     @Override
