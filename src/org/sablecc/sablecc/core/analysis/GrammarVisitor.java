@@ -444,25 +444,19 @@ public class GrammarVisitor
     }
 
     @Override
-    public void visitProductionTransformationNormalElement(
-            ProductionTransformationElement.NormalElement node) {
+    public void visitProductionTransformationSingleElement(
+            ProductionTransformationElement.SingleElement node) {
 
         visitProductionTransformationElement(node);
 
     }
 
     @Override
-    public void visitProductionTransformationSeparatedElement(
-            ProductionTransformationElement.SeparatedElement node) {
+    public void visitProductionTransformationDoubleElement(
+            ProductionTransformationElement.DoubleElement node) {
 
         visitProductionTransformationElement(node);
-    }
 
-    @Override
-    public void visitProductionTransformationAlternatedElement(
-            ProductionTransformationElement.AlternatedElement node) {
-
-        visitProductionTransformationElement(node);
     }
 
     @Override

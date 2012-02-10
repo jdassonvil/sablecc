@@ -28,8 +28,8 @@ import org.sablecc.sablecc.core.Tree.TreeProduction;
 import org.sablecc.sablecc.core.analysis.*;
 import org.sablecc.sablecc.core.interfaces.*;
 import org.sablecc.sablecc.core.transformation.*;
-import org.sablecc.sablecc.core.transformation.ProductionTransformationElement.ExplicitNormalElement;
-import org.sablecc.sablecc.core.transformation.ProductionTransformationElement.ImplicitNormalElement;
+import org.sablecc.sablecc.core.transformation.ProductionTransformationElement.ExplicitSingleElement;
+import org.sablecc.sablecc.core.transformation.ProductionTransformationElement.ImplicitSingleElement;
 import org.sablecc.sablecc.syntax3.node.*;
 
 public class ImplicitAlternativeTransformationBuilder
@@ -170,7 +170,7 @@ public class ImplicitAlternativeTransformationBuilder
     private void findTargetTreeAlt(
             Parser.ParserAlternative parserAlternative) {
 
-        IReferencable treeReference = ((ProductionTransformationElement.NormalElement) this.productionTransformation
+        IReferencable treeReference = ((ProductionTransformationElement.SingleElement) this.productionTransformation
                 .getElements().get(0)).getReference();
 
         if (treeReference instanceof Tree.TreeProduction) {
@@ -307,7 +307,7 @@ public class ImplicitAlternativeTransformationBuilder
         List<ProductionTransformationElement> transformationElements = transformation
                 .getElements();
 
-        if (transformationElements.get(0) instanceof ImplicitNormalElement) {
+        if (transformationElements.get(0) instanceof ImplicitSingleElement) {
             return true;
         }
 
@@ -315,15 +315,15 @@ public class ImplicitAlternativeTransformationBuilder
             return false;
         }
 
-        if (!(transformationElements.get(0) instanceof ProductionTransformationElement.NormalElement)) {
+        if (!(transformationElements.get(0) instanceof ProductionTransformationElement.SingleElement)) {
             return false;
         }
 
-        if (!(transformationElements.get(0) instanceof ProductionTransformationElement.ImplicitNormalElement)) {
+        if (!(transformationElements.get(0) instanceof ProductionTransformationElement.ImplicitSingleElement)) {
             return true;
         }
 
-        ExplicitNormalElement firstElement = (ExplicitNormalElement) transformationElements
+        ExplicitSingleElement firstElement = (ExplicitSingleElement) transformationElements
                 .get(0);
 
         if (firstElement.getDeclaration().getUnaryOperator() != null) {
@@ -479,7 +479,7 @@ public class ImplicitAlternativeTransformationBuilder
 
                     if (prodTransformation != null
                             && isImplicitlyTransformable(prodTransformation)) {
-                        TreeProduction targetTreeProduction = (TreeProduction) ((ProductionTransformationElement.NormalElement) prodTransformation
+                        TreeProduction targetTreeProduction = (TreeProduction) ((ProductionTransformationElement.SingleElement) prodTransformation
                                 .getElements().get(0)).getReference();
 
                         if (targetTreeProduction.getName().equals(

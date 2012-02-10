@@ -564,28 +564,24 @@ public abstract class AlternativeTransformationListElement
                 ProductionTransformationElement transformationElement = (ProductionTransformationElement) this.reference;
                 cardinality = transformationElement.getCardinality();
 
-                if (transformationElement instanceof ProductionTransformationElement.NormalElement) {
+                if (transformationElement instanceof ProductionTransformationElement.SingleElement) {
                     rightName = ((ProductionTransformationElement) this.reference)
                             .getElement();
                 }
-                else if (transformationElement instanceof ProductionTransformationElement.SeparatedElement) {
-                    rightName = ((ProductionTransformationElement.SeparatedElement) transformationElement)
-                            .getRight();
-                    leftName = ((ProductionTransformationElement.SeparatedElement) transformationElement)
-                            .getLeft();
-                }
                 else {
-                    rightName = ((ProductionTransformationElement.AlternatedElement) transformationElement)
+                    rightName = ((ProductionTransformationElement.DoubleElement) transformationElement)
                             .getRight();
-                    leftName = ((ProductionTransformationElement.AlternatedElement) transformationElement)
+                    leftName = ((ProductionTransformationElement.DoubleElement) transformationElement)
                             .getLeft();
                 }
 
             }
 
             if (this.reference instanceof Parser.ParserElement
-                    && ((Parser.ParserElement) this.reference).getElementType() == ElementType.SEPARATED
-                    || this.reference instanceof ProductionTransformationElement.SeparatedElement) {
+                    && ((Parser.ParserElement) this.reference).getElementType() == Parser.ParserElement.ElementType.SEPARATED
+                    || this.reference instanceof ProductionTransformationElement
+                    && ((ProductionTransformationElement) this.reference)
+                            .getElementType() == ProductionTransformationElement.ElementType.SEPARATED) {
                 if (leftName == null) {
                     this.type = new Type.SimpleType.SeparatedType(rightName,
                             cardinality);
@@ -597,7 +593,9 @@ public abstract class AlternativeTransformationListElement
             }
             else if (this.reference instanceof Parser.ParserElement
                     && ((Parser.ParserElement) this.reference).getElementType() == ElementType.ALTERNATED
-                    || this.reference instanceof ProductionTransformationElement.AlternatedElement) {
+                    || this.reference instanceof ProductionTransformationElement
+                    && ((ProductionTransformationElement) this.reference)
+                            .getElementType() == ProductionTransformationElement.ElementType.SEPARATED) {
                 if (leftName == null) {
                     this.type = new Type.SimpleType.AlternatedType(rightName,
                             cardinality);

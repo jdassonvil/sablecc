@@ -155,14 +155,11 @@ public interface IGrammarVisitor {
     void visitProductionTransformationElement(
             ProductionTransformationElement node);
 
-    void visitProductionTransformationNormalElement(
-            ProductionTransformationElement.NormalElement node);
+    void visitProductionTransformationSingleElement(
+            ProductionTransformationElement.SingleElement node);
 
-    void visitProductionTransformationSeparatedElement(
-            ProductionTransformationElement.SeparatedElement node);
-
-    void visitProductionTransformationAlternatedElement(
-            ProductionTransformationElement.AlternatedElement node);
+    void visitProductionTransformationDoubleElement(
+            ProductionTransformationElement.DoubleElement node);
 
     void visitAlternativeTransformation(
             AlternativeTransformation node);

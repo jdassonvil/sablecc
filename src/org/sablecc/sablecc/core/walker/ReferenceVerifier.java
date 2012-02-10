@@ -513,11 +513,11 @@ public abstract class ReferenceVerifier
         }
 
         @Override
-        public void visitProductionTransformationNormalElement(
-                ProductionTransformationElement.NormalElement node) {
+        public void visitProductionTransformationSingleElement(
+                ProductionTransformationElement.SingleElement node) {
 
-            if (node instanceof ProductionTransformationElement.ExplicitNormalElement) {
-                ProductionTransformationElement.ExplicitNormalElement transforamtionElement = (ProductionTransformationElement.ExplicitNormalElement) node;
+            if (node instanceof ProductionTransformationElement.ExplicitSingleElement) {
+                ProductionTransformationElement.ExplicitSingleElement transforamtionElement = (ProductionTransformationElement.ExplicitSingleElement) node;
 
                 PUnit unit = transforamtionElement.getDeclaration().getUnit();
 
@@ -543,10 +543,29 @@ public abstract class ReferenceVerifier
         }
 
         @Override
-        public void visitProductionTransformationAlternatedElement(
-                ProductionTransformationElement.AlternatedElement node) {
+        public void visitProductionTransformationDoubleElement(
+                ProductionTransformationElement.DoubleElement node) {
 
-            PUnit leftUnit = node.getDeclaration().getLeft();
+            PUnit leftUnit;
+            PUnit rightUnit;
+
+            switch (node.getElementType()) {
+            case SEPARATED:
+                leftUnit = ((ASeparatedElement) node.getDeclaration())
+                        .getLeft();
+                rightUnit = ((ASeparatedElement) node.getDeclaration())
+                        .getRight();
+                break;
+            case ALTERNATED:
+                leftUnit = ((AAlternatedElement) node.getDeclaration())
+                        .getLeft();
+                rightUnit = ((AAlternatedElement) node.getDeclaration())
+                        .getRight();
+                break;
+            default:
+                throw new InternalException("Unhandled element type "
+                        + node.getClass());
+            }
 
             if (leftUnit instanceof ANameUnit) {
                 TIdentifier identifier = ((ANameUnit) leftUnit).getIdentifier();
@@ -565,50 +584,6 @@ public abstract class ReferenceVerifier
                 node.addLeftReference((IReferencable) declaration);
             }
 
-            PUnit rightUnit = node.getDeclaration().getRight();
-            if (rightUnit instanceof ANameUnit) {
-                TIdentifier identifier = ((ANameUnit) rightUnit)
-                        .getIdentifier();
-
-                INameDeclaration declaration = findTreeDeclaration(
-                        this.grammar, identifier);
-
-                if (!(declaration instanceof Tree.TreeProduction)
-                        && !(declaration instanceof IToken)) {
-                    String[] expectedNames = { "tree production", "token" };
-                    throw SemanticException.badReference(identifier,
-                            declaration.getNameType(), expectedNames);
-
-                }
-
-                node.addRightReference((IReferencable) declaration);
-            }
-        }
-
-        @Override
-        public void visitProductionTransformationSeparatedElement(
-                ProductionTransformationElement.SeparatedElement node) {
-
-            PUnit leftUnit = node.getDeclaration().getLeft();
-
-            if (leftUnit instanceof ANameUnit) {
-                TIdentifier identifier = ((ANameUnit) leftUnit).getIdentifier();
-
-                INameDeclaration declaration = findTreeDeclaration(
-                        this.grammar, identifier);
-
-                if (!(declaration instanceof Tree.TreeProduction)
-                        && !(declaration instanceof IToken)) {
-                    String[] expectedNames = { "tree production", "token" };
-                    throw SemanticException.badReference(identifier,
-                            declaration.getNameType(), expectedNames);
-
-                }
-
-                node.addLeftReference((IReferencable) declaration);
-            }
-
-            PUnit rightUnit = node.getDeclaration().getRight();
             if (rightUnit instanceof ANameUnit) {
                 TIdentifier identifier = ((ANameUnit) rightUnit)
                         .getIdentifier();
