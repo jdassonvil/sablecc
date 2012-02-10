@@ -24,9 +24,6 @@ import org.sablecc.sablecc.core.*;
 import org.sablecc.sablecc.core.Parser.ParserElement.DoubleElement;
 import org.sablecc.sablecc.core.Parser.ParserElement.ElementType;
 import org.sablecc.sablecc.core.Parser.ParserElement.SingleElement;
-import org.sablecc.sablecc.core.Parser.ParserProduction.DanglingProduction;
-import org.sablecc.sablecc.core.Parser.ParserProduction.NormalProduction;
-import org.sablecc.sablecc.core.Parser.ParserProduction.TokenProduction;
 import org.sablecc.sablecc.core.Tree.TreeProduction;
 import org.sablecc.sablecc.core.analysis.*;
 import org.sablecc.sablecc.core.interfaces.*;
@@ -90,32 +87,8 @@ public class ImplicitAlternativeTransformationBuilder
     }
 
     @Override
-    public void visitParserNormalProduction(
-            NormalProduction node) {
-
-        if (node.getTransformation() != null) {
-            for (Parser.ParserAlternative alternative : node.getAlternatives()) {
-                this.productionTransformation = node.getTransformation();
-                alternative.apply(this);
-            }
-        }
-    }
-
-    @Override
-    public void visitParserDanglingProduction(
-            DanglingProduction node) {
-
-        if (node.getTransformation() != null) {
-            for (Parser.ParserAlternative alternative : node.getAlternatives()) {
-                this.productionTransformation = node.getTransformation();
-                alternative.apply(this);
-            }
-        }
-    }
-
-    @Override
-    public void visitParserTokenProduction(
-            TokenProduction node) {
+    public void visitParserProduction(
+            Parser.ParserProduction node) {
 
         if (node.getTransformation() != null) {
             for (Parser.ParserAlternative alternative : node.getAlternatives()) {

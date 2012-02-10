@@ -116,15 +116,6 @@ public interface IGrammarVisitor {
     void visitParserProduction(
             Parser.ParserProduction node);
 
-    void visitParserNormalProduction(
-            Parser.ParserProduction.NormalProduction node);
-
-    void visitParserDanglingProduction(
-            Parser.ParserProduction.DanglingProduction node);
-
-    void visitParserTokenProduction(
-            Parser.ParserProduction.TokenProduction node);
-
     void visitParserAlternative(
             Parser.ParserAlternative node);
 

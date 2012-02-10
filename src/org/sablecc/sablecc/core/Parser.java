@@ -103,7 +103,7 @@ public class Parser
 
     }
 
-    public static abstract class ParserProduction
+    public static class ParserProduction
             implements INameDeclaration, IReferencable, IVisitableGrammarPart {
 
         private final AParserProduction declaration;
@@ -237,6 +237,21 @@ public class Parser
             return this.declaration.getName();
         }
 
+        public boolean isDangling() {
+
+            return this.declaration.getQualifier() instanceof ADanglingQualifier;
+        }
+
+        public boolean isToken() {
+
+            return this.declaration.getQualifier() instanceof ATokenQualifier;
+        }
+
+        public boolean isNormal() {
+
+            return !isDangling() && !isToken();
+        }
+
         static ParserProduction newParserProduction(
                 AParserProduction declaration,
                 Context context,
@@ -250,101 +265,7 @@ public class Parser
                 throw new InternalException("grammar may not be null");
             }
 
-            if (declaration.getQualifier() == null) {
-                return new NormalProduction(declaration, context, grammar);
-            }
-
-            if (declaration.getQualifier() instanceof ADanglingQualifier) {
-                return new DanglingProduction(declaration, context, grammar);
-            }
-
-            if (declaration.getQualifier() instanceof ATokenQualifier) {
-                return new TokenProduction(declaration, context, grammar);
-            }
-
-            throw new InternalException("unhandled case");
-        }
-
-        public static class NormalProduction
-                extends ParserProduction {
-
-            private NormalProduction(
-                    AParserProduction declaration,
-                    Context context,
-                    Grammar grammar) {
-
-                super(declaration, context, grammar);
-            }
-
-            @Override
-            public String getNameType() {
-
-                return "normal parser production";
-            }
-
-            @Override
-            public void apply(
-                    IGrammarVisitor visitor) {
-
-                visitor.visitParserNormalProduction(this);
-
-            }
-
-        }
-
-        public static class DanglingProduction
-                extends ParserProduction {
-
-            private DanglingProduction(
-                    AParserProduction declaration,
-                    Context context,
-                    Grammar grammar) {
-
-                super(declaration, context, grammar);
-            }
-
-            @Override
-            public String getNameType() {
-
-                return "dangling parser production";
-            }
-
-            @Override
-            public void apply(
-                    IGrammarVisitor visitor) {
-
-                visitor.visitParserDanglingProduction(this);
-
-            }
-
-        }
-
-        public static class TokenProduction
-                extends ParserProduction
-                implements INamedToken {
-
-            private TokenProduction(
-                    AParserProduction declaration,
-                    Context context,
-                    Grammar grammar) {
-
-                super(declaration, context, grammar);
-            }
-
-            @Override
-            public String getNameType() {
-
-                return "token production";
-            }
-
-            @Override
-            public void apply(
-                    IGrammarVisitor visitor) {
-
-                visitor.visitParserTokenProduction(this);
-
-            }
-
+            return new ParserProduction(declaration, context, grammar);
         }
 
         private void findAlternatives() {
@@ -439,6 +360,20 @@ public class Parser
         public String getName_CamelCase() {
 
             return to_CamelCase(getName());
+        }
+
+        @Override
+        public void apply(
+                IGrammarVisitor visitor) {
+
+            visitor.visitParserProduction(this);
+
+        }
+
+        @Override
+        public String getNameType() {
+
+            return "parser production";
         }
     }
 

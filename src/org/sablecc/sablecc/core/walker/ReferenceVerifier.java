@@ -24,7 +24,7 @@ import org.sablecc.sablecc.core.*;
 import org.sablecc.sablecc.core.Parser.ParserElement.DoubleElement;
 import org.sablecc.sablecc.core.Parser.ParserElement.ElementType;
 import org.sablecc.sablecc.core.Parser.ParserElement.SingleElement;
-import org.sablecc.sablecc.core.Parser.ParserProduction.TokenProduction;
+import org.sablecc.sablecc.core.Parser.ParserProduction;
 import org.sablecc.sablecc.core.analysis.*;
 import org.sablecc.sablecc.core.interfaces.*;
 import org.sablecc.sablecc.core.transformation.*;
@@ -115,15 +115,18 @@ public abstract class ReferenceVerifier
                     INameDeclaration declaration = findGlobalDeclaration(
                             this.grammar, identifier);
 
-                    if (declaration instanceof Parser.ParserProduction.DanglingProduction
-                            || declaration instanceof Parser.ParserProduction.TokenProduction) {
+                    if (declaration instanceof Parser.ParserProduction
+                            && ((Parser.ParserProduction) declaration)
+                                    .isDangling()
+                            || ((Parser.ParserProduction) declaration)
+                                    .isToken()) {
                         String[] expectedNames = { "normal parser production" };
 
                         throw SemanticException.badReference(identifier,
                                 declaration.getNameType(), expectedNames);
                     }
                     else if (!(declaration instanceof Selector.ParserSelector.Selection)
-                            && !(declaration instanceof Parser.ParserProduction.NormalProduction)) {
+                            && !(declaration instanceof Parser.ParserProduction)) {
 
                         String[] expectedNames = { "parser production" };
                         throw SemanticException.badReference(identifier,
@@ -135,15 +138,14 @@ public abstract class ReferenceVerifier
                 Parser.ParserProduction firstProduction = node.getProductions()
                         .get(0);
 
-                if (firstProduction instanceof Parser.ParserProduction.DanglingProduction
-                        || firstProduction instanceof Parser.ParserProduction.TokenProduction) {
+                if (firstProduction.isDangling() || firstProduction.isToken()) {
                     String[] expectedNames = { "normal parser production" };
 
                     throw SemanticException.badReference(
                             firstProduction.getNameIdentifier(),
                             firstProduction.getNameType(), expectedNames);
                 }
-                else if (!(firstProduction instanceof Parser.ParserProduction.NormalProduction)) {
+                else if (!(firstProduction instanceof Parser.ParserProduction)) {
 
                     String[] expectedNames = { "parser production" };
                     throw SemanticException.badReference(
@@ -218,20 +220,21 @@ public abstract class ReferenceVerifier
                 node.getAlternative().getProduction().getContext()
                         .addTokenIfNecessary(pUnit);
             }
-            else {
+            else { // node.getElementType() == ElementType.DANGLING
                 TIdentifier elementIdentifier = ((ADanglingElement) node
                         .getDeclaration()).getIdentifier();
 
                 INameDeclaration declaration = findGlobalDeclaration(
                         this.grammar, elementIdentifier);
 
-                if (!(declaration instanceof Parser.ParserProduction.DanglingProduction)) {
+                if (!(declaration instanceof Parser.ParserProduction && ((Parser.ParserProduction) declaration)
+                        .isDangling())) {
                     String[] expectedNames = { "dangling parser production" };
                     throw SemanticException.badReference(elementIdentifier,
                             declaration.getNameType(), expectedNames);
                 }
 
-                node.addReference((Parser.ParserProduction.DanglingProduction) declaration);
+                node.addReference((Parser.ParserProduction) declaration);
             }
 
         }
@@ -425,10 +428,10 @@ public abstract class ReferenceVerifier
         }
 
         @Override
-        public void visitParserTokenProduction(
-                TokenProduction node) {
+        public void visitParserProduction(
+                ParserProduction node) {
 
-            if (this.grammar.hasATree()) {
+            if (node.isToken() && this.grammar.hasATree()) {
                 if (node.getTransformation() != null) {
                     if (node.getTransformation().getElements().size() != 1
                             || !node.getTransformation().getElements().get(0)
@@ -448,6 +451,7 @@ public abstract class ReferenceVerifier
                 }
             }
         }
+
     }
 
     public static class TransformationReferenceVerifier
@@ -1187,7 +1191,8 @@ public abstract class ReferenceVerifier
 
         if (declaration instanceof LexerExpression.NamedExpression
                 || declaration instanceof Selector.LexerSelector.Selection
-                || declaration instanceof Parser.ParserProduction.TokenProduction) {
+                || declaration instanceof Parser.ParserProduction
+                && ((Parser.ParserProduction) declaration).isToken()) {
             return true;
         }
 
@@ -1214,7 +1219,8 @@ public abstract class ReferenceVerifier
 
         INameDeclaration declaration = findGlobalDeclaration(grammar, reference);
 
-        if (declaration instanceof Parser.ParserProduction.DanglingProduction) {
+        if (declaration instanceof Parser.ParserProduction
+                && ((Parser.ParserProduction) declaration).isDangling()) {
             String[] expectedNames = { "token", "normal parser production" };
 
             throw SemanticException.badReference(reference,
@@ -1222,8 +1228,9 @@ public abstract class ReferenceVerifier
         }
         else if (!isATokenDeclaration(declaration)
                 && !(declaration instanceof Selector.ParserSelector.Selection)
-                && !(declaration instanceof Parser.ParserProduction.NormalProduction)
-                && !(declaration instanceof Parser.ParserProduction.TokenProduction)) {
+                && !(declaration instanceof Parser.ParserProduction
+                        && ((Parser.ParserProduction) declaration).isToken() || ((Parser.ParserProduction) declaration)
+                        .isNormal())) {
 
             String[] expectedNames = { "token", "parser production" };
             throw SemanticException.badReference(reference,
@@ -1239,15 +1246,16 @@ public abstract class ReferenceVerifier
 
         INameDeclaration declaration = findGlobalDeclaration(grammar, reference);
 
-        if (declaration instanceof Parser.ParserProduction.DanglingProduction
-                || declaration instanceof Parser.ParserProduction.TokenProduction) {
+        if (declaration instanceof Parser.ParserProduction
+                && ((Parser.ParserProduction) declaration).isToken()
+                || ((Parser.ParserProduction) declaration).isDangling()) {
             String[] expectedNames = { "normal parser production" };
 
             throw SemanticException.badReference(reference,
                     declaration.getNameType(), expectedNames);
         }
         else if (!(declaration instanceof Selector.ParserSelector.Selection)
-                && !(declaration instanceof Parser.ParserProduction.NormalProduction)) {
+                && !(declaration instanceof Parser.ParserProduction)) {
 
             String[] expectedNames = { "parser production" };
             throw SemanticException.badReference(reference,

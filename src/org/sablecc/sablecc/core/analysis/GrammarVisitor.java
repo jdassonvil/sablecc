@@ -336,28 +336,6 @@ public class GrammarVisitor
     }
 
     @Override
-    public void visitParserNormalProduction(
-            Parser.ParserProduction.NormalProduction node) {
-
-        visitParserProduction(node);
-    }
-
-    @Override
-    public void visitParserDanglingProduction(
-            Parser.ParserProduction.DanglingProduction node) {
-
-        visitParserProduction(node);
-    }
-
-    @Override
-    public void visitParserTokenProduction(
-            Parser.ParserProduction.TokenProduction node) {
-
-        visitParserProduction(node);
-
-    }
-
-    @Override
     public void visitParserAlternative(
             Parser.ParserAlternative node) {
 

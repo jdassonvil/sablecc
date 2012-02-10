@@ -636,7 +636,7 @@ public class SemanticException
     }
 
     public static SemanticException badSyntacticTokenTransformation(
-            Parser.ParserProduction.TokenProduction production) {
+            Parser.ParserProduction production) {
 
         return new SemanticException(new MBadSyntacticTokenTransformation(
                 production.getName(), production.getLocation().getLine() + "",
