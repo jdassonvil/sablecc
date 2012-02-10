@@ -614,24 +614,16 @@ public class GrammarVisitor
     }
 
     @Override
-    public void visitTreeNormalElement(
-            Tree.TreeElement.NormalElement node) {
+    public void visitTreeSingleElement(
+            Tree.TreeElement.SingleElement node) {
 
         visitTreeElement(node);
 
     }
 
     @Override
-    public void visitTreeSeparatedElement(
-            Tree.TreeElement.SeparatedElement node) {
-
-        visitTreeElement(node);
-
-    }
-
-    @Override
-    public void visitTreeAlternatedElement(
-            Tree.TreeElement.AlternatedElement node) {
+    public void visitTreeDoubleElement(
+            Tree.TreeElement.DoubleElement node) {
 
         visitTreeElement(node);
 

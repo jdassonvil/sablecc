@@ -1059,8 +1059,8 @@ public abstract class ReferenceVerifier
         }
 
         @Override
-        public void visitTreeNormalElement(
-                Tree.TreeElement.NormalElement node) {
+        public void visitTreeSingleElement(
+                Tree.TreeElement.SingleElement node) {
 
             PUnit unit = node.getDeclaration().getUnit();
 
@@ -1073,10 +1073,29 @@ public abstract class ReferenceVerifier
         }
 
         @Override
-        public void visitTreeSeparatedElement(
-                Tree.TreeElement.SeparatedElement node) {
+        public void visitTreeDoubleElement(
+                Tree.TreeElement.DoubleElement node) {
 
-            PUnit leftUnit = node.getDeclaration().getLeft();
+            PUnit leftUnit;
+            PUnit rightUnit;
+
+            switch (node.getElementType()) {
+            case SEPARATED:
+                leftUnit = ((ASeparatedElement) node.getDeclaration())
+                        .getLeft();
+                rightUnit = ((ASeparatedElement) node.getDeclaration())
+                        .getRight();
+                break;
+            case ALTERNATED:
+                leftUnit = ((AAlternatedElement) node.getDeclaration())
+                        .getLeft();
+                rightUnit = ((AAlternatedElement) node.getDeclaration())
+                        .getRight();
+                break;
+            default:
+                throw new InternalException("Unhandled element type "
+                        + node.getClass());
+            }
 
             if (leftUnit instanceof ANameUnit) {
                 IReferencable reference = tokenOrTreeProductionExpected(
@@ -1084,27 +1103,6 @@ public abstract class ReferenceVerifier
                 node.addLeftReference(reference);
             }
 
-            PUnit rightUnit = node.getDeclaration().getRight();
-            if (rightUnit instanceof ANameUnit) {
-                IReferencable reference = tokenOrTreeProductionExpected(
-                        this.grammar, ((ANameUnit) rightUnit).getIdentifier());
-                node.addRightReference(reference);
-            }
-        }
-
-        @Override
-        public void visitTreeAlternatedElement(
-                Tree.TreeElement.AlternatedElement node) {
-
-            PUnit leftUnit = node.getDeclaration().getLeft();
-
-            if (leftUnit instanceof ANameUnit) {
-                IReferencable reference = tokenOrTreeProductionExpected(
-                        this.grammar, ((ANameUnit) leftUnit).getIdentifier());
-                node.addLeftReference(reference);
-            }
-
-            PUnit rightUnit = node.getDeclaration().getRight();
             if (rightUnit instanceof ANameUnit) {
                 IReferencable reference = tokenOrTreeProductionExpected(
                         this.grammar, ((ANameUnit) rightUnit).getIdentifier());

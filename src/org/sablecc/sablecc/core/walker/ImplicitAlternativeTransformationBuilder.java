@@ -380,11 +380,11 @@ public class ImplicitAlternativeTransformationBuilder
         public void visitParserSingleElement(
                 SingleElement node) {
 
-            if (this.treeElement instanceof Tree.TreeElement.NormalElement) {
+            if (this.treeElement instanceof Tree.TreeElement.SingleElement) {
 
                 if (node.getCardinality().equals(
                         this.treeElement.getCardinality())) {
-                    Tree.TreeElement.NormalElement treeNormalElement = (Tree.TreeElement.NormalElement) this.treeElement;
+                    Tree.TreeElement.SingleElement treeNormalElement = (Tree.TreeElement.SingleElement) this.treeElement;
 
                     if (node.getElementType() == ElementType.NORMAL) {
                         if (match(
@@ -416,38 +416,40 @@ public class ImplicitAlternativeTransformationBuilder
         public void visitParserDoubleElement(
                 DoubleElement node) {
 
-            if (node.getElementType() == ElementType.SEPARATED
-                    && this.treeElement instanceof Tree.TreeElement.SeparatedElement) {
+            if (node.getElementType() == Parser.ParserElement.ElementType.SEPARATED
+                    && this.treeElement.getElementType() == Tree.TreeElement.ElementType.SEPARATED) {
                 if (node.getCardinality().equals(
                         this.treeElement.getCardinality())) {
 
-                    Tree.TreeElement.SeparatedElement treeSeparatedElement = (Tree.TreeElement.SeparatedElement) this.treeElement;
+                    Tree.TreeElement.DoubleElement treeSeparatedElement = (Tree.TreeElement.DoubleElement) this.treeElement;
                     ASeparatedElement declaration = (ASeparatedElement) node
                             .getDeclaration();
 
-                    if (match(declaration.getLeft(), treeSeparatedElement
-                            .getDeclaration().getLeft())
+                    if (match(declaration.getLeft(),
+                            ((ASeparatedElement) treeSeparatedElement
+                                    .getDeclaration()).getLeft())
                             && match(declaration.getRight(),
-                                    treeSeparatedElement.getDeclaration()
-                                            .getRight())) {
+                                    ((ASeparatedElement) treeSeparatedElement
+                                            .getDeclaration()).getRight())) {
                         this.matchResult = true;
                     }
                 }
             }
-            else if (node.getElementType() == ElementType.ALTERNATED
-                    && this.treeElement instanceof Tree.TreeElement.AlternatedElement) {
+            else if (node.getElementType() == Parser.ParserElement.ElementType.ALTERNATED
+                    && this.treeElement.getElementType() == Tree.TreeElement.ElementType.ALTERNATED) {
                 if (node.getCardinality().equals(
                         this.treeElement.getCardinality())) {
 
-                    Tree.TreeElement.AlternatedElement treeAlternatedElement = (Tree.TreeElement.AlternatedElement) this.treeElement;
+                    Tree.TreeElement.DoubleElement treeAlternatedElement = (Tree.TreeElement.DoubleElement) this.treeElement;
                     AAlternatedElement declaration = (AAlternatedElement) node
                             .getDeclaration();
 
-                    if (match(declaration.getLeft(), treeAlternatedElement
-                            .getDeclaration().getLeft())
+                    if (match(declaration.getLeft(),
+                            ((AAlternatedElement) treeAlternatedElement
+                                    .getDeclaration()).getLeft())
                             && match(declaration.getRight(),
-                                    treeAlternatedElement.getDeclaration()
-                                            .getRight())) {
+                                    ((AAlternatedElement) treeAlternatedElement
+                                            .getDeclaration()).getRight())) {
                         this.matchResult = true;
                     }
                 }

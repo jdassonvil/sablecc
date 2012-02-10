@@ -212,13 +212,10 @@ public interface IGrammarVisitor {
     void visitTreeElement(
             Tree.TreeElement node);
 
-    void visitTreeNormalElement(
-            Tree.TreeElement.NormalElement node);
+    void visitTreeSingleElement(
+            Tree.TreeElement.SingleElement node);
 
-    void visitTreeSeparatedElement(
-            Tree.TreeElement.SeparatedElement node);
-
-    void visitTreeAlternatedElement(
-            Tree.TreeElement.AlternatedElement node);
+    void visitTreeDoubleElement(
+            Tree.TreeElement.DoubleElement node);
 
 }
