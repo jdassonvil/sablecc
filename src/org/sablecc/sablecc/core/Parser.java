@@ -442,7 +442,7 @@ public class Parser
         }
     }
 
-    public static abstract class ParserAlternative
+    public static class ParserAlternative
             implements ImplicitExplicit, IReferencable, IVisitableGrammarPart {
 
         private final AParserAlternative declaration;
@@ -460,6 +460,10 @@ public class Parser
         private final LinkedList<ParserElement> elements = new LinkedList<ParserElement>();
 
         private AlternativeTransformation transformation;
+
+        private String name;
+
+        private Token nameToken;
 
         public ParserAlternative(
                 AParserAlternative declaration,
@@ -508,12 +512,12 @@ public class Parser
             }
 
             if (declaration.getDanglingElement() == null) {
-                return new NormalAlternative(declaration, grammar, production,
+                return new ParserAlternative(declaration, grammar, production,
                         index);
             }
             else {
-                return new DanglingAlternative(declaration, grammar,
-                        production, index);
+                return new ParserAlternative(declaration, grammar, production,
+                        index);
             }
         }
 
@@ -586,260 +590,106 @@ public class Parser
             }
         }
 
-        public abstract String getName();
+        @Override
+        public String getImplicitName() {
 
-        public abstract Token getNameToken();
+            String implicitName = null;
 
-        public static class NormalAlternative
-                extends ParserAlternative {
+            if (getDeclaration().getElements().getFirst() instanceof ANormalElement) {
+                ANormalElement firstElement = (ANormalElement) getDeclaration()
+                        .getElements().getFirst();
 
-            private String name;
+                if (firstElement.getElementName() != null) {
+                    implicitName = firstElement.getElementName().getText();
+                    implicitName = implicitName.substring(1,
+                            implicitName.length() - 2);
+                }
+                else if (firstElement.getUnit() instanceof ANameUnit
+                        && (firstElement.getUnaryOperator() == null || firstElement
+                                .getUnaryOperator() instanceof AZeroOrOneUnaryOperator)) {
+                    implicitName = ((ANameUnit) firstElement.getUnit())
+                            .getIdentifier().getText();
+                }
 
-            private Token token;
+            }
+            else if (getDeclaration().getElements().getFirst() instanceof ASeparatedElement) {
+                ASeparatedElement firstElement = (ASeparatedElement) getDeclaration()
+                        .getElements().getFirst();
 
-            public NormalAlternative(
-                    AParserAlternative declaration,
-                    Grammar grammar,
-                    ParserProduction production,
-                    int index) {
+                if (firstElement.getElementName() != null) {
+                    implicitName = firstElement.getElementName().getText();
+                    implicitName = implicitName.substring(1,
+                            implicitName.length() - 2);
+                }// else : separated element can't have an implicit name
+            }
+            else if (getDeclaration().getElements().getFirst() instanceof AAlternatedElement) {
+                AAlternatedElement firstElement = (AAlternatedElement) getDeclaration()
+                        .getElements().getFirst();
 
-                super(declaration, grammar, production, index);
+                if (firstElement.getElementName() != null) {
+                    implicitName = firstElement.getElementName().getText();
+                    implicitName = implicitName.substring(1,
+                            implicitName.length() - 2);
+                }// else : alternated element can't have an implicit name
+            }
+            else {
+                throw new InternalException("Unhandled case");
             }
 
-            @Override
-            public String getImplicitName() {
+            return implicitName;
+        }
 
-                String implicitName = null;
+        @Override
+        public String getExplicitName() {
 
-                if (getDeclaration().getElements().getFirst() instanceof ANormalElement) {
-                    ANormalElement firstElement = (ANormalElement) getDeclaration()
-                            .getElements().getFirst();
+            String explicitName = null;
 
-                    if (firstElement.getElementName() != null) {
-                        implicitName = firstElement.getElementName().getText();
-                        implicitName = implicitName.substring(1,
-                                implicitName.length() - 2);
-                    }
-                    else if (firstElement.getUnit() instanceof ANameUnit
-                            && (firstElement.getUnaryOperator() == null || firstElement
-                                    .getUnaryOperator() instanceof AZeroOrOneUnaryOperator)) {
-                        implicitName = ((ANameUnit) firstElement.getUnit())
-                                .getIdentifier().getText();
-                    }
-
-                }
-                else if (getDeclaration().getElements().getFirst() instanceof ASeparatedElement) {
-                    ASeparatedElement firstElement = (ASeparatedElement) getDeclaration()
-                            .getElements().getFirst();
-
-                    if (firstElement.getElementName() != null) {
-                        implicitName = firstElement.getElementName().getText();
-                        implicitName = implicitName.substring(1,
-                                implicitName.length() - 2);
-                    }// else : separated element can't have an implicit name
-                }
-                else if (getDeclaration().getElements().getFirst() instanceof AAlternatedElement) {
-                    AAlternatedElement firstElement = (AAlternatedElement) getDeclaration()
-                            .getElements().getFirst();
-
-                    if (firstElement.getElementName() != null) {
-                        implicitName = firstElement.getElementName().getText();
-                        implicitName = implicitName.substring(1,
-                                implicitName.length() - 2);
-                    }// else : alternated element can't have an implicit name
-                }
-                else {
-                    throw new InternalException("Unhandled case");
-                }
-
-                return implicitName;
-            }
-
-            @Override
-            public String getExplicitName() {
-
-                String explicitName = null;
-
-                if (getDeclaration().getAlternativeName() != null) {
-                    explicitName = getDeclaration().getAlternativeName()
-                            .getText();
-                    explicitName = explicitName.substring(1,
-                            explicitName.length() - 2);
-                    return explicitName;
-                }
-
+            if (getDeclaration().getAlternativeName() != null) {
+                explicitName = getDeclaration().getAlternativeName().getText();
+                explicitName = explicitName.substring(1,
+                        explicitName.length() - 2);
                 return explicitName;
-
             }
 
-            @Override
-            public void setName(
-                    String name) {
-
-                this.name = name;
-
-            }
-
-            @Override
-            public String getName() {
-
-                return this.name;
-            }
-
-            @Override
-            public Token getNameToken() {
-
-                if (this.token == null) {
-                    if (getExplicitName() != null
-                            && getExplicitName().equals(this.name)) {
-                        this.token = getDeclaration().getAlternativeName();
-                    }
-                    else if (getImplicitName().equals(this.name)) {
-                        ANormalElement firstElement = (ANormalElement) getDeclaration()
-                                .getElements().getFirst();
-
-                        this.token = ((ANameUnit) firstElement.getUnit())
-                                .getIdentifier();
-                    }
-                }
-
-                return this.token;
-            }
-
-            @Override
-            public void apply(
-                    IGrammarVisitor visitor) {
-
-                visitor.visitParserNormalAlternative(this);
-
-            }
+            return explicitName;
 
         }
 
-        public static class DanglingAlternative
-                extends ParserAlternative {
+        @Override
+        public void setName(
+                String name) {
 
-            private String name;
+            this.name = name;
 
-            private Token token;
+        }
 
-            public DanglingAlternative(
-                    AParserAlternative declaration,
-                    Grammar grammar,
-                    ParserProduction production,
-                    int index) {
+        public String getName() {
 
-                super(declaration, grammar, production, index);
-            }
+            return this.name;
+        }
 
-            @Override
-            public String getImplicitName() {
+        public Token getNameToken() {
 
-                String implicitName = null;
-
-                if (getDeclaration().getElements().getFirst() instanceof ANormalElement) {
+            if (this.nameToken == null) {
+                if (getExplicitName() != null
+                        && getExplicitName().equals(this.name)) {
+                    this.nameToken = getDeclaration().getAlternativeName();
+                }
+                else if (getImplicitName().equals(this.name)) {
                     ANormalElement firstElement = (ANormalElement) getDeclaration()
                             .getElements().getFirst();
 
-                    if (firstElement.getElementName() != null) {
-                        implicitName = firstElement.getElementName().getText();
-                        implicitName = implicitName.substring(1,
-                                implicitName.length() - 2);
-                    }
-                    else if (firstElement.getUnit() instanceof ANameUnit
-                            && (firstElement.getUnaryOperator() == null || firstElement
-                                    .getUnaryOperator() instanceof AZeroOrOneUnaryOperator)) {
-                        implicitName = ((ANameUnit) firstElement.getUnit())
-                                .getIdentifier().getText();
-                    }
-
+                    this.nameToken = ((ANameUnit) firstElement.getUnit())
+                            .getIdentifier();
                 }
-                else if (getDeclaration().getElements().getFirst() instanceof ASeparatedElement) {
-                    ASeparatedElement firstElement = (ASeparatedElement) getDeclaration()
-                            .getElements().getFirst();
-
-                    if (firstElement.getElementName() != null) {
-                        implicitName = firstElement.getElementName().getText();
-                        implicitName = implicitName.substring(1,
-                                implicitName.length() - 2);
-                    }// else : separated element can't have an implicit name
-                }
-                else if (getDeclaration().getElements().getFirst() instanceof AAlternatedElement) {
-                    AAlternatedElement firstElement = (AAlternatedElement) getDeclaration()
-                            .getElements().getFirst();
-
-                    if (firstElement.getElementName() != null) {
-                        implicitName = firstElement.getElementName().getText();
-                        implicitName = implicitName.substring(1,
-                                implicitName.length() - 2);
-                    }// else : alternated element can't have an implicit name
-                }
-                else {
-                    throw new InternalException("Unhandled case");
-                }
-
-                return implicitName;
             }
 
-            @Override
-            public String getExplicitName() {
+            return this.nameToken;
+        }
 
-                String explicitName = null;
+        public boolean isDangling() {
 
-                if (getDeclaration().getAlternativeName() != null) {
-                    explicitName = getDeclaration().getAlternativeName()
-                            .getText();
-                    explicitName = explicitName.substring(1,
-                            explicitName.length() - 2);
-                    return explicitName;
-                }
-
-                return explicitName;
-
-            }
-
-            @Override
-            public void setName(
-                    String name) {
-
-                this.name = name;
-
-            }
-
-            @Override
-            public String getName() {
-
-                return this.name;
-            }
-
-            @Override
-            public Token getNameToken() {
-
-                if (this.token == null) {
-                    if (getExplicitName() != null
-                            && getExplicitName().equals(this.name)) {
-                        this.token = getDeclaration().getAlternativeName();
-                    }
-                    else if (getImplicitName().equals(this.name)) {
-                        ANormalElement firstElement = (ANormalElement) getDeclaration()
-                                .getElements().getFirst();
-
-                        this.token = ((ANameUnit) firstElement.getUnit())
-                                .getIdentifier();
-                    }
-                }
-
-                return this.token;
-            }
-
-            @Override
-            public void apply(
-                    IGrammarVisitor visitor) {
-
-                visitor.visitParserDanglingAlternative(this);
-
-            }
-
+            return this.declaration.getDanglingElement() != null;
         }
 
         private void findElements() {
@@ -922,6 +772,14 @@ public class Parser
 
             String name = getName();
             return name == null ? null : to_CamelCase(name);
+        }
+
+        @Override
+        public void apply(
+                IGrammarVisitor visitor) {
+
+            visitor.visitParserAlternative(this);
+
         }
     }
 

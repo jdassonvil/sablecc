@@ -368,21 +368,6 @@ public class GrammarVisitor
     }
 
     @Override
-    public void visitParserNormalAlternative(
-            Parser.ParserAlternative.NormalAlternative node) {
-
-        visitParserAlternative(node);
-
-    }
-
-    @Override
-    public void visitParserDanglingAlternative(
-            Parser.ParserAlternative.DanglingAlternative node) {
-
-        visitParserAlternative(node);
-    }
-
-    @Override
     public void visitLeftParserPriority(
             Parser.ParserPriority.LeftPriority node) {
 

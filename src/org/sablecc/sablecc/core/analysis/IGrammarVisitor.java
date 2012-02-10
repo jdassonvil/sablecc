@@ -128,12 +128,6 @@ public interface IGrammarVisitor {
     void visitParserAlternative(
             Parser.ParserAlternative node);
 
-    void visitParserNormalAlternative(
-            Parser.ParserAlternative.NormalAlternative node);
-
-    void visitParserDanglingAlternative(
-            Parser.ParserAlternative.DanglingAlternative node);
-
     void visitLeftParserPriority(
             Parser.ParserPriority.LeftPriority node);
 
