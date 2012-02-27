@@ -49,11 +49,13 @@ public class TokenOrderVerifier
     @Override
     public void visitParserAlternative(
             Parser.ParserAlternative node) {
-
-        this.alternative = node;
-        this.previousIndex = -1;
-        this.transformedProductionPreviousIndex.clear();
-        node.getTransformation().apply(this);
+        
+        if(node.getTransformation() != null){
+            this.alternative = node;
+            this.previousIndex = -1;
+            this.transformedProductionPreviousIndex.clear();
+            node.getTransformation().apply(this);
+        }
     }
 
     @Override
