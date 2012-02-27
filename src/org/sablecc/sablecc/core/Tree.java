@@ -17,16 +17,39 @@
 
 package org.sablecc.sablecc.core;
 
-import java.math.*;
-import java.util.*;
+import static org.sablecc.util.CamelCase.to_CamelCase;
 
-import org.sablecc.exception.*;
-import org.sablecc.sablecc.core.analysis.*;
-import org.sablecc.sablecc.core.interfaces.*;
-import org.sablecc.sablecc.syntax3.analysis.*;
-import org.sablecc.sablecc.syntax3.node.*;
-import org.sablecc.util.*;
-import org.sablecc.util.interfaces.*;
+import java.math.BigInteger;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.sablecc.exception.InternalException;
+import org.sablecc.sablecc.core.analysis.IGrammarVisitor;
+import org.sablecc.sablecc.core.interfaces.INameDeclaration;
+import org.sablecc.sablecc.core.interfaces.IReferencable;
+import org.sablecc.sablecc.core.interfaces.IVisitableGrammarPart;
+import org.sablecc.sablecc.syntax3.analysis.DepthFirstAdapter;
+import org.sablecc.sablecc.syntax3.node.AAlternatedElement;
+import org.sablecc.sablecc.syntax3.node.ACharCharacter;
+import org.sablecc.sablecc.syntax3.node.ADecCharacter;
+import org.sablecc.sablecc.syntax3.node.AHexCharacter;
+import org.sablecc.sablecc.syntax3.node.ANameUnit;
+import org.sablecc.sablecc.syntax3.node.ANormalElement;
+import org.sablecc.sablecc.syntax3.node.ASeparatedElement;
+import org.sablecc.sablecc.syntax3.node.AStringUnit;
+import org.sablecc.sablecc.syntax3.node.ATreeAlternative;
+import org.sablecc.sablecc.syntax3.node.ATreeProduction;
+import org.sablecc.sablecc.syntax3.node.AZeroOrOneUnaryOperator;
+import org.sablecc.sablecc.syntax3.node.Node;
+import org.sablecc.sablecc.syntax3.node.PElement;
+import org.sablecc.sablecc.syntax3.node.TElementName;
+import org.sablecc.sablecc.syntax3.node.TIdentifier;
+import org.sablecc.sablecc.syntax3.node.Token;
+import org.sablecc.util.Bound;
+import org.sablecc.util.CardinalityInterval;
+import org.sablecc.util.ImplicitExplicitNamespace;
+import org.sablecc.util.Type;
+import org.sablecc.util.interfaces.ImplicitExplicit;
 
 public class Tree
         implements IVisitableGrammarPart {
@@ -144,6 +167,11 @@ public class Tree
         public String getNameType() {
 
             return "tree production";
+        }
+
+        public String getName_CamelCase() {
+
+            return to_CamelCase(getName());
         }
 
         @Override
@@ -365,6 +393,12 @@ public class Tree
             return this.name;
         }
 
+        public String getName_CamelCase() {
+
+            String name = getName();
+            return name == null ? null : to_CamelCase(name);
+        }
+
         public Token getNameToken() {
 
             if (this.token == null) {
@@ -515,6 +549,11 @@ public class Tree
         public ElementType getElementType() {
 
             return this.elementType;
+        }
+
+        public int getIndex() {
+
+            return this.alternative.getElements().indexOf(this);
         }
 
         public abstract Node getDeclaration();
@@ -956,10 +995,16 @@ public class Tree
             public void apply(
                     IGrammarVisitor visitor) {
 
-                // visitor.visitTreeDoubleElement(this);
+                visitor.visitTreeDoubleElement(this);
 
             }
 
+        }
+
+        public String getName_CamelCase() {
+
+            String name = getName();
+            return name == null ? null : to_CamelCase(name);
         }
 
         private static class InformationExtractor

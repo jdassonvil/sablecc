@@ -17,17 +17,50 @@
 
 package org.sablecc.sablecc.codegeneration;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.SortedSet;
 
-import org.sablecc.exception.*;
-import org.sablecc.sablecc.alphabet.*;
-import org.sablecc.sablecc.automaton.*;
-import org.sablecc.sablecc.codegeneration.java.macro.*;
-import org.sablecc.sablecc.core.*;
-import org.sablecc.sablecc.core.interfaces.*;
-import org.sablecc.sablecc.launcher.*;
+import org.sablecc.exception.InternalException;
+import org.sablecc.sablecc.alphabet.Bound;
+import org.sablecc.sablecc.alphabet.Interval;
+import org.sablecc.sablecc.alphabet.RichSymbol;
+import org.sablecc.sablecc.alphabet.Symbol;
+import org.sablecc.sablecc.automaton.Acceptation;
+import org.sablecc.sablecc.automaton.Automaton;
+import org.sablecc.sablecc.automaton.Marker;
+import org.sablecc.sablecc.automaton.State;
+import org.sablecc.sablecc.codegeneration.java.macro.MAlternative;
+import org.sablecc.sablecc.codegeneration.java.macro.MAnonymousToken;
+import org.sablecc.sablecc.codegeneration.java.macro.MCustomToken;
+import org.sablecc.sablecc.codegeneration.java.macro.MEnd;
+import org.sablecc.sablecc.codegeneration.java.macro.MFinalState;
+import org.sablecc.sablecc.codegeneration.java.macro.MFinalStateSingleton;
+import org.sablecc.sablecc.codegeneration.java.macro.MLexer;
+import org.sablecc.sablecc.codegeneration.java.macro.MLexerException;
+import org.sablecc.sablecc.codegeneration.java.macro.MNode;
+import org.sablecc.sablecc.codegeneration.java.macro.MParser;
+import org.sablecc.sablecc.codegeneration.java.macro.MParserException;
+import org.sablecc.sablecc.codegeneration.java.macro.MProduction;
+import org.sablecc.sablecc.codegeneration.java.macro.MPublicElementAccessor;
+import org.sablecc.sablecc.codegeneration.java.macro.MState;
+import org.sablecc.sablecc.codegeneration.java.macro.MSymbol;
+import org.sablecc.sablecc.codegeneration.java.macro.MTester;
+import org.sablecc.sablecc.codegeneration.java.macro.MToken;
+import org.sablecc.sablecc.codegeneration.java.macro.MTransitionState;
+import org.sablecc.sablecc.codegeneration.java.macro.MTransitionStateSingleton;
+import org.sablecc.sablecc.codegeneration.java.macro.MWalker;
+import org.sablecc.sablecc.core.Context;
+import org.sablecc.sablecc.core.Grammar;
+import org.sablecc.sablecc.core.LexerExpression;
+import org.sablecc.sablecc.core.Parser;
+import org.sablecc.sablecc.core.Tree;
+import org.sablecc.sablecc.core.interfaces.IReferencable;
+import org.sablecc.sablecc.launcher.Trace;
 
 public class CodeGenerator {
 
@@ -376,180 +409,374 @@ public class CodeGenerator {
             mLexer.newAcceptMarkerDeclaration(marker.getName());
         }
 
-        for (Parser.ParserProduction production : this.grammar.getParser()
-                .getProductions()) {
+        if (this.grammar.hasATree()) {
+            for (Tree.TreeProduction production : this.grammar.getTree()
+                    .getProductions()) {
+                String production_CamelCaseName = production
+                        .getName_CamelCase();
 
-            String production_CamelCaseName = production.getName_CamelCase();
+                mNode.newNodeProductionTypeEnumEntry(production_CamelCaseName);
 
-            mNode.newNodeProductionTypeEnumEntry(production_CamelCaseName);
+                // if production is not a single anonymous alternative
+                if (production.getAlternatives().size() > 1
+                        || !production.getAlternatives().iterator().next()
+                                .getName().equals("")) {
 
-            // if production is not a single anonymous alternative
-            if (production.getAlternatives().size() > 1
-                    || !production.getAlternatives().iterator().next()
-                            .getName().equals("")) {
+                    MProduction mProduction = new MProduction(
+                            production_CamelCaseName);
 
-                MProduction mProduction = new MProduction(
-                        production_CamelCaseName);
-
-                if (this.destinationPackage.equals("")) {
-                    mProduction.newDefaultPackage(this.grammar
-                            .getName_camelCase());
-                }
-                else {
-                    mProduction.newSpecifiedPackage(
-                            this.grammar.getName_camelCase(),
-                            this.destinationPackage);
-                }
-
-                try {
-                    BufferedWriter bw = new BufferedWriter(new FileWriter(
-                            new File(packageDirectory, "N"
-                                    + production_CamelCaseName + ".java")));
-
-                    bw.write(mProduction.toString());
-                    bw.close();
-                }
-                catch (IOException e) {
-                    throw new InternalException("TODO: raise error " + "N"
-                            + production_CamelCaseName + ".java", e);
-                }
-            }
-
-            for (Parser.ParserAlternative alternative : production
-                    .getAlternatives()) {
-                String alt_CamelCaseName = alternative.getName_CamelCase();
-                boolean altIsPublic = alt_CamelCaseName != null;
-                boolean altIsProd = altIsPublic && alt_CamelCaseName.equals("");
-                String alt_CamelCaseFullName;
-                if (altIsProd) {
-                    alt_CamelCaseFullName = production_CamelCaseName;
-                }
-                else if (altIsPublic) {
-                    alt_CamelCaseFullName = production_CamelCaseName + "_"
-                            + alt_CamelCaseName;
-                }
-                else {
-                    alt_CamelCaseFullName = production_CamelCaseName + "_"
-                            + alternative.getIndex();
-                }
-
-                MAlternative mAlternative = new MAlternative(
-                        alt_CamelCaseFullName);
-
-                mAlternative.newAltProdType(production_CamelCaseName);
-
-                if (altIsPublic) {
-                    mWalker.newWalkerIn(alt_CamelCaseFullName);
-                    mWalker.newWalkerCase(alt_CamelCaseFullName);
-                    mWalker.newWalkerOut(alt_CamelCaseFullName);
-                    mAlternative.newAltNormalApply();
-                }
-                else {
-                    mAlternative.newAltAnonymousApply();
-                }
-
-                if (this.destinationPackage.equals("")) {
-                    mAlternative.newDefaultPackage(this.grammar
-                            .getName_camelCase());
-                }
-                else {
-                    mAlternative.newSpecifiedPackage(
-                            this.grammar.getName_camelCase(),
-                            this.destinationPackage);
-                }
-
-                mNode.newNodeInternalTypeEnumEntry(alt_CamelCaseFullName);
-                if (altIsPublic) {
-                    mNode.newNodeTypeEnumEntry(alt_CamelCaseFullName);
-                    mAlternative.newPublic();
-                    mAlternative.newNamedAltType();
-                }
-                else {
-                    mAlternative.newAnonymousAltType();
-                }
-
-                if (altIsProd) {
-                    mAlternative.newAlternativeNodeParent();
-                }
-                else {
-                    mAlternative
-                            .newAlternativeNamedParent(production_CamelCaseName);
-                }
-
-                for (Parser.ParserElement parserElement : alternative
-                        .getElements()) {
-                    Parser.ParserElement.SingleElement normalElement = (Parser.ParserElement.SingleElement) parserElement;
-                    String element_CamelCaseName = normalElement
-                            .getName_CamelCase();
-                    boolean elementIsPublicReadable;
-                    if (element_CamelCaseName == null) {
-                        element_CamelCaseName = "" + normalElement.getIndex();
-                        elementIsPublicReadable = false;
+                    if (this.destinationPackage.equals("")) {
+                        mProduction.newDefaultPackage(this.grammar
+                                .getName_camelCase());
                     }
                     else {
-                        elementIsPublicReadable = true;
+                        mProduction.newSpecifiedPackage(
+                                this.grammar.getName_camelCase(),
+                                this.destinationPackage);
                     }
-                    String element_CamelCaseType;
-                    String element_CamelCaseInternalType;
 
-                    IReferencable reference = normalElement.getReference();
-                    if (reference instanceof LexerExpression.NamedExpression) {
-                        LexerExpression.NamedExpression namedToken = (LexerExpression.NamedExpression) reference;
-                        element_CamelCaseType = namedToken.getName_CamelCase();
-                        element_CamelCaseInternalType = element_CamelCaseType;
+                    try {
+                        BufferedWriter bw = new BufferedWriter(new FileWriter(
+                                new File(packageDirectory, "N"
+                                        + production_CamelCaseName + ".java")));
+
+                        bw.write(mProduction.toString());
+                        bw.close();
                     }
-                    else if (reference instanceof LexerExpression.InlineExpression) {
-                        LexerExpression.InlineExpression inlineToken = (LexerExpression.InlineExpression) reference;
-                        element_CamelCaseType = null;
-                        element_CamelCaseInternalType = inlineToken
-                                .getInternalName_CamelCase();
+                    catch (IOException e) {
+                        throw new InternalException("TODO: raise error " + "N"
+                                + production_CamelCaseName + ".java", e);
+                    }
+                }
+
+                for (Tree.TreeAlternative alternative : production
+                        .getAlternatives()) {
+                    String alt_CamelCaseName = alternative.getName_CamelCase();
+                    boolean altIsPublic = alt_CamelCaseName != null;
+                    boolean altIsProd = altIsPublic
+                            && alt_CamelCaseName.equals("");
+                    String alt_CamelCaseFullName;
+
+                    if (altIsProd) {
+                        alt_CamelCaseFullName = production_CamelCaseName;
+                    }
+                    else if (altIsPublic) {
+                        alt_CamelCaseFullName = production_CamelCaseName + "_"
+                                + alt_CamelCaseName;
                     }
                     else {
-                        Parser.ParserProduction referencedProduction = (Parser.ParserProduction) reference;
-                        element_CamelCaseType = referencedProduction
+                        alt_CamelCaseFullName = production_CamelCaseName + "_$"
+                                + alternative.getIndex();
+
+                    }
+
+                    MAlternative mAlternative = new MAlternative(
+                            alt_CamelCaseFullName);
+
+                    mAlternative.newAltProdType(production_CamelCaseName);
+
+                    if (altIsPublic) {
+                        mWalker.newWalkerIn(alt_CamelCaseFullName);
+                        mWalker.newWalkerCase(alt_CamelCaseFullName);
+                        mWalker.newWalkerOut(alt_CamelCaseFullName);
+                        mAlternative.newAltNormalApply();
+                    }
+                    else {
+                        mAlternative.newAltAnonymousApply();
+                    }
+
+                    if (this.destinationPackage.equals("")) {
+                        mAlternative.newDefaultPackage(this.grammar
+                                .getName_camelCase());
+                    }
+                    else {
+                        mAlternative.newSpecifiedPackage(
+                                this.grammar.getName_camelCase(),
+                                this.destinationPackage);
+                    }
+
+                    mNode.newNodeInternalTypeEnumEntry(alt_CamelCaseFullName);
+
+                    if (altIsPublic) {
+                        mNode.newNodeTypeEnumEntry(alt_CamelCaseFullName);
+                        mAlternative.newPublic();
+                        mAlternative.newNamedAltType();
+                    }
+                    else {
+                        mAlternative.newAnonymousAltType();
+                    }
+
+                    if (altIsProd) {
+                        mAlternative.newAlternativeNodeParent();
+                    }
+                    else {
+                        mAlternative
+                                .newAlternativeNamedParent(production_CamelCaseName);
+                    }
+
+                    for (Tree.TreeElement parserElement : alternative
+                            .getElements()) {
+                        Tree.TreeElement.SingleElement normalElement = (Tree.TreeElement.SingleElement) parserElement;
+                        String element_CamelCaseName = normalElement
                                 .getName_CamelCase();
-                        element_CamelCaseInternalType = element_CamelCaseType;
-                    }
-
-                    mAlternative.newNormalConstructorParameter(
-                            element_CamelCaseInternalType,
-                            element_CamelCaseName);
-                    mAlternative
-                            .newNormalContructorInitialization(element_CamelCaseName);
-
-                    mAlternative.newNormalElementDeclaration(
-                            element_CamelCaseInternalType,
-                            element_CamelCaseName);
-                    mAlternative.newNormalElementAccessor(
-                            element_CamelCaseInternalType,
-                            element_CamelCaseName);
-
-                    mAlternative.newNormalChildApply(element_CamelCaseName);
-
-                    if (elementIsPublicReadable) {
-                        MPublicElementAccessor publicElementAccessor = mAlternative
-                                .newPublicElementAccessor(element_CamelCaseName);
-                        if (element_CamelCaseType != null) {
-                            publicElementAccessor
-                                    .newPublicElementType(element_CamelCaseType);
+                        boolean elementIsPublicReadable;
+                        if (element_CamelCaseName == null) {
+                            element_CamelCaseName = "$"
+                                    + normalElement.getIndex();
+                            elementIsPublicReadable = false;
                         }
                         else {
-                            publicElementAccessor.newTokenElementType();
+                            elementIsPublicReadable = true;
                         }
+                        String element_CamelCaseType;
+                        String element_CamelCaseInternalType;
+
+                        IReferencable reference = normalElement.getReference();
+                        if (reference instanceof LexerExpression.NamedExpression) {
+                            LexerExpression.NamedExpression namedToken = (LexerExpression.NamedExpression) reference;
+                            element_CamelCaseType = namedToken
+                                    .getName_CamelCase();
+                            element_CamelCaseInternalType = element_CamelCaseType;
+                        }
+                        else if (reference instanceof LexerExpression.InlineExpression) {
+                            LexerExpression.InlineExpression inlineToken = (LexerExpression.InlineExpression) reference;
+                            element_CamelCaseType = null;
+                            element_CamelCaseInternalType = inlineToken
+                                    .getInternalName_CamelCase();
+                        }
+                        else {
+                            Tree.TreeProduction referencedProduction = (Tree.TreeProduction) reference;
+                            element_CamelCaseType = referencedProduction
+                                    .getName_CamelCase();
+                            element_CamelCaseInternalType = element_CamelCaseType;
+                        }
+
+                        mAlternative.newNormalConstructorParameter(
+                                element_CamelCaseInternalType,
+                                element_CamelCaseName);
+                        mAlternative
+                                .newNormalContructorInitialization(element_CamelCaseName);
+
+                        mAlternative.newNormalElementDeclaration(
+                                element_CamelCaseInternalType,
+                                element_CamelCaseName);
+                        mAlternative.newNormalElementAccessor(
+                                element_CamelCaseInternalType,
+                                element_CamelCaseName);
+
+                        mAlternative.newNormalChildApply(element_CamelCaseName);
+
+                        if (elementIsPublicReadable) {
+                            MPublicElementAccessor publicElementAccessor = mAlternative
+                                    .newPublicElementAccessor(element_CamelCaseName);
+                            if (element_CamelCaseType != null) {
+                                publicElementAccessor
+                                        .newPublicElementType(element_CamelCaseType);
+                            }
+                            else {
+                                publicElementAccessor.newTokenElementType();
+                            }
+                        }
+                    }
+
+                    try {
+                        BufferedWriter bw = new BufferedWriter(new FileWriter(
+                                new File(packageDirectory, "N"
+                                        + alt_CamelCaseFullName + ".java")));
+
+                        bw.write(mAlternative.toString());
+                        bw.close();
+                    }
+                    catch (IOException e) {
+                        throw new InternalException("TODO: raise error " + "N"
+                                + alt_CamelCaseFullName + ".java", e);
+                    }
+
+                }
+
+            }
+        }
+        else {
+            for (Parser.ParserProduction production : this.grammar.getParser()
+                    .getProductions()) {
+
+                String production_CamelCaseName = production
+                        .getName_CamelCase();
+
+                mNode.newNodeProductionTypeEnumEntry(production_CamelCaseName);
+
+                // if production is not a single anonymous alternative
+                if (production.getAlternatives().size() > 1
+                        || !production.getAlternatives().iterator().next()
+                                .getName().equals("")) {
+
+                    MProduction mProduction = new MProduction(
+                            production_CamelCaseName);
+
+                    if (this.destinationPackage.equals("")) {
+                        mProduction.newDefaultPackage(this.grammar
+                                .getName_camelCase());
+                    }
+                    else {
+                        mProduction.newSpecifiedPackage(
+                                this.grammar.getName_camelCase(),
+                                this.destinationPackage);
+                    }
+
+                    try {
+                        BufferedWriter bw = new BufferedWriter(new FileWriter(
+                                new File(packageDirectory, "N"
+                                        + production_CamelCaseName + ".java")));
+
+                        bw.write(mProduction.toString());
+                        bw.close();
+                    }
+                    catch (IOException e) {
+                        throw new InternalException("TODO: raise error " + "N"
+                                + production_CamelCaseName + ".java", e);
                     }
                 }
 
-                try {
-                    BufferedWriter bw = new BufferedWriter(new FileWriter(
-                            new File(packageDirectory, "N"
-                                    + alt_CamelCaseFullName + ".java")));
+                for (Parser.ParserAlternative alternative : production
+                        .getAlternatives()) {
+                    String alt_CamelCaseName = alternative.getName_CamelCase();
+                    boolean altIsPublic = alt_CamelCaseName != null;
+                    boolean altIsProd = altIsPublic
+                            && alt_CamelCaseName.equals("");
+                    String alt_CamelCaseFullName;
+                    if (altIsProd) {
+                        alt_CamelCaseFullName = production_CamelCaseName;
+                    }
+                    else if (altIsPublic) {
+                        alt_CamelCaseFullName = production_CamelCaseName + "_"
+                                + alt_CamelCaseName;
+                    }
+                    else {
+                        alt_CamelCaseFullName = production_CamelCaseName + "_$"
+                                + alternative.getIndex();
 
-                    bw.write(mAlternative.toString());
-                    bw.close();
-                }
-                catch (IOException e) {
-                    throw new InternalException("TODO: raise error " + "N"
-                            + alt_CamelCaseFullName + ".java", e);
+                    }
+
+                    MAlternative mAlternative = new MAlternative(
+                            alt_CamelCaseFullName);
+
+                    mAlternative.newAltProdType(production_CamelCaseName);
+
+                    if (altIsPublic) {
+                        mWalker.newWalkerIn(alt_CamelCaseFullName);
+                        mWalker.newWalkerCase(alt_CamelCaseFullName);
+                        mWalker.newWalkerOut(alt_CamelCaseFullName);
+                        mAlternative.newAltNormalApply();
+                    }
+                    else {
+                        mAlternative.newAltAnonymousApply();
+                    }
+
+                    if (this.destinationPackage.equals("")) {
+                        mAlternative.newDefaultPackage(this.grammar
+                                .getName_camelCase());
+                    }
+                    else {
+                        mAlternative.newSpecifiedPackage(
+                                this.grammar.getName_camelCase(),
+                                this.destinationPackage);
+                    }
+
+                    mNode.newNodeInternalTypeEnumEntry(alt_CamelCaseFullName);
+                    if (altIsPublic) {
+                        mNode.newNodeTypeEnumEntry(alt_CamelCaseFullName);
+                        mAlternative.newPublic();
+                        mAlternative.newNamedAltType();
+                    }
+                    else {
+                        mAlternative.newAnonymousAltType();
+                    }
+
+                    if (altIsProd) {
+                        mAlternative.newAlternativeNodeParent();
+                    }
+                    else {
+                        mAlternative
+                                .newAlternativeNamedParent(production_CamelCaseName);
+                    }
+
+                    for (Parser.ParserElement parserElement : alternative
+                            .getElements()) {
+                        Parser.ParserElement.SingleElement normalElement = (Parser.ParserElement.SingleElement) parserElement;
+                        String element_CamelCaseName = normalElement
+                                .getName_CamelCase();
+                        boolean elementIsPublicReadable;
+                        if (element_CamelCaseName == null) {
+                            element_CamelCaseName = "$"
+                                    + normalElement.getIndex();
+                            elementIsPublicReadable = false;
+                        }
+                        else {
+                            elementIsPublicReadable = true;
+                        }
+                        String element_CamelCaseType;
+                        String element_CamelCaseInternalType;
+
+                        IReferencable reference = normalElement.getReference();
+                        if (reference instanceof LexerExpression.NamedExpression) {
+                            LexerExpression.NamedExpression namedToken = (LexerExpression.NamedExpression) reference;
+                            element_CamelCaseType = namedToken
+                                    .getName_CamelCase();
+                            element_CamelCaseInternalType = element_CamelCaseType;
+                        }
+                        else if (reference instanceof LexerExpression.InlineExpression) {
+                            LexerExpression.InlineExpression inlineToken = (LexerExpression.InlineExpression) reference;
+                            element_CamelCaseType = null;
+                            element_CamelCaseInternalType = inlineToken
+                                    .getInternalName_CamelCase();
+                        }
+                        else {
+                            Parser.ParserProduction referencedProduction = (Parser.ParserProduction) reference;
+                            element_CamelCaseType = referencedProduction
+                                    .getName_CamelCase();
+                            element_CamelCaseInternalType = element_CamelCaseType;
+                        }
+
+                        mAlternative.newNormalConstructorParameter(
+                                element_CamelCaseInternalType,
+                                element_CamelCaseName);
+                        mAlternative
+                                .newNormalContructorInitialization(element_CamelCaseName);
+
+                        mAlternative.newNormalElementDeclaration(
+                                element_CamelCaseInternalType,
+                                element_CamelCaseName);
+                        mAlternative.newNormalElementAccessor(
+                                element_CamelCaseInternalType,
+                                element_CamelCaseName);
+
+                        mAlternative.newNormalChildApply(element_CamelCaseName);
+
+                        if (elementIsPublicReadable) {
+                            MPublicElementAccessor publicElementAccessor = mAlternative
+                                    .newPublicElementAccessor(element_CamelCaseName);
+                            if (element_CamelCaseType != null) {
+                                publicElementAccessor
+                                        .newPublicElementType(element_CamelCaseType);
+                            }
+                            else {
+                                publicElementAccessor.newTokenElementType();
+                            }
+                        }
+                    }
+
+                    try {
+                        BufferedWriter bw = new BufferedWriter(new FileWriter(
+                                new File(packageDirectory, "N"
+                                        + alt_CamelCaseFullName + ".java")));
+
+                        bw.write(mAlternative.toString());
+                        bw.close();
+                    }
+                    catch (IOException e) {
+                        throw new InternalException("TODO: raise error " + "N"
+                                + alt_CamelCaseFullName + ".java", e);
+                    }
                 }
             }
         }

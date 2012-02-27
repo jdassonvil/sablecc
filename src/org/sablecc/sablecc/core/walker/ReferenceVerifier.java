@@ -17,19 +17,56 @@
 
 package org.sablecc.sablecc.core.walker;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.sablecc.exception.*;
-import org.sablecc.sablecc.core.*;
+import org.sablecc.exception.InternalException;
+import org.sablecc.sablecc.core.Context;
+import org.sablecc.sablecc.core.Expression;
+import org.sablecc.sablecc.core.Grammar;
+import org.sablecc.sablecc.core.Investigator;
+import org.sablecc.sablecc.core.Lexer;
+import org.sablecc.sablecc.core.LexerExpression;
+import org.sablecc.sablecc.core.Parser;
 import org.sablecc.sablecc.core.Parser.ParserElement.DoubleElement;
 import org.sablecc.sablecc.core.Parser.ParserElement.ElementType;
 import org.sablecc.sablecc.core.Parser.ParserElement.SingleElement;
 import org.sablecc.sablecc.core.Parser.ParserProduction;
-import org.sablecc.sablecc.core.analysis.*;
-import org.sablecc.sablecc.core.interfaces.*;
-import org.sablecc.sablecc.core.transformation.*;
-import org.sablecc.sablecc.syntax3.node.*;
-import org.sablecc.util.*;
+import org.sablecc.sablecc.core.Selector;
+import org.sablecc.sablecc.core.SemanticException;
+import org.sablecc.sablecc.core.Tree;
+import org.sablecc.sablecc.core.analysis.GrammarVisitor;
+import org.sablecc.sablecc.core.interfaces.INameDeclaration;
+import org.sablecc.sablecc.core.interfaces.IReferencable;
+import org.sablecc.sablecc.core.interfaces.IToken;
+import org.sablecc.sablecc.core.transformation.AlternativeTransformation;
+import org.sablecc.sablecc.core.transformation.AlternativeTransformationElement;
+import org.sablecc.sablecc.core.transformation.AlternativeTransformationListElement;
+import org.sablecc.sablecc.core.transformation.ProductionTransformation;
+import org.sablecc.sablecc.core.transformation.ProductionTransformationElement;
+import org.sablecc.sablecc.syntax3.node.AAlternatedElement;
+import org.sablecc.sablecc.syntax3.node.ACharCharacter;
+import org.sablecc.sablecc.syntax3.node.ACharacterUnit;
+import org.sablecc.sablecc.syntax3.node.ADanglingElement;
+import org.sablecc.sablecc.syntax3.node.ADecCharacter;
+import org.sablecc.sablecc.syntax3.node.AEndUnit;
+import org.sablecc.sablecc.syntax3.node.AHexCharacter;
+import org.sablecc.sablecc.syntax3.node.ANameUnit;
+import org.sablecc.sablecc.syntax3.node.ANamedAlternativeReference;
+import org.sablecc.sablecc.syntax3.node.ANaturalElementReference;
+import org.sablecc.sablecc.syntax3.node.ANormalElement;
+import org.sablecc.sablecc.syntax3.node.ASeparatedElement;
+import org.sablecc.sablecc.syntax3.node.AStartUnit;
+import org.sablecc.sablecc.syntax3.node.AStringUnit;
+import org.sablecc.sablecc.syntax3.node.ATransformedElementReference;
+import org.sablecc.sablecc.syntax3.node.AUnnamedAlternativeReference;
+import org.sablecc.sablecc.syntax3.node.PAlternativeReference;
+import org.sablecc.sablecc.syntax3.node.PCharacter;
+import org.sablecc.sablecc.syntax3.node.PElementReference;
+import org.sablecc.sablecc.syntax3.node.PUnit;
+import org.sablecc.sablecc.syntax3.node.TIdentifier;
+import org.sablecc.util.Bound;
+import org.sablecc.util.CardinalityInterval;
 
 public abstract class ReferenceVerifier
         extends GrammarVisitor {
@@ -172,49 +209,8 @@ public abstract class ReferenceVerifier
                             this.grammar, unit.getIdentifier());
                     node.addReference(reference);
                 }
-                else if (pUnit instanceof AStringUnit) {
-                    AStringUnit unit = (AStringUnit) pUnit;
-
-                    node.addReference(this.grammar.getStringExpression(unit
-                            .getString().getText()));
-                }
-                else if (pUnit instanceof ACharacterUnit) {
-                    ACharacterUnit unit = (ACharacterUnit) pUnit;
-                    PCharacter pCharacter = unit.getCharacter();
-
-                    if (pCharacter instanceof ACharCharacter) {
-                        ACharCharacter character = (ACharCharacter) pCharacter;
-
-                        node.addReference(this.grammar
-                                .getCharExpression(character.getChar()
-                                        .getText()));
-                    }
-                    else if (pCharacter instanceof ADecCharacter) {
-                        ADecCharacter character = (ADecCharacter) pCharacter;
-
-                        node.addReference(this.grammar
-                                .getDecExpression(character.getDecChar()
-                                        .getText()));
-                    }
-                    else if (pCharacter instanceof AHexCharacter) {
-                        AHexCharacter character = (AHexCharacter) pCharacter;
-
-                        node.addReference(this.grammar
-                                .getHexExpression(character.getHexChar()
-                                        .getText()));
-                    }
-                    else {
-                        throw new InternalException("unhandled character type");
-                    }
-                }
-                else if (pUnit instanceof AStartUnit) {
-                    node.addReference(this.grammar.getStartExpression());
-                }
-                else if (pUnit instanceof AEndUnit) {
-                    node.addReference(this.grammar.getEndExpression());
-                }
                 else {
-                    throw new InternalException("unhandled unit type");
+                    node.addReference(findInlineToken(this.grammar, pUnit));
                 }
 
                 node.getAlternative().getProduction().getContext()
@@ -270,12 +266,18 @@ public abstract class ReferenceVerifier
                         this.grammar, ((ANameUnit) leftUnit).getIdentifier());
                 node.addLeftReference(reference);
             }
+            else {
+                node.addLeftReference(findInlineToken(this.grammar, leftUnit));
+            }
 
             if (rightUnit instanceof ANameUnit) {
 
                 IReferencable reference = tokenOrParserProductionExpected(
                         this.grammar, ((ANameUnit) rightUnit).getIdentifier());
                 node.addRightReference(reference);
+            }
+            else {
+                node.addLeftReference(findInlineToken(this.grammar, rightUnit));
             }
 
             node.getAlternative().getProduction().getContext()
@@ -1037,14 +1039,16 @@ public abstract class ReferenceVerifier
         public void visitTreeSingleElement(
                 Tree.TreeElement.SingleElement node) {
 
-            PUnit unit = node.getDeclaration().getUnit();
+            PUnit pUnit = node.getDeclaration().getUnit();
 
-            if (unit instanceof ANameUnit) {
+            if (pUnit instanceof ANameUnit) {
                 IReferencable reference = tokenOrTreeProductionExpected(
-                        this.grammar, ((ANameUnit) unit).getIdentifier());
+                        this.grammar, ((ANameUnit) pUnit).getIdentifier());
                 node.addReference(reference);
             }
-
+            else {
+                node.addReference(findInlineToken(this.grammar, pUnit));
+            }
         }
 
         @Override
@@ -1077,11 +1081,17 @@ public abstract class ReferenceVerifier
                         this.grammar, ((ANameUnit) leftUnit).getIdentifier());
                 node.addLeftReference(reference);
             }
+            else {
+                node.addLeftReference(findInlineToken(this.grammar, leftUnit));
+            }
 
             if (rightUnit instanceof ANameUnit) {
                 IReferencable reference = tokenOrTreeProductionExpected(
                         this.grammar, ((ANameUnit) rightUnit).getIdentifier());
                 node.addRightReference(reference);
+            }
+            else {
+                node.addRightReference(findInlineToken(this.grammar, rightUnit));
             }
         }
     }
@@ -1097,6 +1107,61 @@ public abstract class ReferenceVerifier
             throw SemanticException.undefinedReference(identifier);
         }
         return declaration;
+    }
+
+    private static IReferencable findInlineToken(
+            Grammar grammar,
+            PUnit pUnit) {
+
+        if (pUnit instanceof ANameUnit) {
+            throw new InternalException("ANameUnit can't be an inline token !");
+        }
+
+        IReferencable reference;
+
+        if (pUnit instanceof AStringUnit) {
+            AStringUnit unit = (AStringUnit) pUnit;
+
+            reference = grammar.getStringExpression(unit.getString().getText());
+        }
+        else if (pUnit instanceof ACharacterUnit) {
+            ACharacterUnit unit = (ACharacterUnit) pUnit;
+            PCharacter pCharacter = unit.getCharacter();
+
+            if (pCharacter instanceof ACharCharacter) {
+                ACharCharacter character = (ACharCharacter) pCharacter;
+
+                reference = grammar.getCharExpression(character.getChar()
+                        .getText());
+            }
+            else if (pCharacter instanceof ADecCharacter) {
+                ADecCharacter character = (ADecCharacter) pCharacter;
+
+                reference = grammar.getDecExpression(character.getDecChar()
+                        .getText());
+            }
+            else if (pCharacter instanceof AHexCharacter) {
+                AHexCharacter character = (AHexCharacter) pCharacter;
+
+                reference = grammar.getHexExpression(character.getHexChar()
+                        .getText());
+            }
+            else {
+                throw new InternalException("unhandled character type");
+            }
+        }
+        else if (pUnit instanceof AStartUnit) {
+            reference = grammar.getStartExpression();
+        }
+        else if (pUnit instanceof AEndUnit) {
+            reference = grammar.getEndExpression();
+        }
+        else {
+            throw new InternalException("unhandled unit type");
+        }
+
+        return reference;
+
     }
 
     private static INameDeclaration findTreeDeclaration(
