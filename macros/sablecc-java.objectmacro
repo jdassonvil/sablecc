@@ -881,6 +881,19 @@ $end: walker_out $
 }
 $end: walker $
 
+$comment: ========== CSTName ========== $
+
+$macro: cst_name $
+$insert: header $
+$expand: default_package, specified_package, before_first="\n" $
+
+enum CSTName {
+$macro: cst_name_declaration(name) $
+  P_$name,
+$end: cst_name_declaration $
+}
+$end: cst_name $
+
 $comment: ========== parser ========== $
 
 $macro: parser $

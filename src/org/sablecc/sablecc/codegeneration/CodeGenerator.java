@@ -36,6 +36,7 @@ import org.sablecc.sablecc.automaton.Marker;
 import org.sablecc.sablecc.automaton.State;
 import org.sablecc.sablecc.codegeneration.java.macro.MAlternative;
 import org.sablecc.sablecc.codegeneration.java.macro.MAnonymousToken;
+import org.sablecc.sablecc.codegeneration.java.macro.MCstName;
 import org.sablecc.sablecc.codegeneration.java.macro.MCustomToken;
 import org.sablecc.sablecc.codegeneration.java.macro.MEnd;
 import org.sablecc.sablecc.codegeneration.java.macro.MFinalState;
@@ -60,6 +61,7 @@ import org.sablecc.sablecc.core.LexerExpression;
 import org.sablecc.sablecc.core.Parser;
 import org.sablecc.sablecc.core.Tree;
 import org.sablecc.sablecc.core.interfaces.IReferencable;
+import org.sablecc.sablecc.grammar.Production;
 import org.sablecc.sablecc.launcher.Trace;
 
 public class CodeGenerator {
@@ -126,6 +128,8 @@ public class CodeGenerator {
         MParserException mParserException = new MParserException();
         MWalker mWalker = new MWalker();
         MParser mParser = new MParser();
+        MCstName mCstName = new MCstName();
+        
 
         if (this.destinationPackage.equals("")) {
             packageDirectory = new File(this.destinationDirectory,
@@ -145,6 +149,7 @@ public class CodeGenerator {
                     .newDefaultPackage(this.grammar.getName_camelCase());
             mWalker.newDefaultPackage(this.grammar.getName_camelCase());
             mParser.newDefaultPackage(this.grammar.getName_camelCase());
+            mCstName.newDefaultPackage(this.grammar.getName_camelCase());
         }
         else {
             packageDirectory = new File(this.destinationDirectory,
@@ -175,6 +180,8 @@ public class CodeGenerator {
             mWalker.newSpecifiedPackage(this.grammar.getName_camelCase(),
                     this.destinationPackage);
             mParser.newSpecifiedPackage(this.grammar.getName_camelCase(),
+                    this.destinationPackage);
+            mCstName.newSpecifiedPackage(this.grammar.getName_camelCase(),
                     this.destinationPackage);
         }
 
@@ -780,6 +787,10 @@ public class CodeGenerator {
                 }
             }
         }
+        
+        for(Production production : grammar.getSimplifiedGrammar().getProductions()){
+            mCstName.newCstNameDeclaration(production.getName());
+        }
 
 /*
         for (LRState state : grammar.getSimplifiedGrammar().getLrAutomaton().getStates()) {
@@ -1059,6 +1070,17 @@ public class CodeGenerator {
         }
         catch (IOException e) {
             throw new InternalException("TODO: raise error " + "Symbol.java", e);
+        }
+        
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(new File(
+                    packageDirectory, "CSTName.java")));
+
+            bw.write(mCstName.toString());
+            bw.close();
+        }
+        catch (IOException e) {
+            throw new InternalException("TODO: raise error " + "CSTName.java", e);
         }
 
         try {
