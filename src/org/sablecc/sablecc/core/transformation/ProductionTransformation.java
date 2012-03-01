@@ -258,6 +258,15 @@ public abstract class ProductionTransformation
                             grammar, this, treeProduction));
         }
 
+        public ImplicitProductionTransformation(
+                Grammar grammar,
+                Parser.ParserProduction parserProduction) {
+
+            super(grammar);
+
+            this.reference = parserProduction;
+        }
+
         @Override
         public IReferencable getProductionReference() {
 

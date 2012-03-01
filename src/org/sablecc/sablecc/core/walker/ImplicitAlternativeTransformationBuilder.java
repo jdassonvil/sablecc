@@ -90,12 +90,24 @@ public class ImplicitAlternativeTransformationBuilder
     public void visitParserProduction(
             Parser.ParserProduction node) {
 
-        if (node.getTransformation() != null) {
+        if (node.getTransformation().getElements().size() == 0) {
+            for (Parser.ParserAlternative alternative : node.getAlternatives()) {
+                if (alternative.getTransformation() == null) {
+                    alternative
+                            .addTransformation(new AlternativeTransformation.ImplicitAlternativeTransformation(
+                                    alternative,
+                                    new AlternativeTransformationElement.ImplicitNullElement(
+                                            this.grammar), this.grammar));
+                }
+            }
+        }
+        else {
             for (Parser.ParserAlternative alternative : node.getAlternatives()) {
                 this.productionTransformation = node.getTransformation();
                 alternative.apply(this);
             }
         }
+
     }
 
     @Override
