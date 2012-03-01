@@ -241,6 +241,11 @@ public class Context
                         + " token is both ignored and not.");
             }
             else {
+                LexerExpression token = (LexerExpression) intersection
+                        .iterator().next();
+                throw SemanticException.genericError("The "
+                        + token.getExpressionName()
+                        + " token is both ignored and not.");
                 // TODO
             }
         }
@@ -250,28 +255,24 @@ public class Context
 
         Automaton automaton = Automaton.getEmptyAutomaton();
 
-        if (GrammarCompiler.RESTRICTED_SYNTAX) {
-            for (IToken iToken : this.tokenSet) {
-                if (iToken instanceof LexerExpression) {
-                    LexerExpression token = (LexerExpression) iToken;
-                    automaton = automaton.or(token.getAutomaton().accept(
-                            token.getAcceptation()));
-                }
+        // TODO this code may only be stable with restricted syntax
+        for (IToken iToken : this.tokenSet) {
+            if (iToken instanceof LexerExpression) {
+                LexerExpression token = (LexerExpression) iToken;
+                automaton = automaton.or(token.getAutomaton().accept(
+                        token.getAcceptation()));
             }
+        }
 
-            for (IToken iToken : this.ignoredSet) {
-                if (iToken instanceof LexerExpression) {
-                    LexerExpression token = (LexerExpression) iToken;
-                    automaton = automaton.or(token.getAutomaton().accept(
-                            token.getAcceptation()));
-                }
+        for (IToken iToken : this.ignoredSet) {
+            if (iToken instanceof LexerExpression) {
+                LexerExpression token = (LexerExpression) iToken;
+                automaton = automaton.or(token.getAutomaton().accept(
+                        token.getAcceptation()));
             }
+        }
 
-            return automaton;
-        }
-        else {
-            throw new InternalException("not implemented");
-        }
+        return automaton;
     }
 
     private static void findTokensAndIgnored(
