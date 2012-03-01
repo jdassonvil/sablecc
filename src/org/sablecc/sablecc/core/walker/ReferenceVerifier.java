@@ -1203,7 +1203,7 @@ public abstract class ReferenceVerifier
                 && !(declaration instanceof Selector.ParserSelector.Selection)
                 && !(declaration instanceof Parser.ParserProduction
                         && ((Parser.ParserProduction) declaration).isToken() || ((Parser.ParserProduction) declaration)
-                        .isNormal())) {
+                            .isNormal())) {
 
             String[] expectedNames = { "token", "parser production" };
             throw SemanticException.badReference(reference,

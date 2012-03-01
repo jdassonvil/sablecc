@@ -49,8 +49,8 @@ public class TokenOrderVerifier
     @Override
     public void visitParserAlternative(
             Parser.ParserAlternative node) {
-        
-        if(node.getTransformation() != null){
+
+        if (node.getTransformation() != null) {
             this.alternative = node;
             this.previousIndex = -1;
             this.transformedProductionPreviousIndex.clear();
