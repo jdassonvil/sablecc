@@ -17,52 +17,18 @@
 
 package org.sablecc.sablecc.codegeneration;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.SortedSet;
 
-import org.sablecc.exception.InternalException;
-import org.sablecc.sablecc.alphabet.Bound;
-import org.sablecc.sablecc.alphabet.Interval;
-import org.sablecc.sablecc.alphabet.RichSymbol;
-import org.sablecc.sablecc.alphabet.Symbol;
-import org.sablecc.sablecc.automaton.Acceptation;
-import org.sablecc.sablecc.automaton.Automaton;
-import org.sablecc.sablecc.automaton.Marker;
-import org.sablecc.sablecc.automaton.State;
-import org.sablecc.sablecc.codegeneration.java.macro.MAlternative;
-import org.sablecc.sablecc.codegeneration.java.macro.MAnonymousToken;
-import org.sablecc.sablecc.codegeneration.java.macro.MCstName;
-import org.sablecc.sablecc.codegeneration.java.macro.MCustomToken;
-import org.sablecc.sablecc.codegeneration.java.macro.MEnd;
-import org.sablecc.sablecc.codegeneration.java.macro.MFinalState;
-import org.sablecc.sablecc.codegeneration.java.macro.MFinalStateSingleton;
-import org.sablecc.sablecc.codegeneration.java.macro.MLexer;
-import org.sablecc.sablecc.codegeneration.java.macro.MLexerException;
-import org.sablecc.sablecc.codegeneration.java.macro.MNode;
-import org.sablecc.sablecc.codegeneration.java.macro.MParser;
-import org.sablecc.sablecc.codegeneration.java.macro.MParserException;
-import org.sablecc.sablecc.codegeneration.java.macro.MProduction;
-import org.sablecc.sablecc.codegeneration.java.macro.MPublicElementAccessor;
-import org.sablecc.sablecc.codegeneration.java.macro.MState;
-import org.sablecc.sablecc.codegeneration.java.macro.MSymbol;
-import org.sablecc.sablecc.codegeneration.java.macro.MTester;
-import org.sablecc.sablecc.codegeneration.java.macro.MToken;
-import org.sablecc.sablecc.codegeneration.java.macro.MTransitionState;
-import org.sablecc.sablecc.codegeneration.java.macro.MTransitionStateSingleton;
-import org.sablecc.sablecc.codegeneration.java.macro.MWalker;
-import org.sablecc.sablecc.core.Context;
-import org.sablecc.sablecc.core.Grammar;
-import org.sablecc.sablecc.core.LexerExpression;
-import org.sablecc.sablecc.core.Parser;
-import org.sablecc.sablecc.core.Tree;
-import org.sablecc.sablecc.core.interfaces.IReferencable;
-import org.sablecc.sablecc.grammar.Production;
-import org.sablecc.sablecc.launcher.Trace;
+import org.sablecc.exception.*;
+import org.sablecc.sablecc.alphabet.*;
+import org.sablecc.sablecc.automaton.*;
+import org.sablecc.sablecc.codegeneration.java.macro.*;
+import org.sablecc.sablecc.core.*;
+import org.sablecc.sablecc.core.interfaces.*;
+import org.sablecc.sablecc.grammar.*;
+import org.sablecc.sablecc.launcher.*;
 
 public class CodeGenerator {
 
@@ -128,8 +94,7 @@ public class CodeGenerator {
         MParserException mParserException = new MParserException();
         MWalker mWalker = new MWalker();
         MParser mParser = new MParser();
-        MCstName mCstName = new MCstName();
-        
+        MCstProductionType mCstName = new MCstProductionType();
 
         if (this.destinationPackage.equals("")) {
             packageDirectory = new File(this.destinationDirectory,
@@ -787,10 +752,13 @@ public class CodeGenerator {
                 }
             }
         }
-        
-        for(Production production : grammar.getSimplifiedGrammar().getProductions()){
-            mCstName.newCstNameDeclaration(production.getName());
+
+        for (Production production : this.grammar.getSimplifiedGrammar()
+                .getProductions()) {
+            mCstName.newCstProductionTypeDeclaration(production.getName());
         }
+
+        mCstName.newCstProductionTypeDeclaration("TOKEN");
 
 /*
         for (LRState state : grammar.getSimplifiedGrammar().getLrAutomaton().getStates()) {
@@ -1071,7 +1039,7 @@ public class CodeGenerator {
         catch (IOException e) {
             throw new InternalException("TODO: raise error " + "Symbol.java", e);
         }
-        
+
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(new File(
                     packageDirectory, "CSTName.java")));
@@ -1080,7 +1048,8 @@ public class CodeGenerator {
             bw.close();
         }
         catch (IOException e) {
-            throw new InternalException("TODO: raise error " + "CSTName.java", e);
+            throw new InternalException("TODO: raise error " + "CSTName.java",
+                    e);
         }
 
         try {

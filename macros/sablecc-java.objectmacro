@@ -881,18 +881,18 @@ $end: walker_out $
 }
 $end: walker $
 
-$comment: ========== CSTName ========== $
+$comment: ========== CSTProductionType ========== $
 
-$macro: cst_name $
+$macro: cst_production_type $
 $insert: header $
 $expand: default_package, specified_package, before_first="\n" $
 
-enum CSTName {
-$macro: cst_name_declaration(name) $
+enum CSTProductionType {
+$macro: cst_production_type_declaration(name) $
   P_$name,
-$end: cst_name_declaration $
+$end: cst_production_type_declaration $
 }
-$end: cst_name $
+$end: cst_production_type $
 
 $comment: ========== parser ========== $
 
