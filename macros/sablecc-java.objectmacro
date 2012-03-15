@@ -950,19 +950,27 @@ public class Parser {
   }
 }
 
+$end: parser$
+
+$comment: ========== parseStack ========== $
+
+$macro: parse_stack $
+$insert: header $
+$expand: default_package, specified_package, before_first="\n" $
+
 class ParseStack {
   private ParseStackEntry stack = new ParseStackEntry(null, null, L_0.instance);
   private ParseStackEntry freeList;
 
-  void push(Node node, LRState state) {
+  void push(AbstractForest forest, LRState state) {
     ParseStackEntry entry;
     if(freeList != null) {
       entry = freeList;
       freeList = freeList.previous;
-      entry.set(stack, node, state);
+      entry.set(stack,forest, state);
     }
     else {
-      entry = new ParseStackEntry(stack, node, state);
+      entry = new ParseStackEntry(stack, forest, state);
     }
     stack = entry;
   }
@@ -971,48 +979,95 @@ class ParseStack {
     return stack.state;
   }
 
-  Node pop() {
-    Node node = stack.node;
+  AbstractForest pop() {
+    Forest forest = stack.forest;
     ParseStackEntry entry = stack;
     stack = stack.previous;
     entry.set(freeList, null, null);
     freeList = entry;
-    return node;
+    return forest;
   }
 
   private static class ParseStackEntry {
     ParseStackEntry previous;
-    Node node;
+    AbstractForest forest;
     LRState state;
 
     ParseStackEntry(
         ParseStackEntry previous,
-        Node node,
+        AbstractForest forest,
         LRState state) {
      this.previous = previous;
-     this.node = node;
+     this.forest = forest;
      this.state = state;
     }
 
     void set(
         ParseStackEntry previous,
-        Node node,
+        AbstractForest forest,
         LRState state) {
      this.previous = previous;
-     this.node = node;
+     this.forest = forest;
      this.state = state;
    }
   }
 }
 
+$end: parse_stack$
+
+$comment: ========== abstract_forest ========== $
+
+$macro: abstract_forest $
+$insert: header $
+$expand: default_package, specified_package, before_first="\n" $
+
+import java.util.*;
+
+class AbstractForest{
+
+	private CSTProductionType type;
+	private List<Node> nodes = new ArrayList<Node>();
+
+	public abstractForest(CSTProductionType type,List<Node> nodes){
+	
+	  this.type = type;
+	  this.nodes = nodes;
+	}
+	
+	public CSTProductionType getProductionType(){
+	  return type;
+	}
+	
+	public List<Node> getNodes(){
+	  return nodes;
+	}
+}
+
+$end: abstract_forest $
+
+
+$comment: ========== lr_state ========== $
+
+$macro: lr_state $
+$insert: header $
+$expand: default_package, specified_package, before_first="\n" $
+
 abstract class LRState {
 
   abstract Node apply(Parser parser)
       throws ParserException, LexerException, IOException;
-  abstract LRState getTarget(Node node)
+  
+  abstract LRState getTokenTarget(InternalType type)
+      throws ParserException, LexerException, IOException;
+  
+  abstract LRState getProductionTarget(CSTProductionType type)
       throws ParserException, LexerException, IOException;
 }
+$end: lr_state $
+
 $macro: lr_state_singleton(number) $
+$insert: header $
+$expand: default_package, specified_package, before_first="\n" $
 
 class L_$number
     extends LRState {
@@ -1100,7 +1155,7 @@ $end: end_token_lr_transition_target $
   }
 
   @Override
-  LRState getProductionTarget(ProductionType type)
+  LRState getProductionTarget(CSTProductionType type
       throws ParserException, LexerException, IOException {
 
     switch(type) {
@@ -1113,4 +1168,3 @@ $end: production_lr_transition_target $
   }
 }
 $end: lr_state_singleton $
-$end: parser $
