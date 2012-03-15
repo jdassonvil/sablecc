@@ -17,56 +17,19 @@
 
 package org.sablecc.sablecc.core.walker;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-import org.sablecc.exception.InternalException;
-import org.sablecc.sablecc.core.Context;
-import org.sablecc.sablecc.core.Expression;
-import org.sablecc.sablecc.core.Grammar;
-import org.sablecc.sablecc.core.Investigator;
-import org.sablecc.sablecc.core.Lexer;
-import org.sablecc.sablecc.core.LexerExpression;
-import org.sablecc.sablecc.core.Parser;
+import org.sablecc.exception.*;
+import org.sablecc.sablecc.core.*;
 import org.sablecc.sablecc.core.Parser.ParserElement.DoubleElement;
 import org.sablecc.sablecc.core.Parser.ParserElement.ElementType;
 import org.sablecc.sablecc.core.Parser.ParserElement.SingleElement;
 import org.sablecc.sablecc.core.Parser.ParserProduction;
-import org.sablecc.sablecc.core.Selector;
-import org.sablecc.sablecc.core.SemanticException;
-import org.sablecc.sablecc.core.Tree;
-import org.sablecc.sablecc.core.analysis.GrammarVisitor;
-import org.sablecc.sablecc.core.interfaces.INameDeclaration;
-import org.sablecc.sablecc.core.interfaces.IReferencable;
-import org.sablecc.sablecc.core.interfaces.IToken;
-import org.sablecc.sablecc.core.transformation.AlternativeTransformation;
-import org.sablecc.sablecc.core.transformation.AlternativeTransformationElement;
-import org.sablecc.sablecc.core.transformation.AlternativeTransformationListElement;
-import org.sablecc.sablecc.core.transformation.ProductionTransformation;
-import org.sablecc.sablecc.core.transformation.ProductionTransformationElement;
-import org.sablecc.sablecc.syntax3.node.AAlternatedElement;
-import org.sablecc.sablecc.syntax3.node.ACharCharacter;
-import org.sablecc.sablecc.syntax3.node.ACharacterUnit;
-import org.sablecc.sablecc.syntax3.node.ADanglingElement;
-import org.sablecc.sablecc.syntax3.node.ADecCharacter;
-import org.sablecc.sablecc.syntax3.node.AEndUnit;
-import org.sablecc.sablecc.syntax3.node.AHexCharacter;
-import org.sablecc.sablecc.syntax3.node.ANameUnit;
-import org.sablecc.sablecc.syntax3.node.ANamedAlternativeReference;
-import org.sablecc.sablecc.syntax3.node.ANaturalElementReference;
-import org.sablecc.sablecc.syntax3.node.ANormalElement;
-import org.sablecc.sablecc.syntax3.node.ASeparatedElement;
-import org.sablecc.sablecc.syntax3.node.AStartUnit;
-import org.sablecc.sablecc.syntax3.node.AStringUnit;
-import org.sablecc.sablecc.syntax3.node.ATransformedElementReference;
-import org.sablecc.sablecc.syntax3.node.AUnnamedAlternativeReference;
-import org.sablecc.sablecc.syntax3.node.PAlternativeReference;
-import org.sablecc.sablecc.syntax3.node.PCharacter;
-import org.sablecc.sablecc.syntax3.node.PElementReference;
-import org.sablecc.sablecc.syntax3.node.PUnit;
-import org.sablecc.sablecc.syntax3.node.TIdentifier;
-import org.sablecc.util.Bound;
-import org.sablecc.util.CardinalityInterval;
+import org.sablecc.sablecc.core.analysis.*;
+import org.sablecc.sablecc.core.interfaces.*;
+import org.sablecc.sablecc.core.transformation.*;
+import org.sablecc.sablecc.syntax3.node.*;
+import org.sablecc.util.*;
 
 public abstract class ReferenceVerifier
         extends GrammarVisitor {
