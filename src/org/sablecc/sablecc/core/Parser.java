@@ -195,7 +195,7 @@ public class Parser
                 Parser.ParserAlternative firstAlternative = this.alternatives
                         .get(0);
                 if (firstAlternative.getName() != null
-                        && firstAlternative.equals(reference)) {
+                        && firstAlternative.getName().equals(reference)) {
                     return firstAlternative;
                 }
                 return null;
