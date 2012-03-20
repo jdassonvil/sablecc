@@ -198,6 +198,16 @@ public abstract class SAlternativeTransformationElement {
             return this.alternative;
         }
 
+        public String getAlternativeName() {
+
+            if (this.alternative instanceof Tree.TreeAlternative) {
+                return ((Tree.TreeAlternative) this.alternative).getName();
+            }
+            else {
+                return ((Parser.ParserAlternative) this.alternative).getName();
+            }
+        }
+
         public List<SAlternativeTransformationElement> getElements() {
 
             return this.elements;
