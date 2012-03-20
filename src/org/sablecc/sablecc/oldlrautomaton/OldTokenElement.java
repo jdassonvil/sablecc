@@ -17,6 +17,7 @@
 
 package org.sablecc.sablecc.oldlrautomaton;
 
+import org.sablecc.sablecc.core.*;
 import org.sablecc.sablecc.grammar.*;
 
 public class OldTokenElement
@@ -26,7 +27,10 @@ public class OldTokenElement
 
     private final Element.TokenElement origin;
 
+    private final String typeName;
+
     OldTokenElement(
+            Grammar grammar,
             OldAlternative oldAlternative,
             int position,
             String shortName,
@@ -36,11 +40,35 @@ public class OldTokenElement
         super(oldAlternative, position, shortName);
         this.oldToken = oldToken;
         this.origin = element;
+
+        if (!getToken().getName().equals("$end")) {
+            LexerExpression lexerExpression = grammar
+                    .getLexerExpression(getToken().getName());
+            if (lexerExpression instanceof LexerExpression.NamedExpression) {
+                LexerExpression.NamedExpression namedExpression = (LexerExpression.NamedExpression) lexerExpression;
+                this.typeName = namedExpression.getName_CamelCase();
+            }
+            else {
+                LexerExpression.InlineExpression inlineExpression = (LexerExpression.InlineExpression) lexerExpression;
+
+                this.typeName = ""
+                        + inlineExpression.getInternalName_CamelCase();
+            }
+        }
+        else {
+            this.typeName = "";
+        }
     }
 
     public OldToken getToken() {
 
         return this.oldToken;
+    }
+
+    @Override
+    public String getTypeName() {
+
+        return this.typeName;
     }
 
     @Override

@@ -1175,7 +1175,8 @@ public class Grammar
         for (Production production : sGrammar.getProductions()) {
 
             if (oldGrammar == null) {
-                oldGrammar = new OldGrammar(production.getName(), production);
+                oldGrammar = new OldGrammar(this, production.getName(),
+                        production);
             }
 
             OldProduction oldProduction = oldGrammar.getProduction(
@@ -1190,14 +1191,14 @@ public class Grammar
                     if (element instanceof Element.TokenElement) {
                         Element.TokenElement tokenElement = (Element.TokenElement) element;
                         oldAlternative
-                                .addTokenElement("", oldGrammar
-                                        .getToken(tokenElement.getTypeName()),
-                                        tokenElement);
+                                .addTokenElement(this, element.getName(),
+                                        oldGrammar.getToken(tokenElement
+                                                .getTypeName()), tokenElement);
                     }
                     else {
                         Element.ProductionElement productionElement = (Element.ProductionElement) element;
-                        oldAlternative.addProductionElement("", oldGrammar
-                                .getProduction(element.getTypeName(),
+                        oldAlternative.addProductionElement(element.getName(),
+                                oldGrammar.getProduction(element.getTypeName(),
                                         productionElement.getReference()),
                                 productionElement);
                     }

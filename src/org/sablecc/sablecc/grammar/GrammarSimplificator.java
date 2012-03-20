@@ -165,11 +165,13 @@ public class GrammarSimplificator
                             .getText();
 
                     simpleElement = new Element.ProductionElement(
+                            node.getName(),
                             GrammarSimplificator.grammar
                                     .getProduction(prodName));
                 }
                 else {
-                    simpleElement = new Element.TokenElement(unit);
+                    simpleElement = new Element.TokenElement(node.getName(),
+                            unit);
                 }
 
                 if (node.getCardinality().equals(CardinalityInterval.ONE_ONE)) {
@@ -177,8 +179,8 @@ public class GrammarSimplificator
                 }
                 else {
                     Element complexElement = new Element.ProductionElement(
-                            newNormalProduction(node, simpleElement,
-                                    node.getCardinality()));
+                            node.getName(), newNormalProduction(node,
+                                    simpleElement, node.getCardinality()));
                     this.elements.add(complexElement);
                 }
 
@@ -212,11 +214,11 @@ public class GrammarSimplificator
                 String prodName = ((ANameUnit) leftUnit).getIdentifier()
                         .getText();
 
-                leftSimpleElement = new Element.ProductionElement(
+                leftSimpleElement = new Element.ProductionElement("",
                         GrammarSimplificator.grammar.getProduction(prodName));
             }
             else {
-                leftSimpleElement = new Element.TokenElement(leftUnit);
+                leftSimpleElement = new Element.TokenElement("", leftUnit);
             }
 
             Element rightSimpleElement;
@@ -225,18 +227,18 @@ public class GrammarSimplificator
                 String prodName = ((ANameUnit) rightUnit).getIdentifier()
                         .getText();
 
-                rightSimpleElement = new Element.ProductionElement(
+                rightSimpleElement = new Element.ProductionElement("",
                         GrammarSimplificator.grammar.getProduction(prodName));
             }
             else {
-                rightSimpleElement = new Element.TokenElement(rightUnit);
+                rightSimpleElement = new Element.TokenElement("", rightUnit);
             }
 
             if (node.getCardinality().equals(CardinalityInterval.ONE_ONE)) {
                 this.elements.add(leftSimpleElement);
             }
             else {
-                Element complexElement = new Element.ProductionElement(
+                Element complexElement = new Element.ProductionElement("",
                         newSeparatedProduction(node, leftSimpleElement,
                                 rightSimpleElement, node.getCardinality()));
                 this.elements.add(complexElement);
@@ -258,11 +260,11 @@ public class GrammarSimplificator
                 String prodName = ((ANameUnit) leftUnit).getIdentifier()
                         .getText();
 
-                leftSimpleElement = new Element.ProductionElement(
+                leftSimpleElement = new Element.ProductionElement("",
                         GrammarSimplificator.grammar.getProduction(prodName));
             }
             else {
-                leftSimpleElement = new Element.TokenElement(leftUnit);
+                leftSimpleElement = new Element.TokenElement("", leftUnit);
             }
 
             Element rightSimpleElement;
@@ -271,11 +273,11 @@ public class GrammarSimplificator
                 String prodName = ((ANameUnit) rightUnit).getIdentifier()
                         .getText();
 
-                rightSimpleElement = new Element.ProductionElement(
+                rightSimpleElement = new Element.ProductionElement("",
                         GrammarSimplificator.grammar.getProduction(prodName));
             }
             else {
-                rightSimpleElement = new Element.TokenElement(rightUnit);
+                rightSimpleElement = new Element.TokenElement("", rightUnit);
             }
 
             if (node.getCardinality().equals(CardinalityInterval.ONE_ONE)) {
@@ -283,7 +285,7 @@ public class GrammarSimplificator
                 this.elements.add(rightSimpleElement);
             }
             else {
-                Element complexElement = new Element.ProductionElement(
+                Element complexElement = new Element.ProductionElement("",
                         newAlternatedProduction(node, leftSimpleElement,
                                 rightSimpleElement, node.getCardinality()));
                 this.elements.add(complexElement);
@@ -549,7 +551,7 @@ public class GrammarSimplificator
             LinkedList<Element> firstAlternativeElements = new LinkedList<Element>();
             LinkedList<SAlternativeTransformationListElement> firstAltTransformationElements = new LinkedList<SAlternativeTransformationListElement>();
 
-            Element firstElement = new Element.ProductionElement(plusProd);
+            Element firstElement = new Element.ProductionElement("", plusProd);
             firstAlternativeElements.add(firstElement);
             firstAltTransformationElements
                     .add(new SAlternativeTransformationListElement.NormalListElement(
@@ -591,7 +593,7 @@ public class GrammarSimplificator
 
             Element firstElement;
             if (this.grammar.containsProduction(plusName)) {
-                firstElement = new Element.ProductionElement(
+                firstElement = new Element.ProductionElement("",
                         this.grammar.getProduction(plusName));
             }
             else {
@@ -650,7 +652,7 @@ public class GrammarSimplificator
 
                 Element firstElement;
                 if (this.grammar.containsProduction(previousNumberName)) {
-                    firstElement = new Element.ProductionElement(
+                    firstElement = new Element.ProductionElement("",
                             this.grammar.getProduction(previousNumberName));
                 }
                 else {
@@ -659,7 +661,7 @@ public class GrammarSimplificator
                             new CardinalityInterval(this.cardinality
                                     .getLowerBound().subtract(BigInteger.ONE)));
 
-                    firstElement = new Element.ProductionElement(
+                    firstElement = new Element.ProductionElement("",
                             previousNumberProd);
                 }
 
@@ -698,11 +700,11 @@ public class GrammarSimplificator
 
             Element firstElement;
             if (this.grammar.containsProduction(numberName)) {
-                firstElement = new Element.ProductionElement(
+                firstElement = new Element.ProductionElement("",
                         this.grammar.getProduction(atLeastName));
             }
             else {
-                firstElement = new Element.ProductionElement(
+                firstElement = new Element.ProductionElement("",
                         newNormalProduction(
                                 this.parserElement,
                                 this.sElement,
@@ -715,11 +717,11 @@ public class GrammarSimplificator
 
             Element secondElement;
             if (this.grammar.containsProduction(starName)) {
-                secondElement = new Element.ProductionElement(
+                secondElement = new Element.ProductionElement("",
                         this.grammar.getProduction(starName));
             }
             else {
-                secondElement = new Element.ProductionElement(
+                secondElement = new Element.ProductionElement("",
                         newNormalProduction(this.parserElement, this.sElement,
                                 CardinalityInterval.ZERO_OR_MORE));
             }
@@ -772,7 +774,7 @@ public class GrammarSimplificator
                 Element firstElement;
 
                 if (this.grammar.containsProduction(plusOneIntervalName)) {
-                    firstElement = new Element.ProductionElement(
+                    firstElement = new Element.ProductionElement("",
                             this.grammar.getProduction(plusOneIntervalName));
 
                     firstAltTransformationElements
@@ -780,7 +782,7 @@ public class GrammarSimplificator
                                     firstElement));
                 }
                 else {
-                    firstElement = new Element.ProductionElement(
+                    firstElement = new Element.ProductionElement("",
                             newNormalProduction(this.parserElement,
                                     this.sElement, new CardinalityInterval(
                                             Bound.ONE, new Bound(
@@ -843,11 +845,11 @@ public class GrammarSimplificator
                 Element firstElement;
 
                 if (this.grammar.containsProduction(smallerIntervalName)) {
-                    firstElement = new Element.ProductionElement(
+                    firstElement = new Element.ProductionElement("",
                             this.grammar.getProduction(smallerIntervalName));
                 }
                 else {
-                    firstElement = new Element.ProductionElement(
+                    firstElement = new Element.ProductionElement("",
                             newNormalProduction(this.parserElement,
                                     this.sElement, new CardinalityInterval(
                                             this.cardinality.getLowerBound(),
@@ -880,11 +882,11 @@ public class GrammarSimplificator
                 Element firstElement;
 
                 if (this.grammar.containsProduction(lowerNumberName)) {
-                    firstElement = new Element.ProductionElement(
+                    firstElement = new Element.ProductionElement("",
                             this.grammar.getProduction(lowerNumberName));
                 }
                 else {
-                    firstElement = new Element.ProductionElement(
+                    firstElement = new Element.ProductionElement("",
                             newNormalProduction(this.parserElement,
                                     this.sElement, new CardinalityInterval(
                                             this.cardinality.getLowerBound(),
@@ -898,11 +900,11 @@ public class GrammarSimplificator
                 Element secondElement;
 
                 if (this.grammar.containsProduction(zeroToIntervalWidth)) {
-                    secondElement = new Element.ProductionElement(
+                    secondElement = new Element.ProductionElement("",
                             this.grammar.getProduction(zeroToIntervalWidth));
                 }
                 else {
-                    secondElement = new Element.ProductionElement(
+                    secondElement = new Element.ProductionElement("",
                             newNormalProduction(this.parserElement,
                                     this.sElement,
                                     new CardinalityInterval(Bound.ZERO,
@@ -1036,11 +1038,11 @@ public class GrammarSimplificator
             Element firstElement;
 
             if (this.sLeftElement instanceof Element.TokenElement) {
-                firstElement = new Element.TokenElement(
+                firstElement = new Element.TokenElement("",
                         this.sLeftElement.getTypeName());
             }
             else {
-                firstElement = new Element.ProductionElement(
+                firstElement = new Element.ProductionElement("",
                         ((Element.ProductionElement) this.sLeftElement)
                                 .getReference());
             }
@@ -1052,12 +1054,12 @@ public class GrammarSimplificator
 
             if (GrammarSimplificator.grammar
                     .containsProduction(alternatedStarName)) {
-                secondElement = new Element.ProductionElement(
+                secondElement = new Element.ProductionElement("",
                         GrammarSimplificator.grammar
                                 .getProduction(alternatedStarName));
             }
             else {
-                secondElement = new Element.ProductionElement(
+                secondElement = new Element.ProductionElement("",
                         newAlternatedProduction(this.parserElement,
                                 this.sLeftElement, this.sRightElement,
                                 CardinalityInterval.ZERO_OR_MORE));
@@ -1097,12 +1099,12 @@ public class GrammarSimplificator
             Element firstElement;
 
             if (this.grammar.containsProduction(separatedPlusName)) {
-                firstElement = new Element.ProductionElement(
+                firstElement = new Element.ProductionElement("",
                         GrammarSimplificator.grammar
                                 .getProduction(separatedPlusName));
             }
             else {
-                firstElement = new Element.ProductionElement(
+                firstElement = new Element.ProductionElement("",
                         newAlternatedProduction(this.parserElement,
                                 this.sRightElement, this.sLeftElement,
                                 CardinalityInterval.ONE_OR_MORE));
@@ -1166,7 +1168,7 @@ public class GrammarSimplificator
 
                 if (GrammarSimplificator.grammar
                         .containsProduction(previousNumberName)) {
-                    firstElement = new Element.ProductionElement(
+                    firstElement = new Element.ProductionElement("",
                             GrammarSimplificator.grammar
                                     .getProduction(previousNumberName));
                 }
@@ -1177,7 +1179,7 @@ public class GrammarSimplificator
                             new CardinalityInterval(this.cardinality
                                     .getLowerBound().subtract(BigInteger.ONE)));
 
-                    firstElement = new Element.ProductionElement(
+                    firstElement = new Element.ProductionElement("",
                             previousNumberProd);
                 }
 
@@ -1225,11 +1227,11 @@ public class GrammarSimplificator
             Element firstElement;
 
             if (this.grammar.containsProduction(numberName)) {
-                firstElement = new Element.ProductionElement(
+                firstElement = new Element.ProductionElement("",
                         GrammarSimplificator.grammar.getProduction(atLeastName));
             }
             else {
-                firstElement = new Element.ProductionElement(
+                firstElement = new Element.ProductionElement("",
                         newSeparatedProduction(
                                 this.parserElement,
                                 this.sLeftElement,
@@ -1245,11 +1247,11 @@ public class GrammarSimplificator
             Element secondElement;
 
             if (this.grammar.containsProduction(starName)) {
-                secondElement = new Element.ProductionElement(
+                secondElement = new Element.ProductionElement("",
                         GrammarSimplificator.grammar.getProduction(starName));
             }
             else {
-                secondElement = new Element.ProductionElement(
+                secondElement = new Element.ProductionElement("",
                         newAlternatedProduction(this.parserElement,
                                 this.sRightElement, this.sLeftElement,
                                 CardinalityInterval.ZERO_OR_MORE));
@@ -1301,7 +1303,7 @@ public class GrammarSimplificator
                     Element firstElement;
 
                     if (this.grammar.containsProduction(qmarkLeftName)) {
-                        firstElement = new Element.ProductionElement(
+                        firstElement = new Element.ProductionElement("",
                                 this.grammar.getProduction(qmarkLeftName));
                     }
                     else {
@@ -1313,7 +1315,8 @@ public class GrammarSimplificator
                                 this.sLeftElement.clone()));
                         qmarkProd.addAlternative(new Alternative(qmarkProd));
 
-                        firstElement = new Element.ProductionElement(qmarkProd);
+                        firstElement = new Element.ProductionElement("",
+                                qmarkProd);
                     }
 
                     firstAlternativeElement.add(firstElement);
@@ -1340,11 +1343,11 @@ public class GrammarSimplificator
                     Element firstElement;
 
                     if (this.grammar.containsProduction(plusOneIntervalName)) {
-                        firstElement = new Element.ProductionElement(
+                        firstElement = new Element.ProductionElement("",
                                 this.grammar.getProduction(plusOneIntervalName));
                     }
                     else {
-                        firstElement = new Element.ProductionElement(
+                        firstElement = new Element.ProductionElement("",
                                 newSeparatedProduction(
                                         this.parserElement,
                                         this.sLeftElement,
@@ -1385,11 +1388,13 @@ public class GrammarSimplificator
                 if (this.grammar
                         .containsProduction(alternatedZeroToIntervalWidth)) {
                     secondElement = new Element.ProductionElement(
+                            "",
                             this.grammar
                                     .getProduction(alternatedZeroToIntervalWidth));
                 }
                 else {
                     secondElement = new Element.ProductionElement(
+                            "",
                             newAlternatedProduction(this.parserElement,
                                     this.sRightElement, this.sLeftElement,
                                     new CardinalityInterval(Bound.ZERO,
@@ -1424,11 +1429,11 @@ public class GrammarSimplificator
                 Element firstElement;
 
                 if (this.grammar.containsProduction(lowerNumberName)) {
-                    firstElement = new Element.ProductionElement(
+                    firstElement = new Element.ProductionElement("",
                             this.grammar.getProduction(lowerNumberName));
                 }
                 else {
-                    firstElement = new Element.ProductionElement(
+                    firstElement = new Element.ProductionElement("",
                             newSeparatedProduction(
                                     this.parserElement,
                                     this.sLeftElement,
@@ -1445,11 +1450,11 @@ public class GrammarSimplificator
                 Element secondElement;
 
                 if (this.grammar.containsProduction(zeroToLowerBoundName)) {
-                    secondElement = new Element.ProductionElement(
+                    secondElement = new Element.ProductionElement("",
                             this.grammar.getProduction(zeroToLowerBoundName));
                 }
                 else {
-                    secondElement = new Element.ProductionElement(
+                    secondElement = new Element.ProductionElement("",
                             newAlternatedProduction(this.parserElement,
                                     this.sRightElement, this.sLeftElement,
                                     new CardinalityInterval(Bound.ZERO,
@@ -1591,8 +1596,8 @@ public class GrammarSimplificator
             LinkedList<Element> firstAlternativeElements = new LinkedList<Element>();
             LinkedList<SAlternativeTransformationListElement> firstAltTransformationElements = new LinkedList<SAlternativeTransformationListElement>();
 
-            firstAlternativeElements
-                    .add(new Element.ProductionElement(plusProd));
+            firstAlternativeElements.add(new Element.ProductionElement("",
+                    plusProd));
             firstAlternativeElements.add(this.sLeftElement.clone());
             firstAlternativeElements.add(this.sRightElement.clone());
 
@@ -1647,7 +1652,7 @@ public class GrammarSimplificator
             Element firstElement;
 
             if (this.grammar.containsProduction(plusName)) {
-                firstElement = new Element.ProductionElement(
+                firstElement = new Element.ProductionElement("",
                         this.grammar.getProduction(plusName));
             }
             else {
@@ -1709,7 +1714,7 @@ public class GrammarSimplificator
 
                 Element firstElement;
                 if (this.grammar.containsProduction(previousNumberName)) {
-                    firstElement = new Element.ProductionElement(
+                    firstElement = new Element.ProductionElement("",
                             this.grammar.getProduction(previousNumberName));
                 }
                 else {
@@ -1719,7 +1724,7 @@ public class GrammarSimplificator
                             new CardinalityInterval(this.cardinality
                                     .getLowerBound().subtract(BigInteger.ONE)));
 
-                    firstElement = new Element.ProductionElement(
+                    firstElement = new Element.ProductionElement("",
                             previousNumberProd);
                 }
 
@@ -1764,11 +1769,11 @@ public class GrammarSimplificator
             Element firstElement;
 
             if (this.grammar.containsProduction(numberName)) {
-                firstElement = new Element.ProductionElement(
+                firstElement = new Element.ProductionElement("",
                         this.grammar.getProduction(atLeastName));
             }
             else {
-                firstElement = new Element.ProductionElement(
+                firstElement = new Element.ProductionElement("",
                         newAlternatedProduction(
                                 this.parserElement,
                                 this.sLeftElement,
@@ -1784,11 +1789,11 @@ public class GrammarSimplificator
             Element secondElement;
 
             if (this.grammar.containsProduction(starName)) {
-                secondElement = new Element.ProductionElement(
+                secondElement = new Element.ProductionElement("",
                         this.grammar.getProduction(starName));
             }
             else {
-                secondElement = new Element.ProductionElement(
+                secondElement = new Element.ProductionElement("",
                         newAlternatedProduction(this.parserElement,
                                 this.sLeftElement, this.sRightElement,
                                 CardinalityInterval.ZERO_OR_MORE));
@@ -1865,12 +1870,12 @@ public class GrammarSimplificator
                             + ".." + upperBoundValue.toString();
 
                     if (this.grammar.containsProduction(smallerIntervalName)) {
-                        firstElement = new Element.ProductionElement(
+                        firstElement = new Element.ProductionElement("",
                                 this.grammar.getProduction(smallerIntervalName));
                     }
                     else {
 
-                        firstElement = new Element.ProductionElement(
+                        firstElement = new Element.ProductionElement("",
                                 newAlternatedProduction(
                                         this.parserElement,
                                         this.sLeftElement,
@@ -1956,11 +1961,11 @@ public class GrammarSimplificator
                 Element firstElement;
 
                 if (this.grammar.containsProduction(lowerNumberName)) {
-                    firstElement = new Element.ProductionElement(
+                    firstElement = new Element.ProductionElement("",
                             this.grammar.getProduction(lowerNumberName));
                 }
                 else {
-                    firstElement = new Element.ProductionElement(
+                    firstElement = new Element.ProductionElement("",
                             newAlternatedProduction(
                                     this.parserElement,
                                     this.sLeftElement,
@@ -1979,11 +1984,11 @@ public class GrammarSimplificator
                         + upperBoundValue.subtract(lowerBoundValue).toString();
 
                 if (this.grammar.containsProduction(zeroToIntervalWidthName)) {
-                    secondElement = new Element.ProductionElement(
+                    secondElement = new Element.ProductionElement("",
                             this.grammar.getProduction(zeroToIntervalWidthName));
                 }
                 else {
-                    secondElement = new Element.ProductionElement(
+                    secondElement = new Element.ProductionElement("",
                             newAlternatedProduction(this.parserElement,
                                     this.sLeftElement, this.sRightElement,
                                     new CardinalityInterval(Bound.ZERO,

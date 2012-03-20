@@ -44,6 +44,12 @@ public class OldProductionElement
     }
 
     @Override
+    public String getTypeName() {
+
+        return this.origin.getTypeName();
+    }
+
+    @Override
     public String toString() {
 
         return "[" + getName() + ":]" + this.oldProduction.getName();

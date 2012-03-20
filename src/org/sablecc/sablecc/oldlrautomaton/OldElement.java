@@ -46,6 +46,8 @@ public abstract class OldElement {
         return this.shortName;
     }
 
+    abstract public String getTypeName();
+
     void setName(
             String name) {
 
