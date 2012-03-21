@@ -26,7 +26,8 @@ import org.sablecc.sablecc.core.interfaces.*;
 import org.sablecc.sablecc.grammar.*;
 import org.sablecc.sablecc.grammar.interfaces.*;
 
-public abstract class SAlternativeTransformationElement {
+public abstract class SAlternativeTransformationElement
+        implements IVisitableTransformationPart {
 
     public abstract List<SAlternativeTransformationElement> inline(
             Alternative inlinedAlternative,
@@ -56,6 +57,14 @@ public abstract class SAlternativeTransformationElement {
         public SAlternativeTransformationElement clone() {
 
             return new NullElement();
+        }
+
+        @Override
+        public void apply(
+                ITransformationVisitor visitor) {
+
+            visitor.visitNullElement(this);
+
         }
 
     }
@@ -119,6 +128,14 @@ public abstract class SAlternativeTransformationElement {
         public SAlternativeTransformationElement clone() {
 
             return new ReferenceElement(this.reference);
+        }
+
+        @Override
+        public void apply(
+                ITransformationVisitor visitor) {
+
+            visitor.visitReferenceElement(this);
+
         }
 
     }
@@ -232,6 +249,14 @@ public abstract class SAlternativeTransformationElement {
                         newElements);
             }
         }
+
+        @Override
+        public void apply(
+                ITransformationVisitor visitor) {
+
+            visitor.visitNewElement(this);
+
+        }
     }
 
     public static class ListElement
@@ -283,6 +308,14 @@ public abstract class SAlternativeTransformationElement {
             }
 
             return new ListElement(newElements);
+        }
+
+        @Override
+        public void apply(
+                ITransformationVisitor visitor) {
+
+            visitor.visitListElement(this);
+
         }
 
     }

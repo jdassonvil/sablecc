@@ -24,7 +24,8 @@ import org.sablecc.sablecc.core.interfaces.*;
 import org.sablecc.sablecc.grammar.*;
 import org.sablecc.sablecc.grammar.interfaces.*;
 
-public abstract class SAlternativeTransformationListElement {
+public abstract class SAlternativeTransformationListElement
+        implements IVisitableTransformationPart {
 
     public abstract List<SAlternativeTransformationListElement> inline(
             Alternative inlinedAlternative,
@@ -111,6 +112,14 @@ public abstract class SAlternativeTransformationListElement {
             return new ReferenceElement(this.reference);
         }
 
+        @Override
+        public void apply(
+                ITransformationVisitor visitor) {
+
+            visitor.visitReferenceListElement(this);
+
+        }
+
     }
 
     public static class NewElement
@@ -172,6 +181,14 @@ public abstract class SAlternativeTransformationListElement {
             }
 
             return new NewElement(this.alternative, newElements);
+        }
+
+        @Override
+        public void apply(
+                ITransformationVisitor visitor) {
+
+            visitor.visitNewListElement(this);
+
         }
 
     }
@@ -253,6 +270,14 @@ public abstract class SAlternativeTransformationListElement {
             return null;
         }
 
+        @Override
+        public void apply(
+                ITransformationVisitor visitor) {
+
+            visitor.visitNormalListListElement(this);
+
+        }
+
     }
 
     public static class LeftListElement
@@ -332,6 +357,14 @@ public abstract class SAlternativeTransformationListElement {
             return inlineResult;
         }
 
+        @Override
+        public void apply(
+                ITransformationVisitor visitor) {
+
+            visitor.visitLeftListListElement(this);
+
+        }
+
     }
 
     public static class RightListElement
@@ -409,6 +442,14 @@ public abstract class SAlternativeTransformationListElement {
             }
 
             return inlineResult;
+        }
+
+        @Override
+        public void apply(
+                ITransformationVisitor visitor) {
+
+            visitor.visitRightListListElement(this);
+
         }
 
     }
