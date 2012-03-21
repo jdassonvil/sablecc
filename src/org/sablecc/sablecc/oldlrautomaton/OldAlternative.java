@@ -230,6 +230,20 @@ public class OldAlternative {
         return this.oldElements.get(position);
     }
 
+    public OldElement getElement(
+            Element sElement) {
+
+        Iterator<OldElement> i = this.oldElements.iterator();
+        while (i.hasNext()) {
+            OldElement e = i.next();
+            if (e.getOrigin() == sElement) {
+                return e;
+            }
+        }
+
+        return null;
+    }
+
     public ArrayList<OldElement> getElements() {
 
         return this.oldElements;

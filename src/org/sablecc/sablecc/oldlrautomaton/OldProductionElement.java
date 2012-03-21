@@ -17,6 +17,7 @@
 
 package org.sablecc.sablecc.oldlrautomaton;
 
+import org.sablecc.sablecc.grammar.*;
 import org.sablecc.sablecc.grammar.Element.ProductionElement;
 
 public class OldProductionElement
@@ -53,5 +54,11 @@ public class OldProductionElement
     public String toString() {
 
         return "[" + getName() + ":]" + this.oldProduction.getName();
+    }
+
+    @Override
+    public Element.ProductionElement getOrigin() {
+
+        return this.origin;
     }
 }

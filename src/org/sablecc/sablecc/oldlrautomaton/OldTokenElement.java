@@ -77,6 +77,7 @@ public class OldTokenElement
         return "[" + getName() + ":]" + this.oldToken.getName();
     }
 
+    @Override
     public Element.TokenElement getOrigin() {
 
         return this.origin;

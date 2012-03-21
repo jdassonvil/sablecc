@@ -40,6 +40,8 @@ public abstract class SProductionTransformationElement
         this.productionTransformation = productionTransformation;
     }
 
+    public abstract int getIndex();
+
     public SProductionTransformation getProductionTransformation() {
 
         return this.productionTransformation;
@@ -52,7 +54,7 @@ public abstract class SProductionTransformationElement
 
         private CardinalityInterval cardinality;
 
-        private IReferencable treeReference;
+        private IReferencable coreReference;
 
         public NormalElement(
                 SProductionTransformation productionTransformation,
@@ -68,7 +70,7 @@ public abstract class SProductionTransformationElement
 
             this.cardinality = coreReference.getCardinality();
 
-            this.treeReference = coreReference.getReference();
+            this.coreReference = coreReference.getReference();
         }
 
         public NormalElement(
@@ -88,7 +90,7 @@ public abstract class SProductionTransformationElement
             }
 
             this.name = name;
-            this.treeReference = treeReference;
+            this.coreReference = treeReference;
             this.cardinality = cardinality;
         }
 
@@ -114,7 +116,13 @@ public abstract class SProductionTransformationElement
 
         public IReferencable getTreeReference() {
 
-            return this.treeReference;
+            return this.coreReference;
+        }
+
+        @Override
+        public int getIndex() {
+
+            return getProductionTransformation().getElements().indexOf(this);
         }
     }
 
@@ -222,6 +230,12 @@ public abstract class SProductionTransformationElement
 
             return this.rightTreeReference;
         }
+
+        @Override
+        public int getIndex() {
+
+            return getProductionTransformation().getElements().indexOf(this);
+        }
     }
 
     public static class AlternatedElement
@@ -327,6 +341,12 @@ public abstract class SProductionTransformationElement
             this.leftTreeReference = coreReference.getLeftReference();
 
             this.rightTreeReference = coreReference.getRightReference();
+        }
+
+        @Override
+        public int getIndex() {
+
+            return getProductionTransformation().getElements().indexOf(this);
         }
 
     }
