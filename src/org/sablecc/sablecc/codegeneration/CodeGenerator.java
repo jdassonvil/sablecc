@@ -29,7 +29,11 @@ import org.sablecc.sablecc.automaton.*;
 import org.sablecc.sablecc.codegeneration.java.macro.*;
 import org.sablecc.sablecc.core.*;
 import org.sablecc.sablecc.core.interfaces.*;
+import org.sablecc.sablecc.grammar.Element.ProductionElement;
+import org.sablecc.sablecc.grammar.Element.TokenElement;
 import org.sablecc.sablecc.grammar.*;
+import org.sablecc.sablecc.grammar.interfaces.*;
+import org.sablecc.sablecc.grammar.transformation.*;
 import org.sablecc.sablecc.launcher.*;
 import org.sablecc.sablecc.oldlrautomaton.*;
 
@@ -99,7 +103,6 @@ public class CodeGenerator {
         MParser mParser = new MParser();
         MParseStack mParseStack = new MParseStack();
         MLrState mLrState = new MLrState();
-
         MCstProductionType mCstName = new MCstProductionType();
 
         if (this.destinationPackage.equals("")) {
@@ -387,6 +390,12 @@ public class CodeGenerator {
             mLexer.newAcceptMarkerDeclaration(marker.getName());
         }
 
+        /*
+         * Génération des classes de l'AST
+         */
+
+        Map<IReferencable, String> alternativeToCamelFullName = new HashMap<IReferencable, String>();
+
         if (this.grammar.hasATree()) {
             for (Tree.TreeProduction production : this.grammar.getTree()
                     .getProductions()) {
@@ -449,6 +458,9 @@ public class CodeGenerator {
                     }
 
                     MAlternative mAlternative = new MAlternative(
+                            alt_CamelCaseFullName);
+
+                    alternativeToCamelFullName.put(alternative,
                             alt_CamelCaseFullName);
 
                     mAlternative.newAltProdType(production_CamelCaseName);
@@ -638,6 +650,9 @@ public class CodeGenerator {
                     MAlternative mAlternative = new MAlternative(
                             alt_CamelCaseFullName);
 
+                    alternativeToCamelFullName.put(alternative,
+                            alt_CamelCaseFullName);
+
                     mAlternative.newAltProdType(production_CamelCaseName);
 
                     if (altIsPublic) {
@@ -759,12 +774,20 @@ public class CodeGenerator {
             }
         }
 
+        /*
+         * Génération des noms de productions concrètes
+         */
+
         for (Production production : this.grammar.getSimplifiedGrammar()
                 .getProductions()) {
             mCstName.newCstProductionTypeDeclaration(production.getName());
         }
 
         mCstName.newCstProductionTypeDeclaration("TOKEN");
+
+        /*
+         * Génération des états
+         */
 
         for (LRState state : this.grammar.getSimplifiedGrammar()
                 .getLrAutomaton().getStates()) {
@@ -812,174 +835,227 @@ public class CodeGenerator {
                         production_CamelCaseName, target.getName());
             }
 
-            /* Map<Integer, MDistance> distanceMap = new LinkedHashMap<Integer, MDistance>();
-             boolean isLr1OrMore = false;
-             for (Action action : state.getActions()) {
-                 int maxLookahead = action.getMaxLookahead();
-                 while (maxLookahead > distanceMap.size() - 1) {
-                     int distance = distanceMap.size();
-                     distanceMap.put(distance, mLrStateSingleton.newDistance(""
-                             + distance));
-                 }
+            Map<Integer, MDistance> distanceMap = new LinkedHashMap<Integer, MDistance>();
+            boolean isLr1OrMore = false;
+            for (Action action : state.getActions()) {
+                int maxLookahead = action.getMaxLookahead();
+                while (maxLookahead > distanceMap.size() - 1) {
+                    int distance = distanceMap.size();
+                    distanceMap.put(distance,
+                            mLrStateSingleton.newDistance("" + distance));
+                }
 
-                 MDistance mDistance = distanceMap.get(maxLookahead);
-                 MAction mAction = mDistance.newAction();
-                 if (maxLookahead > 0) {
-                     isLr1OrMore = true;
-                     for (Entry<Integer, Set<Item>> entry : action
-                             .getDistanceToItemSetMap().entrySet()) {
-                         String ahead = "" + entry.getKey();
-                         Set<Item> items = entry.getValue();
-                         Set<OldToken> tokens = new LinkedHashSet<OldToken>();
-                         for (Item item : items) {
-                             tokens.add(item.getTokenElement().getToken());
-                         }
+                MDistance mDistance = distanceMap.get(maxLookahead);
+                MAction mAction = mDistance.newAction();
+                if (maxLookahead > 0) {
+                    isLr1OrMore = true;
+                    for (Entry<Integer, Set<Item>> entry : action
+                            .getDistanceToItemSetMap().entrySet()) {
+                        String ahead = "" + entry.getKey();
+                        Set<Item> items = entry.getValue();
+                        Set<OldToken> tokens = new LinkedHashSet<OldToken>();
+                        for (Item item : items) {
+                            tokens.add(item.getTokenElement().getToken());
+                        }
 
-                         if (tokens.size() == 0) {
-                             mAction.newFalseGroup();
-                         }
-                         else {
-                             MNormalGroup mNormalGroup = mAction
-                                     .newNormalGroup();
+                        if (tokens.size() == 0) {
+                            mAction.newFalseGroup();
+                        }
+                        else {
+                            MNormalGroup mNormalGroup = mAction
+                                    .newNormalGroup();
 
-                             for (OldToken token : tokens) {
-                                 if (token.getName().equals("$end")) {
-                                     mNormalGroup.newEndCondition(ahead);
-                                 }
-                                 else {
-                                     MatchedToken matchedToken = context
-                                             .getMatchedToken(token.getName());
-                                     String element_CamelCaseType;
-                                     if (matchedToken instanceof NameToken) {
-                                         NameToken nameToken = (NameToken) matchedToken;
-                                         element_CamelCaseType = nameToken
-                                                 .get_CamelCaseName();
-                                     }
-                                     else {
-                                         AnonymousToken anonymousToken = (AnonymousToken) matchedToken;
+                            for (OldToken token : tokens) {
+                                if (token.getName().equals("$end")) {
+                                    mNormalGroup.newEndCondition(ahead);
+                                }
+                                else {
+                                    LexerExpression lexerExpression = this.grammar
+                                            .getLexerExpression(token.getName());
+                                    String element_CamelCaseType;
+                                    if (lexerExpression instanceof LexerExpression.NamedExpression) {
+                                        LexerExpression.NamedExpression namedExpression = (LexerExpression.NamedExpression) lexerExpression;
+                                        element_CamelCaseType = namedExpression
+                                                .getName_CamelCase();
+                                    }
+                                    else {
+                                        LexerExpression.InlineExpression inlineExpression = (LexerExpression.InlineExpression) lexerExpression;
 
-                                         element_CamelCaseType = ""
-                                                 + anonymousToken
-                                                         .get_CamelCaseName();
-                                     }
+                                        element_CamelCaseType = ""
+                                                + inlineExpression
+                                                        .getInternalName_CamelCase();
+                                    }
 
-                                     mNormalGroup.newNormalCondition(ahead,
-                                             element_CamelCaseType);
-                                 }
-                             }
-                         }
-                     }
-                 }
-            /*
-                 if (action.getType() == ActionType.SHIFT) {
-                     mAction.newShift();
-                 }
-                 else {
-                     ReduceAction reduceAction = (ReduceAction) action;
-                     Alternative alternative = reduceAction.getAlternative();
-                     Production production = alternative.getProduction();
-                     String production_CamelCaseName = to_CamelCase(production
-                             .getName());
-                     String alt_CamelCaseName = to_CamelCase(alternative
-                             .getName());
-                     String alt_CamelCaseFullName = production_CamelCaseName
-                             + (alt_CamelCaseName.equals("") ? "" : "_"
-                                     + alt_CamelCaseName);
+                                    mNormalGroup.newNormalCondition(ahead,
+                                            element_CamelCaseType);
+                                }
+                            }
+                        }
+                    }
+                }
 
-                     MReduce mReduce = mAction.newReduce(alt_CamelCaseFullName);
+                if (action.getType() == ActionType.SHIFT) {
+                    mAction.newShift();
+                }
+                else {
+                    ReduceAction reduceAction = (ReduceAction) action;
+                    OldAlternative alternative = reduceAction.getAlternative();
+                    OldProduction production = alternative.getProduction();
 
-                     ArrayList<Element> elements = alternative.getElements();
-                     int elementCount = elements.size();
-                     for (int i = elementCount - 1; i >= 0; i--) {
-                         Element element = elements.get(i);
-                         String element_CamelCaseName = to_CamelCase(element
-                                 .getName());
-                         String element_CamelCaseType = null;
-                         boolean elementIsEndToken;
-                         if (element instanceof TokenElement) {
-                             TokenElement tokenElement = (TokenElement) element;
-                             if (tokenElement.getToken().getName()
-                                     .equals("$end")) {
-                                 elementIsEndToken = true;
-                             }
-                             else {
-                                 MatchedToken matchedToken = context
-                                         .getMatchedToken(tokenElement
-                                                 .getToken().getName());
-                                 if (matchedToken instanceof NameToken) {
-                                     NameToken nameToken = (NameToken) matchedToken;
-                                     element_CamelCaseType = nameToken
-                                             .get_CamelCaseName();
-                                 }
-                                 else {
-                                     AnonymousToken anonymousToken = (AnonymousToken) matchedToken;
+                    String production_CamelCaseName = to_CamelCase(production
+                            .getName());
+                    String alt_CamelCaseName = to_CamelCase(alternative
+                            .getName());
+                    String alt_CamelCaseFullName = production_CamelCaseName
+                            + (alt_CamelCaseName.equals("") ? "" : "_"
+                                    + alt_CamelCaseName);
 
-                                     element_CamelCaseType = ""
-                                             + anonymousToken
-                                                     .get_CamelCaseName();
-                                 }
+                    MReduce mReduce = mAction.newReduce(production.getName());
 
-                                 elementIsEndToken = false;
-                             }
-                         }
-                         else {
-                             ProductionElement productionElement = (ProductionElement) element;
-                             element_CamelCaseType = to_CamelCase(productionElement
-                                     .getProduction().getName());
+                    ArrayList<OldElement> elements = alternative.getElements();
 
-                             elementIsEndToken = false;
-                         }
+                    int elementCount = elements.size();
 
-                         if (elementIsEndToken) {
-                             mReduce.newReduceEndPop();
-                         }
-                         else {
-                             mReduce.newReduceNormalPop(element_CamelCaseType,
-                                     element_CamelCaseName);
-                         }
-                     }
+                    for (int i = elementCount - 1; i >= 0; i--) {
 
-                     if (alt_CamelCaseFullName.equals("$Start")) {
-                         mReduce.newAcceptDecision(to_CamelCase(elements.get(0)
-                                 .getName()));
-                     }
-                     else {
-                         MReduceDecision mReduceDecision = mReduce
-                                 .newReduceDecision();
+                        OldElement element = elements.get(i);
+                        String element_CamelCaseName = to_camelCase(element
+                                .getName());
 
-                         for (Element element : elements) {
-                             String element_CamelCaseName = to_CamelCase(element
-                                     .getName());
-                             boolean elementIsEndToken;
-                             if (element instanceof TokenElement) {
-                                 TokenElement tokenElement = (TokenElement) element;
-                                 if (tokenElement.getToken().getName().equals(
-                                         "$end")) {
-                                     elementIsEndToken = true;
-                                 }
-                                 else {
-                                     elementIsEndToken = false;
-                                 }
-                             }
-                             else {
-                                 elementIsEndToken = false;
-                             }
-                             if (elementIsEndToken) {
-                                 mReduceDecision.newEndParameter();
-                             }
-                             else {
-                                 mReduceDecision
-                                         .newNormalParameter(element_CamelCaseName);
-                             }
-                         }
-                     }
-                 }
-                 
-             }
+                        boolean elementIsEndToken;
 
-             if (isLr1OrMore) {
-                 mLrStateSingleton.newLr1OrMore();
-             }*/
+                        if (element instanceof OldTokenElement) {
+
+                            elementIsEndToken = ((OldTokenElement) element)
+                                    .getToken().getName().equals("$end");
+                        }
+                        else {
+                            elementIsEndToken = false;
+                        }
+
+                        if (elementIsEndToken) {
+                            mReduce.newReduceEndPop();
+                        }
+                        else {
+
+                            mReduce.newReduceNormalPop(element_CamelCaseName);
+                        }
+                    }
+
+                    if (alt_CamelCaseFullName.equals("$Start")) {
+                        mReduce.newAcceptDecision(to_CamelCase(elements.get(0)
+                                .getName()));
+                    }
+                    else {
+                        MReduceDecision mReduceDecision = mReduce
+                                .newReduceDecision();
+
+                        SAlternativeTransformation transformation = alternative
+                                .getOrigin().getTransformation();
+
+                        for (SAlternativeTransformationElement transformationElement : transformation
+                                .getElements()) {
+
+                            if (transformationElement instanceof SAlternativeTransformationElement.NewElement) {
+                                SAlternativeTransformationElement.NewElement newTransformationElement = (SAlternativeTransformationElement.NewElement) transformationElement;
+                                String alt_CamelCase = alternativeToCamelFullName
+                                        .get(newTransformationElement
+                                                .getAlternative());
+
+                                MReduceNewElement newElement = mReduceDecision
+                                        .newReduceNewElement(alt_CamelCase);
+
+                                generateTreeElements(alternative,
+                                        newTransformationElement.getElements(),
+                                        alternativeToCamelFullName, newElement);
+
+                            }
+                            else if (transformationElement instanceof SAlternativeTransformationElement.ReferenceElement) {
+
+                                SAlternativeTransformationElement.ReferenceElement refElement = (SAlternativeTransformationElement.ReferenceElement) transformationElement;
+
+                                IElement reference = refElement.getReference();
+
+                                if (reference instanceof TokenElement
+                                        || reference instanceof ProductionElement) {
+
+                                    OldElement matchedElement = alternative
+                                            .getElement((TokenElement) reference);
+
+                                    mReduceDecision.newReduceUpElement(
+                                            matchedElement.getName(), "0");
+
+                                }
+                                else if (reference instanceof SProductionTransformationElement) {
+
+                                    if (reference instanceof SProductionTransformationElement.NormalElement) {
+                                        SProductionTransformationElement.NormalElement normalElement = (SProductionTransformationElement.NormalElement) reference;
+
+                                        if (normalElement.getTreeReference() instanceof Tree.TreeProduction) {
+                                            String elementName = to_camelCase(normalElement
+                                                    .getName());
+                                            mReduceDecision.newReduceUpElement(
+                                                    elementName,
+                                                    normalElement.getIndex()
+                                                            + "");
+
+                                        }
+
+                                    }
+                                    else if (reference instanceof SProductionTransformationElement.SeparatedElement) {
+
+                                    }
+                                    else if (reference instanceof SProductionTransformationElement.AlternatedElement) {
+
+                                    }
+                                    else {
+                                        // unhandled case
+                                    }
+
+                                }
+                            }
+                            else if (transformationElement instanceof SAlternativeTransformationElement.ListElement) {
+
+                            }
+                            else if (transformationElement instanceof SAlternativeTransformationElement.NullElement) {
+
+                            }
+
+                        }
+                        for (OldElement element : elements) {
+
+                            String element_CamelCaseName = to_camelCase(element
+                                    .getName());
+
+                            boolean elementIsEndToken;
+                            if (element instanceof OldTokenElement) {
+                                OldTokenElement tokenElement = (OldTokenElement) element;
+                                if (tokenElement.getToken().getName()
+                                        .equals("$end")) {
+                                    elementIsEndToken = true;
+                                }
+                                else {
+                                    elementIsEndToken = false;
+                                }
+                            }
+                            else {
+                                elementIsEndToken = false;
+                            }
+                            if (elementIsEndToken) {
+                                mReduce.newEndParameter();
+                            }
+                            else {
+                                // mReduce.newNormalParameter(element_CamelCaseName);
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            if (isLr1OrMore) {
+                mLrStateSingleton.newLr1OrMore();
+            }
 
             try {
                 BufferedWriter bw = new BufferedWriter(new FileWriter(new File(
@@ -1174,5 +1250,107 @@ public class CodeGenerator {
         catch (IOException e) {
             new InternalException("TODO: raise error " + "LRState.java", e);
         }
+    }
+
+    public void generateTreeElements(
+            OldAlternative oldAlternative,
+            List<SAlternativeTransformationElement> transformationElements,
+            Map<IReferencable, String> alternativeToCamelFullName,
+            Object newMacro) {
+
+        for (SAlternativeTransformationElement transformationElement : transformationElements) {
+
+            if (transformationElement instanceof SAlternativeTransformationElement.NewElement) {
+                SAlternativeTransformationElement.NewElement newTransformationElement = (SAlternativeTransformationElement.NewElement) transformationElement;
+                String alt_CamelCase = alternativeToCamelFullName
+                        .get(newTransformationElement.getAlternative());
+                MNewParameter newParameter;
+                if (newMacro instanceof MReduceNewElement) {
+                    newParameter = ((MReduceNewElement) newMacro)
+                            .newNewParameter(alt_CamelCase);
+                }
+                else {
+                    newParameter = ((MNewParameter) newMacro)
+                            .newNewParameter(alt_CamelCase);
+                }
+                generateTreeElements(oldAlternative,
+                        newTransformationElement.getElements(),
+                        alternativeToCamelFullName, newParameter);
+
+            }
+            else if (transformationElement instanceof SAlternativeTransformationElement.ReferenceElement) {
+                SAlternativeTransformationElement.ReferenceElement refElement = (SAlternativeTransformationElement.ReferenceElement) transformationElement;
+
+                IElement reference = refElement.getReference();
+
+                if (reference instanceof TokenElement
+                        || reference instanceof ProductionElement) {
+
+                    OldElement matchedElement = oldAlternative
+                            .getElement((TokenElement) reference);
+
+                    if (newMacro instanceof MReduceNewElement) {
+                        ((MReduceNewElement) newMacro).newNormalParameter(
+                                matchedElement.getTypeName(),
+                                matchedElement.getName(), "0");
+                    }
+                    else {
+                        ((MNewParameter) newMacro).newNormalParameter(
+                                matchedElement.getTypeName(),
+                                matchedElement.getName(), "0");
+                    }
+
+                }
+                else if (reference instanceof SProductionTransformationElement) {
+
+                    if (reference instanceof SProductionTransformationElement.NormalElement) {
+                        SProductionTransformationElement.NormalElement normalElement = (SProductionTransformationElement.NormalElement) reference;
+
+                        if (normalElement.getTreeReference() instanceof Tree.TreeProduction) {
+                            String prodCamelCaseType = ((Tree.TreeProduction) normalElement
+                                    .getTreeReference()).getName_CamelCase();
+                            String elementName = to_camelCase(normalElement
+                                    .getName());
+
+                            if (newMacro instanceof MReduceNewElement) {
+                                ((MReduceNewElement) newMacro)
+                                        .newNormalParameter(prodCamelCaseType,
+                                                elementName,
+                                                normalElement.getIndex() + "");
+                            }
+                            else {
+                                ((MNewParameter) newMacro).newNormalParameter(
+                                        prodCamelCaseType, elementName,
+                                        normalElement.getIndex() + "");
+                            }
+                        }
+
+                    }
+                    else if (reference instanceof SProductionTransformationElement.SeparatedElement) {
+
+                    }
+                    else if (reference instanceof SProductionTransformationElement.AlternatedElement) {
+
+                    }
+                    else {
+                        // unhandled case
+                    }
+
+                }
+
+            }
+            else if (transformationElement instanceof SAlternativeTransformationElement.ListElement) {
+
+            }
+            else if (transformationElement instanceof SAlternativeTransformationElement.NullElement) {
+
+            }
+        }
+
+    }
+
+    public void generateListElements(
+            List<SAlternativeTransformationListElement> listElements) {
+
     }
 }

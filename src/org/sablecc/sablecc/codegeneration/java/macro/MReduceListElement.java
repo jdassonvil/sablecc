@@ -2,9 +2,9 @@
 
 package org.sablecc.sablecc.codegeneration.java.macro;
 
-public class MReduceEndPop {
+public class MReduceListElement {
 
-    MReduceEndPop() {
+    MReduceListElement() {
 
     }
 
@@ -12,7 +12,7 @@ public class MReduceEndPop {
     public String toString() {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("      End l$end = (End) stack.pop().get(0);");
+        sb.append("	  // ???");
         sb.append(System.getProperty("line.separator"));
         return sb.toString();
     }

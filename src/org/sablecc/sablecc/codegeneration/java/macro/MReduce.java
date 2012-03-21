@@ -6,13 +6,15 @@ import java.util.*;
 
 public class MReduce {
 
-    private final String pAlternative;
+    private final String pReducedProduction;
 
     private final MReduce mReduce = this;
 
     private final List<Object> eReduceNormalPop_ReduceEndPop = new LinkedList<Object>();
 
     private final List<Object> eNormalParameter = new LinkedList<Object>();
+
+    private final List<Object> eNewParameter = new LinkedList<Object>();
 
     private final List<Object> eEndParameter = new LinkedList<Object>();
 
@@ -21,20 +23,31 @@ public class MReduce {
     private final List<Object> eAcceptDecision = new LinkedList<Object>();
 
     MReduce(
-            String pAlternative) {
+            String pReducedProduction) {
 
-        if (pAlternative == null) {
+        if (pReducedProduction == null) {
             throw new NullPointerException();
         }
-        this.pAlternative = pAlternative;
+        this.pReducedProduction = pReducedProduction;
     }
 
     public MNormalParameter newNormalParameter(
-            String pElementName) {
+            String pElementType,
+            String pElementName,
+            String pIndex) {
 
-        MNormalParameter lNormalParameter = new MNormalParameter(pElementName);
+        MNormalParameter lNormalParameter = new MNormalParameter(pElementType,
+                pElementName, pIndex);
         this.eNormalParameter.add(lNormalParameter);
         return lNormalParameter;
+    }
+
+    public MNewParameter newNewParameter(
+            String pTreeAlternative) {
+
+        MNewParameter lNewParameter = new MNewParameter(pTreeAlternative);
+        this.eNewParameter.add(lNewParameter);
+        return lNewParameter;
     }
 
     public MEndParameter newEndParameter() {
@@ -60,11 +73,9 @@ public class MReduce {
     }
 
     public MReduceNormalPop newReduceNormalPop(
-            String pElementType,
             String pElementName) {
 
-        MReduceNormalPop lReduceNormalPop = new MReduceNormalPop(pElementType,
-                pElementName);
+        MReduceNormalPop lReduceNormalPop = new MReduceNormalPop(pElementName);
         this.eReduceNormalPop_ReduceEndPop.add(lReduceNormalPop);
         return lReduceNormalPop;
     }
@@ -76,9 +87,9 @@ public class MReduce {
         return lReduceEndPop;
     }
 
-    String pAlternative() {
+    String pReducedProduction() {
 
-        return this.pAlternative;
+        return this.pReducedProduction;
     }
 
     @Override
@@ -91,16 +102,20 @@ public class MReduce {
         for (Object oReduceNormalPop_ReduceEndPop : this.eReduceNormalPop_ReduceEndPop) {
             sb.append(oReduceNormalPop_ReduceEndPop.toString());
         }
-        sb.append(System.getProperty("line.separator"));
         for (Object oNormalParameter : this.eNormalParameter) {
             sb.append(oNormalParameter.toString());
+        }
+        for (Object oNewParameter : this.eNewParameter) {
+            sb.append(oNewParameter.toString());
         }
         for (Object oEndParameter : this.eEndParameter) {
             sb.append(oEndParameter.toString());
         }
+        sb.append(System.getProperty("line.separator"));
         for (Object oReduceDecision : this.eReduceDecision) {
             sb.append(oReduceDecision.toString());
         }
+        sb.append(System.getProperty("line.separator"));
         for (Object oAcceptDecision : this.eAcceptDecision) {
             sb.append(oAcceptDecision.toString());
         }

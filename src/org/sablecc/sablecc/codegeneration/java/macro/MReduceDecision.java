@@ -8,7 +8,11 @@ public class MReduceDecision {
 
     private final MReduce mReduce;
 
-    private final List<Object> eNormalParameter_EndParameter = new LinkedList<Object>();
+    private final List<Object> eReduceNewElement = new LinkedList<Object>();
+
+    private final List<Object> eReduceUpElement = new LinkedList<Object>();
+
+    private final List<Object> eReduceListElement = new LinkedList<Object>();
 
     MReduceDecision(
             MReduce mReduce) {
@@ -19,61 +23,57 @@ public class MReduceDecision {
         this.mReduce = mReduce;
     }
 
-    public MNormalParameter newNormalParameter(
-            String pElementName) {
+    public MReduceNewElement newReduceNewElement(
+            String pTreeAlternative) {
 
-        MNormalParameter lNormalParameter = new MNormalParameter(pElementName);
-        this.eNormalParameter_EndParameter.add(lNormalParameter);
-        return lNormalParameter;
+        MReduceNewElement lReduceNewElement = new MReduceNewElement(
+                pTreeAlternative);
+        this.eReduceNewElement.add(lReduceNewElement);
+        return lReduceNewElement;
     }
 
-    public MEndParameter newEndParameter() {
+    public MReduceUpElement newReduceUpElement(
+            String pElementName,
+            String pIndex) {
 
-        MEndParameter lEndParameter = new MEndParameter();
-        this.eNormalParameter_EndParameter.add(lEndParameter);
-        return lEndParameter;
+        MReduceUpElement lReduceUpElement = new MReduceUpElement(pElementName,
+                pIndex);
+        this.eReduceUpElement.add(lReduceUpElement);
+        return lReduceUpElement;
     }
 
-    private String rAlternative() {
+    public MReduceListElement newReduceListElement() {
 
-        return this.mReduce.pAlternative();
+        MReduceListElement lReduceListElement = new MReduceListElement();
+        this.eReduceListElement.add(lReduceListElement);
+        return lReduceListElement;
+    }
+
+    private String rReducedProduction() {
+
+        return this.mReduce.pReducedProduction();
     }
 
     @Override
     public String toString() {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("      N");
-        sb.append(rAlternative());
-        sb.append(" l");
-        sb.append(rAlternative());
-        sb.append(" = new N");
-        sb.append(rAlternative());
-        sb.append("(-1, -1");
-        if (this.eNormalParameter_EndParameter.size() > 0) {
-            sb.append(", ");
-        }
-        {
-            boolean first = true;
-            for (Object oNormalParameter_EndParameter : this.eNormalParameter_EndParameter) {
-                if (first) {
-                    first = false;
-                }
-                else {
-                    sb.append(", ");
-                }
-                sb.append(oNormalParameter_EndParameter.toString());
-            }
-        }
-        sb.append(");");
+        sb.append("      List<Node> trees = new LinkedList<Node>();");
         sb.append(System.getProperty("line.separator"));
-        sb.append("      stack.push(l");
-        sb.append(rAlternative());
-        sb.append(", stack.getState().getTarget(l");
-        sb.append(rAlternative());
+        for (Object oReduceNewElement : this.eReduceNewElement) {
+            sb.append(oReduceNewElement.toString());
+        }
+        for (Object oReduceUpElement : this.eReduceUpElement) {
+            sb.append(oReduceUpElement.toString());
+        }
+        for (Object oReduceListElement : this.eReduceListElement) {
+            sb.append(oReduceListElement.toString());
+        }
+        sb.append("      stack.push(new AbstractForest(CSTProductionType.P_");
+        sb.append(rReducedProduction());
+        sb.append(",trees, stack.getState().getTarget(CSTProductionType.P_");
+        sb.append(rReducedProduction());
         sb.append("));");
-        sb.append(System.getProperty("line.separator"));
-        sb.append("      return null;");
         sb.append(System.getProperty("line.separator"));
         return sb.toString();
     }

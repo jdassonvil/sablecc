@@ -50,7 +50,7 @@ public class MAbstractForest {
         sb.append(System.getProperty("line.separator"));
         sb.append("	private CSTProductionType type;");
         sb.append(System.getProperty("line.separator"));
-        sb.append("	private List<Node> nodes = new ArrayList<Node>();");
+        sb.append("	private List<Node> nodes = new LinkedList<Node>();");
         sb.append(System.getProperty("line.separator"));
         sb.append(System.getProperty("line.separator"));
         sb.append("	public abstractForest(CSTProductionType type,List<Node> nodes){");

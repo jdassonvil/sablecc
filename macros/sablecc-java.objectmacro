@@ -1026,7 +1026,7 @@ import java.util.*;
 class AbstractForest{
 
 	private CSTProductionType type;
-	private List<Node> nodes = new ArrayList<Node>();
+	private List<Node> nodes = new LinkedList<Node>();
 
 	public abstractForest(CSTProductionType type,List<Node> nodes){
 	
@@ -1101,28 +1101,41 @@ $macro: shift $
       parser.shift();
       return null;
 $end: shift $
-$macro: reduce(alternative) $
+$macro: reduce(reduced_production) $
       ParseStack stack = parser.getStack();
 
 $expand: reduce_normal_pop, reduce_end_pop $
-$macro: reduce_normal_pop(element_type, element_name) $
-      N$element_type l$element_name = (N$element_type) stack.pop();
+$macro: reduce_normal_pop(element_name) $
+      AbstractForest l$element_name = stack.pop();
 $end: reduce_normal_pop $
 $macro: reduce_end_pop $
-      End l\$end = (End) stack.pop();
+      End l\$end = (End) stack.pop().get(0);
 $end: reduce_end_pop $
-
-$macro: normal_parameter(element_name) $
-l$(element_name)$no_eol$
+$macro: normal_parameter(element_type,element_name,index) $
+(N$(element_type)) l$(element_name).getNodes.get($index)$no_eol$
 $end: normal_parameter $
+$macro: new_parameter(tree_alternative) $
+new N$(tree_alternative)(-1, -1$expand: normal_parameter,new_parameter, end_parameter, before_first=", ", separator=", " $)$no_eol$
+$end: new_parameter $
 $macro: end_parameter $
 l\$end$no_eol$
 $end: end_parameter $
+
 $macro: reduce_decision $
-      N$alternative l$alternative = new N$alternative(-1, -1$expand: normal_parameter, end_parameter, before_first=", ", separator=", " $);
-      stack.push(l$alternative, stack.getState().getTarget(l$alternative));
-      return null;
+      List<Node> trees = new LinkedList<Node>();
+$macro: reduce_new_element(tree_alternative)$
+      N$tree_alternative l$tree_alternative = new N$tree_alternative(-1, -1$expand: normal_parameter,new_parameter, end_parameter, before_first=", ", separator=", " $);
+      trees.add(l$tree_alternative);
+$end: reduce_new_element$
+$macro: reduce_up_element(element_name,index)$
+	  trees.add(l$(element_name).getNodes.get($index));
+$end: reduce_up_element$
+$macro: reduce_list_element$
+	  // ???
+$end: reduce_list_element$
+      stack.push(new AbstractForest(CSTProductionType.P_$reduced_production,trees, stack.getState().getTarget(CSTProductionType.P_$reduced_production));
 $end: reduce_decision $
+
 $macro: accept_decision(element_name) $
       return l$element_name;
 $end: accept_decision $

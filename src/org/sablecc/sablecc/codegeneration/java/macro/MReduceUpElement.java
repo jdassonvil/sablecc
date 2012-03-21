@@ -2,25 +2,18 @@
 
 package org.sablecc.sablecc.codegeneration.java.macro;
 
-public class MNormalParameter {
-
-    private final String pElementType;
+public class MReduceUpElement {
 
     private final String pElementName;
 
     private final String pIndex;
 
-    private final MNormalParameter mNormalParameter = this;
+    private final MReduceUpElement mReduceUpElement = this;
 
-    MNormalParameter(
-            String pElementType,
+    MReduceUpElement(
             String pElementName,
             String pIndex) {
 
-        if (pElementType == null) {
-            throw new NullPointerException();
-        }
-        this.pElementType = pElementType;
         if (pElementName == null) {
             throw new NullPointerException();
         }
@@ -29,11 +22,6 @@ public class MNormalParameter {
             throw new NullPointerException();
         }
         this.pIndex = pIndex;
-    }
-
-    String pElementType() {
-
-        return this.pElementType;
     }
 
     String pElementName() {
@@ -46,32 +34,26 @@ public class MNormalParameter {
         return this.pIndex;
     }
 
-    private String rElementType() {
-
-        return this.mNormalParameter.pElementType();
-    }
-
     private String rElementName() {
 
-        return this.mNormalParameter.pElementName();
+        return this.mReduceUpElement.pElementName();
     }
 
     private String rIndex() {
 
-        return this.mNormalParameter.pIndex();
+        return this.mReduceUpElement.pIndex();
     }
 
     @Override
     public String toString() {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("(N");
-        sb.append(rElementType());
-        sb.append(") l");
+        sb.append("	  trees.add(l");
         sb.append(rElementName());
         sb.append(".getNodes.get(");
         sb.append(rIndex());
-        sb.append(")");
+        sb.append("));");
+        sb.append(System.getProperty("line.separator"));
         return sb.toString();
     }
 
