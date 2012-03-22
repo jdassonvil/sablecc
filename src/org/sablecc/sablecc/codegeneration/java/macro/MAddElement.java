@@ -2,19 +2,31 @@
 
 package org.sablecc.sablecc.codegeneration.java.macro;
 
-public class MNewParameter {
+public class MAddElement {
+
+    private final String pListName;
 
     private final String pElementName;
 
-    private final MNewParameter mNewParameter = this;
+    private final MAddElement mAddElement = this;
 
-    MNewParameter(
+    MAddElement(
+            String pListName,
             String pElementName) {
 
+        if (pListName == null) {
+            throw new NullPointerException();
+        }
+        this.pListName = pListName;
         if (pElementName == null) {
             throw new NullPointerException();
         }
         this.pElementName = pElementName;
+    }
+
+    String pListName() {
+
+        return this.pListName;
     }
 
     String pElementName() {
@@ -22,17 +34,24 @@ public class MNewParameter {
         return this.pElementName;
     }
 
+    private String rListName() {
+
+        return this.mAddElement.pListName();
+    }
+
     private String rElementName() {
 
-        return this.mNewParameter.pElementName();
+        return this.mAddElement.pElementName();
     }
 
     @Override
     public String toString() {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("n");
+        sb.append(rListName());
+        sb.append(".add(");
         sb.append(rElementName());
+        sb.append(");");
         sb.append(System.getProperty("line.separator"));
         return sb.toString();
     }

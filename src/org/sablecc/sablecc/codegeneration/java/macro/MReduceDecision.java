@@ -8,11 +8,13 @@ public class MReduceDecision {
 
     private final MReduce mReduce;
 
-    private final List<Object> eReduceNewElement = new LinkedList<Object>();
+    private final List<Object> eAddLToForest_AddNullToForest_AddNToForest = new LinkedList<Object>();
 
-    private final List<Object> eReduceUpElement = new LinkedList<Object>();
+    private final List<Object> eNewTreeClass = new LinkedList<Object>();
 
-    private final List<Object> eReduceListElement = new LinkedList<Object>();
+    private final List<Object> eNewList = new LinkedList<Object>();
+
+    private final List<Object> eNewBoundedList = new LinkedList<Object>();
 
     MReduceDecision(
             MReduce mReduce) {
@@ -23,30 +25,59 @@ public class MReduceDecision {
         this.mReduce = mReduce;
     }
 
-    public MReduceNewElement newReduceNewElement(
-            String pTreeAlternative) {
+    public MNewTreeClass newNewTreeClass(
+            String pElementType,
+            String pElementName) {
 
-        MReduceNewElement lReduceNewElement = new MReduceNewElement(
-                pTreeAlternative);
-        this.eReduceNewElement.add(lReduceNewElement);
-        return lReduceNewElement;
+        MNewTreeClass lNewTreeClass = new MNewTreeClass(pElementType,
+                pElementName);
+        this.eNewTreeClass.add(lNewTreeClass);
+        return lNewTreeClass;
     }
 
-    public MReduceUpElement newReduceUpElement(
-            String pElementName,
-            String pIndex) {
+    public MNewList newNewList(
+            String pListName,
+            String pListType,
+            String pLowerBound) {
 
-        MReduceUpElement lReduceUpElement = new MReduceUpElement(pElementName,
-                pIndex);
-        this.eReduceUpElement.add(lReduceUpElement);
-        return lReduceUpElement;
+        MNewList lNewList = new MNewList(pListName, pListType, pLowerBound);
+        this.eNewList.add(lNewList);
+        return lNewList;
     }
 
-    public MReduceListElement newReduceListElement() {
+    public MNewBoundedList newNewBoundedList(
+            String pListName,
+            String pListType,
+            String pLowerBound,
+            String pUpperBound) {
 
-        MReduceListElement lReduceListElement = new MReduceListElement();
-        this.eReduceListElement.add(lReduceListElement);
-        return lReduceListElement;
+        MNewBoundedList lNewBoundedList = new MNewBoundedList(pListName,
+                pListType, pLowerBound, pUpperBound);
+        this.eNewBoundedList.add(lNewBoundedList);
+        return lNewBoundedList;
+    }
+
+    public MAddLToForest newAddLToForest(
+            String pElementName) {
+
+        MAddLToForest lAddLToForest = new MAddLToForest(pElementName);
+        this.eAddLToForest_AddNullToForest_AddNToForest.add(lAddLToForest);
+        return lAddLToForest;
+    }
+
+    public MAddNullToForest newAddNullToForest() {
+
+        MAddNullToForest lAddNullToForest = new MAddNullToForest();
+        this.eAddLToForest_AddNullToForest_AddNToForest.add(lAddNullToForest);
+        return lAddNullToForest;
+    }
+
+    public MAddNToForest newAddNToForest(
+            String pElementName) {
+
+        MAddNToForest lAddNToForest = new MAddNToForest(pElementName);
+        this.eAddLToForest_AddNullToForest_AddNToForest.add(lAddNToForest);
+        return lAddNToForest;
     }
 
     private String rReducedProduction() {
@@ -60,14 +91,17 @@ public class MReduceDecision {
         StringBuilder sb = new StringBuilder();
         sb.append("      List<Node> trees = new LinkedList<Node>();");
         sb.append(System.getProperty("line.separator"));
-        for (Object oReduceNewElement : this.eReduceNewElement) {
-            sb.append(oReduceNewElement.toString());
+        for (Object oNewTreeClass : this.eNewTreeClass) {
+            sb.append(oNewTreeClass.toString());
         }
-        for (Object oReduceUpElement : this.eReduceUpElement) {
-            sb.append(oReduceUpElement.toString());
+        for (Object oNewList : this.eNewList) {
+            sb.append(oNewList.toString());
         }
-        for (Object oReduceListElement : this.eReduceListElement) {
-            sb.append(oReduceListElement.toString());
+        for (Object oNewBoundedList : this.eNewBoundedList) {
+            sb.append(oNewBoundedList.toString());
+        }
+        for (Object oAddLToForest_AddNullToForest_AddNToForest : this.eAddLToForest_AddNullToForest_AddNToForest) {
+            sb.append(oAddLToForest_AddNullToForest_AddNToForest.toString());
         }
         sb.append("      stack.push(new AbstractForest(CSTProductionType.P_");
         sb.append(rReducedProduction());

@@ -2,13 +2,13 @@
 
 package org.sablecc.sablecc.codegeneration.java.macro;
 
-public class MNewParameter {
+public class MAddNToForest {
 
     private final String pElementName;
 
-    private final MNewParameter mNewParameter = this;
+    private final MAddNToForest mAddNToForest = this;
 
-    MNewParameter(
+    MAddNToForest(
             String pElementName) {
 
         if (pElementName == null) {
@@ -24,15 +24,16 @@ public class MNewParameter {
 
     private String rElementName() {
 
-        return this.mNewParameter.pElementName();
+        return this.mAddNToForest.pElementName();
     }
 
     @Override
     public String toString() {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("n");
+        sb.append("      trees.add(n");
         sb.append(rElementName());
+        sb.append(");");
         sb.append(System.getProperty("line.separator"));
         return sb.toString();
     }

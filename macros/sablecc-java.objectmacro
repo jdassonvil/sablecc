@@ -93,6 +93,51 @@ $end: node_internal_type_enum_entry $
 }
 $end: node $
 
+$comment: ========== node_list ========== $
+
+$macro: node_list $
+$insert: header $
+$expand: default_package, specified_package, before_first="\n" $
+
+public class NodeList<TNode extends Node> extends Node{
+
+	private ArrayList<TNode> elements;
+	
+	private int lowerBound;
+	private int upperBound;
+	
+	private const in INF = -1;
+	
+	NodeList(ArrayList<Node> elements,int lowerBound){
+		
+		this.elements = elements;
+		this.lowerBound = lowerBound;
+		this.upperBound = INF;
+	}
+	
+	NodeList(ArrayList<Node> elements, int lowerBound,upperBound){
+		this.elements = elements;
+		this.lowerBound = lowerBound;
+		this.upperBound = upperBound;
+	}
+	
+	add(TNode element){
+		this.elements.add(element);
+	}
+	
+	addList(NodeList elements){
+		this.elements.addAll(elements);
+	}
+	
+	List<Nodes> getNodes(){
+		return this.elements;
+	}
+	
+	
+}
+
+$end: node_list$
+
 $comment: ========== token ========== $
 
 $macro: token $
@@ -1101,40 +1146,69 @@ $macro: shift $
       parser.shift();
       return null;
 $end: shift $
+
 $macro: reduce(reduced_production) $
       ParseStack stack = parser.getStack();
 
 $expand: reduce_normal_pop, reduce_end_pop $
+
 $macro: reduce_normal_pop(element_name) $
       AbstractForest l$element_name = stack.pop();
 $end: reduce_normal_pop $
+
 $macro: reduce_end_pop $
       End l\$end = (End) stack.pop().get(0);
 $end: reduce_end_pop $
+
+$macro: reduce_decision $
+      List<Node> trees = new LinkedList<Node>();
+$macro: new_tree_class(element_type,element_name) $
+      new N$(element_type) n$(element_name) = new N$(element_type) (-1, -1$expand: normal_parameter,null_parameter,new_parameter, end_parameter, before_first=", ", separator=", " $);
+$end: new_tree_class$
+$macro: new_list(list_name,list_type,lower_bound) $
+      NodeList<$(list_type)> $(list_name) = new NodeList<$(list_type)>($(lower_bound),$expand: normal_parameter,new_parameter$);
+$expand: add_element,add_list $
+$end: new_list$
+$macro: new_bounded_list(list_name,list_type,lower_bound,upper_bound)$
+NodeList<$(list_type)> $(list_name) = new NodeList<$(list_type)>($(lower_bound),$(upper_bound),$expand: normal_parameter,new_parameter$);
+	$expand: add_element,add_list $
+$end: new_bounded_list$
+$expand: add_l_to_forest,add_null_to_forest,add_n_to_forest $ 
+$macro: add_l_to_forest(element_name) $
+      trees.add(l$(element_name));
+$end: add_l_to_forest $
+$macro: add_null_to_forest $
+      trees.add(null);
+$end: add_null_to_forest $
+$macro: add_n_to_forest(element_name) $
+      trees.add(n$(element_name));
+$end: add_n_to_forest $
+      stack.push(new AbstractForest(CSTProductionType.P_$reduced_production,trees, stack.getState().getTarget(CSTProductionType.P_$reduced_production));
+$end: reduce_decision $
+
 $macro: normal_parameter(element_type,element_name,index) $
 (N$(element_type)) l$(element_name).getNodes.get($index)$no_eol$
 $end: normal_parameter $
-$macro: new_parameter(tree_alternative) $
-new N$(tree_alternative)(-1, -1$expand: normal_parameter,new_parameter, end_parameter, before_first=", ", separator=", " $)$no_eol$
+
+$macro: new_parameter(element_name) $
+n$(element_name)
 $end: new_parameter $
+
+$macro: null_parameter $
+null
+$end: null_parameter $
+
 $macro: end_parameter $
 l\$end$no_eol$
 $end: end_parameter $
 
-$macro: reduce_decision $
-      List<Node> trees = new LinkedList<Node>();
-$macro: reduce_new_element(tree_alternative)$
-      N$tree_alternative l$tree_alternative = new N$tree_alternative(-1, -1$expand: normal_parameter,new_parameter, end_parameter, before_first=", ", separator=", " $);
-      trees.add(l$tree_alternative);
-$end: reduce_new_element$
-$macro: reduce_up_element(element_name,index)$
-	  trees.add(l$(element_name).getNodes.get($index));
-$end: reduce_up_element$
-$macro: reduce_list_element$
-	  // ???
-$end: reduce_list_element$
-      stack.push(new AbstractForest(CSTProductionType.P_$reduced_production,trees, stack.getState().getTarget(CSTProductionType.P_$reduced_production));
-$end: reduce_decision $
+$macro: add_element(list_name,element_name) $
+$(list_name).add($(element_name));
+$end: add_element $
+
+$macro: add_list(list_name,element_name) $
+$(list_name).addList($(element_name));
+$end: add_list $
 
 $macro: accept_decision(element_name) $
       return l$element_name;

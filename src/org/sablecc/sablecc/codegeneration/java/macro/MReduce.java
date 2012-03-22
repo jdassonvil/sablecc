@@ -12,13 +12,19 @@ public class MReduce {
 
     private final List<Object> eReduceNormalPop_ReduceEndPop = new LinkedList<Object>();
 
+    private final List<Object> eReduceDecision = new LinkedList<Object>();
+
     private final List<Object> eNormalParameter = new LinkedList<Object>();
 
     private final List<Object> eNewParameter = new LinkedList<Object>();
 
+    private final List<Object> eNullParameter = new LinkedList<Object>();
+
     private final List<Object> eEndParameter = new LinkedList<Object>();
 
-    private final List<Object> eReduceDecision = new LinkedList<Object>();
+    private final List<Object> eAddElement = new LinkedList<Object>();
+
+    private final List<Object> eAddList = new LinkedList<Object>();
 
     private final List<Object> eAcceptDecision = new LinkedList<Object>();
 
@@ -29,6 +35,13 @@ public class MReduce {
             throw new NullPointerException();
         }
         this.pReducedProduction = pReducedProduction;
+    }
+
+    public MReduceDecision newReduceDecision() {
+
+        MReduceDecision lReduceDecision = new MReduceDecision(this.mReduce);
+        this.eReduceDecision.add(lReduceDecision);
+        return lReduceDecision;
     }
 
     public MNormalParameter newNormalParameter(
@@ -43,11 +56,18 @@ public class MReduce {
     }
 
     public MNewParameter newNewParameter(
-            String pTreeAlternative) {
+            String pElementName) {
 
-        MNewParameter lNewParameter = new MNewParameter(pTreeAlternative);
+        MNewParameter lNewParameter = new MNewParameter(pElementName);
         this.eNewParameter.add(lNewParameter);
         return lNewParameter;
+    }
+
+    public MNullParameter newNullParameter() {
+
+        MNullParameter lNullParameter = new MNullParameter();
+        this.eNullParameter.add(lNullParameter);
+        return lNullParameter;
     }
 
     public MEndParameter newEndParameter() {
@@ -57,11 +77,22 @@ public class MReduce {
         return lEndParameter;
     }
 
-    public MReduceDecision newReduceDecision() {
+    public MAddElement newAddElement(
+            String pListName,
+            String pElementName) {
 
-        MReduceDecision lReduceDecision = new MReduceDecision(this.mReduce);
-        this.eReduceDecision.add(lReduceDecision);
-        return lReduceDecision;
+        MAddElement lAddElement = new MAddElement(pListName, pElementName);
+        this.eAddElement.add(lAddElement);
+        return lAddElement;
+    }
+
+    public MAddList newAddList(
+            String pListName,
+            String pElementName) {
+
+        MAddList lAddList = new MAddList(pListName, pElementName);
+        this.eAddList.add(lAddList);
+        return lAddList;
     }
 
     public MAcceptDecision newAcceptDecision(
@@ -102,18 +133,35 @@ public class MReduce {
         for (Object oReduceNormalPop_ReduceEndPop : this.eReduceNormalPop_ReduceEndPop) {
             sb.append(oReduceNormalPop_ReduceEndPop.toString());
         }
+        sb.append(System.getProperty("line.separator"));
+        sb.append(System.getProperty("line.separator"));
+        sb.append(System.getProperty("line.separator"));
+        for (Object oReduceDecision : this.eReduceDecision) {
+            sb.append(oReduceDecision.toString());
+        }
+        sb.append(System.getProperty("line.separator"));
         for (Object oNormalParameter : this.eNormalParameter) {
             sb.append(oNormalParameter.toString());
         }
+        sb.append(System.getProperty("line.separator"));
         for (Object oNewParameter : this.eNewParameter) {
             sb.append(oNewParameter.toString());
         }
+        sb.append(System.getProperty("line.separator"));
+        for (Object oNullParameter : this.eNullParameter) {
+            sb.append(oNullParameter.toString());
+        }
+        sb.append(System.getProperty("line.separator"));
         for (Object oEndParameter : this.eEndParameter) {
             sb.append(oEndParameter.toString());
         }
         sb.append(System.getProperty("line.separator"));
-        for (Object oReduceDecision : this.eReduceDecision) {
-            sb.append(oReduceDecision.toString());
+        for (Object oAddElement : this.eAddElement) {
+            sb.append(oAddElement.toString());
+        }
+        sb.append(System.getProperty("line.separator"));
+        for (Object oAddList : this.eAddList) {
+            sb.append(oAddList.toString());
         }
         sb.append(System.getProperty("line.separator"));
         for (Object oAcceptDecision : this.eAcceptDecision) {

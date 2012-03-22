@@ -2,9 +2,9 @@
 
 package org.sablecc.sablecc.codegeneration.java.macro;
 
-public class MReduceListElement {
+public class MNullParameter {
 
-    MReduceListElement() {
+    MNullParameter() {
 
     }
 
@@ -12,7 +12,7 @@ public class MReduceListElement {
     public String toString() {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("	  // ???");
+        sb.append("null");
         sb.append(System.getProperty("line.separator"));
         return sb.toString();
     }
