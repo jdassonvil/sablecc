@@ -40,9 +40,12 @@ public class AlternativeTransformationBuilder
 
     private Alternative alternative;
 
+    private SGrammar sGrammar;
+
     public AlternativeTransformationBuilder(
             Alternative alternative,
-            AlternativeTransformation transformation) {
+            AlternativeTransformation transformation,
+            SGrammar sGrammar) {
 
         if (alternative == null) {
             throw new InternalException("alternative shouldn't be null");
@@ -53,6 +56,7 @@ public class AlternativeTransformationBuilder
         }
 
         this.alternative = alternative;
+        this.sGrammar = sGrammar;
         transformation.apply(this);
     }
 
@@ -176,8 +180,10 @@ public class AlternativeTransformationBuilder
             List<SAlternativeTransformationElement> currentList = this.elementListStack
                     .pop();
 
-            SProductionTransformation productionTransformation = this.alternative
-                    .getProduction().getTransformation();
+            SProductionTransformation productionTransformation = this.sGrammar
+                    .getProduction(
+                            reference.getProductionTransformation().getName())
+                    .getTransformation();
 
             currentList
                     .add(new SAlternativeTransformationElement.ReferenceElement(
@@ -214,8 +220,10 @@ public class AlternativeTransformationBuilder
             List<SAlternativeTransformationListElement> currentList = this.listElementListStack
                     .pop();
 
-            SProductionTransformation productionTransformation = this.alternative
-                    .getProduction().getTransformation();
+            SProductionTransformation productionTransformation = this.sGrammar
+                    .getProduction(
+                            reference.getProductionTransformation().getName())
+                    .getTransformation();
 
             currentList
                     .add(new SAlternativeTransformationListElement.ReferenceElement(

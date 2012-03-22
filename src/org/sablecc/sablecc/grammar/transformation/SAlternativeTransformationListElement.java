@@ -171,6 +171,11 @@ public abstract class SAlternativeTransformationListElement
             return this.alternative;
         }
 
+        public List<SAlternativeTransformationElement> getElements() {
+
+            return this.elements;
+        }
+
         @Override
         public SAlternativeTransformationListElement clone() {
 

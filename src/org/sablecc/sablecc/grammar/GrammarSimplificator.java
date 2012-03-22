@@ -119,7 +119,7 @@ public class GrammarSimplificator
 
         if (node.getTransformation() != null) {
             new AlternativeTransformationBuilder(alternative,
-                    node.getTransformation());
+                    node.getTransformation(), grammar);
         }
         else { // Grammar hasn't Tree
             LinkedList<SAlternativeTransformationElement> transformationElements = new LinkedList<SAlternativeTransformationElement>();

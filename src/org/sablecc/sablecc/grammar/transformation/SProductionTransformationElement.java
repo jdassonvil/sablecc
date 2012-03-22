@@ -76,12 +76,12 @@ public abstract class SProductionTransformationElement
         public NormalElement(
                 SProductionTransformation productionTransformation,
                 String name,
-                IReferencable treeReference,
+                IReferencable coreReference,
                 CardinalityInterval cardinality) {
 
             super(productionTransformation);
 
-            if (treeReference == null) {
+            if (coreReference == null) {
                 throw new InternalException("treeReference shouldn't be null");
             }
 
@@ -90,7 +90,7 @@ public abstract class SProductionTransformationElement
             }
 
             this.name = name;
-            this.coreReference = treeReference;
+            this.coreReference = coreReference;
             this.cardinality = cardinality;
         }
 
@@ -114,7 +114,7 @@ public abstract class SProductionTransformationElement
             return this.name;
         }
 
-        public IReferencable getTreeReference() {
+        public IReferencable getCoreReference() {
 
             return this.coreReference;
         }
