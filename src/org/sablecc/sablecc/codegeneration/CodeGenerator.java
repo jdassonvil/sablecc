@@ -29,10 +29,7 @@ import org.sablecc.sablecc.automaton.*;
 import org.sablecc.sablecc.codegeneration.java.macro.*;
 import org.sablecc.sablecc.core.*;
 import org.sablecc.sablecc.core.interfaces.*;
-import org.sablecc.sablecc.grammar.Element.ProductionElement;
-import org.sablecc.sablecc.grammar.Element.TokenElement;
 import org.sablecc.sablecc.grammar.*;
-import org.sablecc.sablecc.grammar.interfaces.*;
 import org.sablecc.sablecc.grammar.transformation.*;
 import org.sablecc.sablecc.launcher.*;
 import org.sablecc.sablecc.oldlrautomaton.*;
@@ -956,70 +953,10 @@ public class CodeGenerator {
                         for (SAlternativeTransformationElement transformationElement : transformation
                                 .getElements()) {
 
-                            if (transformationElement instanceof SAlternativeTransformationElement.NewElement) {
-                                SAlternativeTransformationElement.NewElement newTransformationElement = (SAlternativeTransformationElement.NewElement) transformationElement;
-                                String alt_CamelCase = alternativeToCamelFullName
-                                        .get(newTransformationElement
-                                                .getAlternative());
-
-                                MReduceNewElement newElement = mReduceDecision
-                                        .newReduceNewElement(alt_CamelCase);
-
-                                generateTreeElements(alternative,
-                                        newTransformationElement.getElements(),
-                                        alternativeToCamelFullName, newElement);
-
-                            }
-                            else if (transformationElement instanceof SAlternativeTransformationElement.ReferenceElement) {
-
-                                SAlternativeTransformationElement.ReferenceElement refElement = (SAlternativeTransformationElement.ReferenceElement) transformationElement;
-
-                                IElement reference = refElement.getReference();
-
-                                if (reference instanceof TokenElement
-                                        || reference instanceof ProductionElement) {
-
-                                    OldElement matchedElement = alternative
-                                            .getElement((TokenElement) reference);
-
-                                    mReduceDecision.newReduceUpElement(
-                                            matchedElement.getName(), "0");
-
-                                }
-                                else if (reference instanceof SProductionTransformationElement) {
-
-                                    if (reference instanceof SProductionTransformationElement.NormalElement) {
-                                        SProductionTransformationElement.NormalElement normalElement = (SProductionTransformationElement.NormalElement) reference;
-
-                                        if (normalElement.getTreeReference() instanceof Tree.TreeProduction) {
-                                            String elementName = to_camelCase(normalElement
-                                                    .getName());
-                                            mReduceDecision.newReduceUpElement(
-                                                    elementName,
-                                                    normalElement.getIndex()
-                                                            + "");
-
-                                        }
-
-                                    }
-                                    else if (reference instanceof SProductionTransformationElement.SeparatedElement) {
-
-                                    }
-                                    else if (reference instanceof SProductionTransformationElement.AlternatedElement) {
-
-                                    }
-                                    else {
-                                        // unhandled case
-                                    }
-
-                                }
-                            }
-                            else if (transformationElement instanceof SAlternativeTransformationElement.ListElement) {
-
-                            }
-                            else if (transformationElement instanceof SAlternativeTransformationElement.NullElement) {
-
-                            }
+                            transformationElement
+                                    .apply(new TransformationGeneration(
+                                            alternative, mReduceDecision,
+                                            alternativeToCamelFullName));
 
                         }
                         for (OldElement element : elements) {
@@ -1250,107 +1187,5 @@ public class CodeGenerator {
         catch (IOException e) {
             new InternalException("TODO: raise error " + "LRState.java", e);
         }
-    }
-
-    public void generateTreeElements(
-            OldAlternative oldAlternative,
-            List<SAlternativeTransformationElement> transformationElements,
-            Map<IReferencable, String> alternativeToCamelFullName,
-            Object newMacro) {
-
-        for (SAlternativeTransformationElement transformationElement : transformationElements) {
-
-            if (transformationElement instanceof SAlternativeTransformationElement.NewElement) {
-                SAlternativeTransformationElement.NewElement newTransformationElement = (SAlternativeTransformationElement.NewElement) transformationElement;
-                String alt_CamelCase = alternativeToCamelFullName
-                        .get(newTransformationElement.getAlternative());
-                MNewParameter newParameter;
-                if (newMacro instanceof MReduceNewElement) {
-                    newParameter = ((MReduceNewElement) newMacro)
-                            .newNewParameter(alt_CamelCase);
-                }
-                else {
-                    newParameter = ((MNewParameter) newMacro)
-                            .newNewParameter(alt_CamelCase);
-                }
-                generateTreeElements(oldAlternative,
-                        newTransformationElement.getElements(),
-                        alternativeToCamelFullName, newParameter);
-
-            }
-            else if (transformationElement instanceof SAlternativeTransformationElement.ReferenceElement) {
-                SAlternativeTransformationElement.ReferenceElement refElement = (SAlternativeTransformationElement.ReferenceElement) transformationElement;
-
-                IElement reference = refElement.getReference();
-
-                if (reference instanceof TokenElement
-                        || reference instanceof ProductionElement) {
-
-                    OldElement matchedElement = oldAlternative
-                            .getElement((TokenElement) reference);
-
-                    if (newMacro instanceof MReduceNewElement) {
-                        ((MReduceNewElement) newMacro).newNormalParameter(
-                                matchedElement.getTypeName(),
-                                matchedElement.getName(), "0");
-                    }
-                    else {
-                        ((MNewParameter) newMacro).newNormalParameter(
-                                matchedElement.getTypeName(),
-                                matchedElement.getName(), "0");
-                    }
-
-                }
-                else if (reference instanceof SProductionTransformationElement) {
-
-                    if (reference instanceof SProductionTransformationElement.NormalElement) {
-                        SProductionTransformationElement.NormalElement normalElement = (SProductionTransformationElement.NormalElement) reference;
-
-                        if (normalElement.getTreeReference() instanceof Tree.TreeProduction) {
-                            String prodCamelCaseType = ((Tree.TreeProduction) normalElement
-                                    .getTreeReference()).getName_CamelCase();
-                            String elementName = to_camelCase(normalElement
-                                    .getName());
-
-                            if (newMacro instanceof MReduceNewElement) {
-                                ((MReduceNewElement) newMacro)
-                                        .newNormalParameter(prodCamelCaseType,
-                                                elementName,
-                                                normalElement.getIndex() + "");
-                            }
-                            else {
-                                ((MNewParameter) newMacro).newNormalParameter(
-                                        prodCamelCaseType, elementName,
-                                        normalElement.getIndex() + "");
-                            }
-                        }
-
-                    }
-                    else if (reference instanceof SProductionTransformationElement.SeparatedElement) {
-
-                    }
-                    else if (reference instanceof SProductionTransformationElement.AlternatedElement) {
-
-                    }
-                    else {
-                        // unhandled case
-                    }
-
-                }
-
-            }
-            else if (transformationElement instanceof SAlternativeTransformationElement.ListElement) {
-
-            }
-            else if (transformationElement instanceof SAlternativeTransformationElement.NullElement) {
-
-            }
-        }
-
-    }
-
-    public void generateListElements(
-            List<SAlternativeTransformationListElement> listElements) {
-
     }
 }
