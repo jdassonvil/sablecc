@@ -149,7 +149,7 @@ public class AlternativeTransformationBuilder
                 .pop();
 
         currentList.add(new SAlternativeTransformationElement.ListElement(
-                this.listElementListStack.pop()));
+                this.listElementListStack.pop(), node.getType()));
 
         this.elementListStack.push(currentList);
 

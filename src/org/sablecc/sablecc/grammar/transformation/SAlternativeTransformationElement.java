@@ -25,6 +25,7 @@ import org.sablecc.sablecc.core.Tree.TreeAlternative;
 import org.sablecc.sablecc.core.interfaces.*;
 import org.sablecc.sablecc.grammar.*;
 import org.sablecc.sablecc.grammar.interfaces.*;
+import org.sablecc.util.*;
 
 public abstract class SAlternativeTransformationElement
         implements IVisitableTransformationPart {
@@ -264,14 +265,18 @@ public abstract class SAlternativeTransformationElement
 
         private List<SAlternativeTransformationListElement> elements;
 
+        private Type.SimpleType type;
+
         public ListElement(
-                List<SAlternativeTransformationListElement> elements) {
+                List<SAlternativeTransformationListElement> elements,
+                Type.SimpleType type) {
 
             if (elements == null) {
                 throw new InternalException("elements shouldn't be null");
             }
 
             this.elements = elements;
+            this.type = type;
         }
 
         @Override
@@ -288,7 +293,7 @@ public abstract class SAlternativeTransformationElement
 
             LinkedList<SAlternativeTransformationElement> inlineResult = new LinkedList<SAlternativeTransformationElement>();
             inlineResult.add(new SAlternativeTransformationElement.ListElement(
-                    listElements));
+                    listElements, this.type));
 
             return inlineResult;
         }
@@ -296,6 +301,11 @@ public abstract class SAlternativeTransformationElement
         public List<SAlternativeTransformationListElement> getElements() {
 
             return this.elements;
+        }
+
+        public Type.SimpleType getType() {
+
+            return this.type;
         }
 
         @Override
@@ -307,7 +317,7 @@ public abstract class SAlternativeTransformationElement
                 newElements.add(element.clone());
             }
 
-            return new ListElement(newElements);
+            return new ListElement(newElements, this.type);
         }
 
         @Override

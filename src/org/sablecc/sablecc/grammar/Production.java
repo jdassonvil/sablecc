@@ -176,4 +176,10 @@ public class Production {
         return this.name.equals(production.getName());
     }
 
+    @Override
+    public String toString() {
+
+        return this.name;
+    }
+
 }

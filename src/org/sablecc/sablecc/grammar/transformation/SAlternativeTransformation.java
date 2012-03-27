@@ -21,6 +21,7 @@ import java.util.*;
 
 import org.sablecc.exception.*;
 import org.sablecc.sablecc.grammar.*;
+import org.sablecc.util.*;
 
 public class SAlternativeTransformation {
 
@@ -82,7 +83,8 @@ public class SAlternativeTransformation {
 
     public SAlternativeTransformation(
             LinkedList<SAlternativeTransformationListElement> elements,
-            Alternative alternative) {
+            Alternative alternative,
+            Type.SimpleType type) {
 
         if (alternative == null) {
             throw new InternalException("alternative shouldn't be null");
@@ -92,7 +94,7 @@ public class SAlternativeTransformation {
             throw new InternalException("elements shouldn't be null");
         }
         this.elements.add(new SAlternativeTransformationElement.ListElement(
-                elements));
+                elements, type));
 
     }
 

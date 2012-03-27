@@ -106,6 +106,11 @@ public abstract class SAlternativeTransformationListElement
             return inlineResult;
         }
 
+        public IElement getReference() {
+
+            return this.reference;
+        }
+
         @Override
         public SAlternativeTransformationListElement clone() {
 
@@ -213,6 +218,11 @@ public abstract class SAlternativeTransformationListElement
             this.reference = reference;
         }
 
+        public IElement getReference() {
+
+            return this.reference;
+        }
+
         @Override
         public List<SAlternativeTransformationListElement> inline(
                 Alternative inlinedAlternative,
@@ -300,6 +310,11 @@ public abstract class SAlternativeTransformationListElement
             this.reference = reference;
         }
 
+        public IElement getReference() {
+
+            return this.reference;
+        }
+
         @Override
         public SAlternativeTransformationListElement clone() {
 
@@ -385,6 +400,11 @@ public abstract class SAlternativeTransformationListElement
             }
 
             this.reference = reference;
+        }
+
+        public IElement getReference() {
+
+            return this.reference;
         }
 
         @Override
