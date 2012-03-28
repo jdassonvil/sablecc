@@ -42,6 +42,9 @@ public class MLrState {
             sb.append(oDefaultPackage_SpecifiedPackage.toString());
         }
         sb.append(System.getProperty("line.separator"));
+        sb.append("import java.io.*;");
+        sb.append(System.getProperty("line.separator"));
+        sb.append(System.getProperty("line.separator"));
         sb.append("abstract class LRState {");
         sb.append(System.getProperty("line.separator"));
         sb.append(System.getProperty("line.separator"));
@@ -51,13 +54,13 @@ public class MLrState {
         sb.append(System.getProperty("line.separator"));
         sb.append("  ");
         sb.append(System.getProperty("line.separator"));
-        sb.append("  abstract LRState getTokenTarget(InternalType type)");
+        sb.append("  abstract LRState getTokenTarget(Token token)");
         sb.append(System.getProperty("line.separator"));
         sb.append("      throws ParserException, LexerException, IOException;");
         sb.append(System.getProperty("line.separator"));
         sb.append("  ");
         sb.append(System.getProperty("line.separator"));
-        sb.append("  abstract LRState getProductionTarget(CSTProductionType type)");
+        sb.append("  abstract LRState getProductionTarget(CSTProductionType cstType)");
         sb.append(System.getProperty("line.separator"));
         sb.append("      throws ParserException, LexerException, IOException;");
         sb.append(System.getProperty("line.separator"));

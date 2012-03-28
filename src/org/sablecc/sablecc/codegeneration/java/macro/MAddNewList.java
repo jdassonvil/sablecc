@@ -2,15 +2,15 @@
 
 package org.sablecc.sablecc.codegeneration.java.macro;
 
-public class MAddList {
+public class MAddNewList {
 
     private final String pListName;
 
     private final String pElementName;
 
-    private final MAddList mAddList = this;
+    private final MAddNewList mAddNewList = this;
 
-    MAddList(
+    MAddNewList(
             String pListName,
             String pElementName) {
 
@@ -36,20 +36,21 @@ public class MAddList {
 
     private String rListName() {
 
-        return this.mAddList.pListName();
+        return this.mAddNewList.pListName();
     }
 
     private String rElementName() {
 
-        return this.mAddList.pElementName();
+        return this.mAddNewList.pElementName();
     }
 
     @Override
     public String toString() {
 
         StringBuilder sb = new StringBuilder();
+        sb.append("      n");
         sb.append(rListName());
-        sb.append(".addList(");
+        sb.append(".addAll(");
         sb.append(rElementName());
         sb.append(");");
         sb.append(System.getProperty("line.separator"));

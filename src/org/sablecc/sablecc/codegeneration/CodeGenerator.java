@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 
 import org.sablecc.exception.*;
 import org.sablecc.sablecc.alphabet.*;
+import org.sablecc.sablecc.alphabet.Bound;
 import org.sablecc.sablecc.automaton.*;
 import org.sablecc.sablecc.codegeneration.java.macro.*;
 import org.sablecc.sablecc.core.*;
@@ -33,6 +34,7 @@ import org.sablecc.sablecc.grammar.*;
 import org.sablecc.sablecc.grammar.transformation.*;
 import org.sablecc.sablecc.launcher.*;
 import org.sablecc.sablecc.oldlrautomaton.*;
+import org.sablecc.util.*;
 
 public class CodeGenerator {
 
@@ -101,6 +103,8 @@ public class CodeGenerator {
         MParseStack mParseStack = new MParseStack();
         MLrState mLrState = new MLrState();
         MCstProductionType mCstName = new MCstProductionType();
+        MAbstractForest mAbstractForest = new MAbstractForest();
+        MNodeList mNodeList = new MNodeList();
 
         if (this.destinationPackage.equals("")) {
             packageDirectory = new File(this.destinationDirectory,
@@ -120,7 +124,11 @@ public class CodeGenerator {
                     .newDefaultPackage(this.grammar.getName_camelCase());
             mWalker.newDefaultPackage(this.grammar.getName_camelCase());
             mParser.newDefaultPackage(this.grammar.getName_camelCase());
+            mParseStack.newDefaultPackage(this.grammar.getName_camelCase());
+            mLrState.newDefaultPackage(this.grammar.getName_camelCase());
             mCstName.newDefaultPackage(this.grammar.getName_camelCase());
+            mAbstractForest.newDefaultPackage(this.grammar.getName_camelCase());
+            mNodeList.newDefaultPackage(this.grammar.getName_camelCase());
         }
         else {
             packageDirectory = new File(this.destinationDirectory,
@@ -152,7 +160,15 @@ public class CodeGenerator {
                     this.destinationPackage);
             mParser.newSpecifiedPackage(this.grammar.getName_camelCase(),
                     this.destinationPackage);
+            mParseStack.newSpecifiedPackage(this.grammar.getName_camelCase(),
+                    this.destinationPackage);
+            mLrState.newSpecifiedPackage(this.grammar.getName_camelCase(),
+                    this.destinationPackage);
             mCstName.newSpecifiedPackage(this.grammar.getName_camelCase(),
+                    this.destinationPackage);
+            mAbstractForest.newSpecifiedPackage(
+                    this.grammar.getName_camelCase(), this.destinationPackage);
+            mNodeList.newSpecifiedPackage(this.grammar.getName_camelCase(),
                     this.destinationPackage);
         }
 
@@ -165,7 +181,7 @@ public class CodeGenerator {
                 LexerExpression.NamedExpression namedToken = (LexerExpression.NamedExpression) token;
 
                 mNode.newNodeTypeEnumEntry(namedToken.getName_CamelCase());
-                mNode.newNodeInternalTypeEnumEntry(namedToken
+                mToken.newNodeInternalTypeEnumEntry(namedToken
                         .getName_CamelCase());
 
                 mWalker.newWalkerIn(namedToken.getName_CamelCase());
@@ -202,7 +218,7 @@ public class CodeGenerator {
             else {
                 LexerExpression.InlineExpression inlineToken = (LexerExpression.InlineExpression) token;
 
-                mNode.newNodeInternalTypeEnumEntry(""
+                mToken.newNodeInternalTypeEnumEntry(""
                         + inlineToken.getInternalName_CamelCase());
 
                 MAnonymousToken mAnonymousToken = new MAnonymousToken(""
@@ -460,8 +476,6 @@ public class CodeGenerator {
                     alternativeToCamelFullName.put(alternative,
                             alt_CamelCaseFullName);
 
-                    mAlternative.newAltProdType(production_CamelCaseName);
-
                     if (altIsPublic) {
                         mWalker.newWalkerIn(alt_CamelCaseFullName);
                         mWalker.newWalkerCase(alt_CamelCaseFullName);
@@ -482,8 +496,6 @@ public class CodeGenerator {
                                 this.destinationPackage);
                     }
 
-                    mNode.newNodeInternalTypeEnumEntry(alt_CamelCaseFullName);
-
                     if (altIsPublic) {
                         mNode.newNodeTypeEnumEntry(alt_CamelCaseFullName);
                         mAlternative.newPublic();
@@ -503,6 +515,7 @@ public class CodeGenerator {
 
                     for (Tree.TreeElement parserElement : alternative
                             .getElements()) {
+
                         Tree.TreeElement.SingleElement normalElement = (Tree.TreeElement.SingleElement) parserElement;
                         String element_CamelCaseName = normalElement
                                 .getName_CamelCase();
@@ -538,18 +551,38 @@ public class CodeGenerator {
                             element_CamelCaseInternalType = element_CamelCaseType;
                         }
 
-                        mAlternative.newNormalConstructorParameter(
-                                element_CamelCaseInternalType,
-                                element_CamelCaseName);
-                        mAlternative
-                                .newNormalContructorInitialization(element_CamelCaseName);
+                        if (parserElement.getType().getCardinality()
+                                .equals(CardinalityInterval.ONE_ONE)
+                                || parserElement.getType().getCardinality()
+                                        .equals(CardinalityInterval.ZERO_ONE)) {
+                            mAlternative.newNormalConstructorParameter(
+                                    element_CamelCaseInternalType,
+                                    element_CamelCaseName);
+                            mAlternative
+                                    .newNormalContructorInitialization(element_CamelCaseName);
 
-                        mAlternative.newNormalElementDeclaration(
-                                element_CamelCaseInternalType,
-                                element_CamelCaseName);
-                        mAlternative.newNormalElementAccessor(
-                                element_CamelCaseInternalType,
-                                element_CamelCaseName);
+                            mAlternative.newNormalElementDeclaration(
+                                    element_CamelCaseInternalType,
+                                    element_CamelCaseName);
+                            mAlternative.newNormalElementAccessor(
+                                    element_CamelCaseInternalType,
+                                    element_CamelCaseName);
+                        }
+                        else {
+                            mAlternative.newListConstructorParameter(
+                                    element_CamelCaseInternalType,
+                                    element_CamelCaseName);
+                            mAlternative
+                                    .newNormalContructorInitialization(element_CamelCaseName);
+
+                            mAlternative.newListElementDeclaration(
+                                    element_CamelCaseInternalType,
+                                    element_CamelCaseName);
+                            mAlternative.newListElementAccessor(
+                                    element_CamelCaseInternalType,
+                                    element_CamelCaseName);
+
+                        }
 
                         mAlternative.newNormalChildApply(element_CamelCaseName);
 
@@ -650,8 +683,6 @@ public class CodeGenerator {
                     alternativeToCamelFullName.put(alternative,
                             alt_CamelCaseFullName);
 
-                    mAlternative.newAltProdType(production_CamelCaseName);
-
                     if (altIsPublic) {
                         mWalker.newWalkerIn(alt_CamelCaseFullName);
                         mWalker.newWalkerCase(alt_CamelCaseFullName);
@@ -672,7 +703,6 @@ public class CodeGenerator {
                                 this.destinationPackage);
                     }
 
-                    mNode.newNodeInternalTypeEnumEntry(alt_CamelCaseFullName);
                     if (altIsPublic) {
                         mNode.newNodeTypeEnumEntry(alt_CamelCaseFullName);
                         mAlternative.newPublic();
@@ -772,18 +802,20 @@ public class CodeGenerator {
         }
 
         /*
-         * Génération des noms de productions concrètes
-         */
+         * Generate CST production names
+         *          
+         **/
 
         for (Production production : this.grammar.getSimplifiedGrammar()
                 .getProductions()) {
             mCstName.newCstProductionTypeDeclaration(production.getName());
+
         }
 
-        mCstName.newCstProductionTypeDeclaration("TOKEN");
+        mCstName.newCstProductionTypeDeclaration("NOT_A_PRODUCTION");
 
         /*
-         * Génération des états
+         * Generate LRState
          */
 
         for (LRState state : this.grammar.getSimplifiedGrammar()
@@ -826,10 +858,9 @@ public class CodeGenerator {
                 OldProduction oldProduction = entry.getKey();
                 LRState target = entry.getValue();
 
-                String production_CamelCaseName = to_CamelCase(oldProduction
-                        .getName());
+                String production_camelCaseName = oldProduction.getName();
                 mLrStateSingleton.newProductionLrTransitionTarget(
-                        production_CamelCaseName, target.getName());
+                        production_camelCaseName, target.getName());
             }
 
             Map<Integer, MDistance> distanceMap = new LinkedHashMap<Integer, MDistance>();
@@ -955,7 +986,8 @@ public class CodeGenerator {
 
                             transformationElement
                                     .apply(new TransformationGeneration(
-                                            alternative, mReduceDecision,
+                                            this.grammar, alternative,
+                                            mReduceDecision,
                                             alternativeToCamelFullName));
 
                         }
@@ -992,6 +1024,16 @@ public class CodeGenerator {
 
             if (isLr1OrMore) {
                 mLrStateSingleton.newLr1OrMore();
+            }
+
+            if (this.destinationPackage.equals("")) {
+                mLrStateSingleton.newDefaultPackage(this.grammar
+                        .getName_camelCase());
+            }
+            else {
+                mLrStateSingleton.newSpecifiedPackage(
+                        this.grammar.getName_camelCase(),
+                        this.destinationPackage);
             }
 
             try {
@@ -1186,6 +1228,29 @@ public class CodeGenerator {
         }
         catch (IOException e) {
             new InternalException("TODO: raise error " + "LRState.java", e);
+        }
+
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(new File(
+                    packageDirectory, "AbstractForest.java")));
+
+            bw.write(mAbstractForest.toString());
+            bw.close();
+        }
+        catch (IOException e) {
+            new InternalException("TODO: raise error " + "AbstractForest.java",
+                    e);
+        }
+
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(new File(
+                    packageDirectory, "NodeList.java")));
+
+            bw.write(mNodeList.toString());
+            bw.close();
+        }
+        catch (IOException e) {
+            new InternalException("TODO: raise error " + "NodeList.java", e);
         }
     }
 }

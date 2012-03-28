@@ -124,7 +124,9 @@ public class MParser {
         sb.append(System.getProperty("line.separator"));
         sb.append("    }");
         sb.append(System.getProperty("line.separator"));
-        sb.append("    stack.push(token, stack.getState().getTarget(token));");
+        sb.append("    ");
+        sb.append(System.getProperty("line.separator"));
+        sb.append("    stack.push(new AbstractForest(CSTProductionType.NOT_A_PRODUCTION,token), stack.getState().getTokenTarget(token));");
         sb.append(System.getProperty("line.separator"));
         sb.append("  }");
         sb.append(System.getProperty("line.separator"));

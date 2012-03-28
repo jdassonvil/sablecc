@@ -2,19 +2,31 @@
 
 package org.sablecc.sablecc.codegeneration.java.macro;
 
-public class MAcceptDecision {
+public class MAddNewElement {
+
+    private final String pListName;
 
     private final String pElementName;
 
-    private final MAcceptDecision mAcceptDecision = this;
+    private final MAddNewElement mAddNewElement = this;
 
-    MAcceptDecision(
+    MAddNewElement(
+            String pListName,
             String pElementName) {
 
+        if (pListName == null) {
+            throw new NullPointerException();
+        }
+        this.pListName = pListName;
         if (pElementName == null) {
             throw new NullPointerException();
         }
         this.pElementName = pElementName;
+    }
+
+    String pListName() {
+
+        return this.pListName;
     }
 
     String pElementName() {
@@ -22,18 +34,25 @@ public class MAcceptDecision {
         return this.pElementName;
     }
 
+    private String rListName() {
+
+        return this.mAddNewElement.pListName();
+    }
+
     private String rElementName() {
 
-        return this.mAcceptDecision.pElementName();
+        return this.mAddNewElement.pElementName();
     }
 
     @Override
     public String toString() {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("      return l");
+        sb.append("      n");
+        sb.append(rListName());
+        sb.append(".add(");
         sb.append(rElementName());
-        sb.append(".getNodes().get(0);");
+        sb.append(");");
         sb.append(System.getProperty("line.separator"));
         return sb.toString();
     }

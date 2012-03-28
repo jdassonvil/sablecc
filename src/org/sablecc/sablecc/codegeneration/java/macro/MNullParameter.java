@@ -13,7 +13,6 @@ public class MNullParameter {
 
         StringBuilder sb = new StringBuilder();
         sb.append("null");
-        sb.append(System.getProperty("line.separator"));
         return sb.toString();
     }
 

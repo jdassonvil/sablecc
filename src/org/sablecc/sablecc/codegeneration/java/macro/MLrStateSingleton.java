@@ -115,6 +115,11 @@ public class MLrStateSingleton {
             sb.append(oDefaultPackage_SpecifiedPackage.toString());
         }
         sb.append(System.getProperty("line.separator"));
+        sb.append("import java.io.*;");
+        sb.append(System.getProperty("line.separator"));
+        sb.append("import java.util.*;");
+        sb.append(System.getProperty("line.separator"));
+        sb.append(System.getProperty("line.separator"));
         sb.append("class L_");
         sb.append(rNumber());
         sb.append(System.getProperty("line.separator"));
@@ -153,12 +158,12 @@ public class MLrStateSingleton {
         sb.append(System.getProperty("line.separator"));
         sb.append("  @Override");
         sb.append(System.getProperty("line.separator"));
-        sb.append("  LRState getTokenTarget(InternalType type)");
+        sb.append("  LRState getTokenTarget(Token token)");
         sb.append(System.getProperty("line.separator"));
         sb.append("      throws ParserException, LexerException, IOException {");
         sb.append(System.getProperty("line.separator"));
         sb.append(System.getProperty("line.separator"));
-        sb.append("    switch(type) {");
+        sb.append("    switch(token.getInternalType()) {");
         sb.append(System.getProperty("line.separator"));
         for (Object oNormalTokenLrTransitionTarget : this.eNormalTokenLrTransitionTarget) {
             sb.append(oNormalTokenLrTransitionTarget.toString());
@@ -168,7 +173,7 @@ public class MLrStateSingleton {
         }
         sb.append("    default:");
         sb.append(System.getProperty("line.separator"));
-        sb.append("      throw new ParserException((Token) node);");
+        sb.append("      throw new ParserException(token);");
         sb.append(System.getProperty("line.separator"));
         sb.append("    }");
         sb.append(System.getProperty("line.separator"));
@@ -177,7 +182,7 @@ public class MLrStateSingleton {
         sb.append(System.getProperty("line.separator"));
         sb.append("  @Override");
         sb.append(System.getProperty("line.separator"));
-        sb.append("  LRState getProductionTarget(CSTProductionType type");
+        sb.append("  LRState getProductionTarget(CSTProductionType type)");
         sb.append(System.getProperty("line.separator"));
         sb.append("      throws ParserException, LexerException, IOException {");
         sb.append(System.getProperty("line.separator"));
@@ -190,6 +195,8 @@ public class MLrStateSingleton {
         sb.append("    default:");
         sb.append(System.getProperty("line.separator"));
         sb.append("      throw new RuntimeException(\"internal error in parsing tables\");");
+        sb.append(System.getProperty("line.separator"));
+        sb.append("    }");
         sb.append(System.getProperty("line.separator"));
         sb.append("  }");
         sb.append(System.getProperty("line.separator"));

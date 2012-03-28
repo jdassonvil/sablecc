@@ -101,7 +101,6 @@ public class MAction {
         for (Object oShift : this.eShift) {
             sb.append(oShift.toString());
         }
-        sb.append(System.getProperty("line.separator"));
         for (Object oReduce : this.eReduce) {
             sb.append(oReduce.toString());
         }

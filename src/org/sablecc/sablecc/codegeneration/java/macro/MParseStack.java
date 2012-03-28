@@ -83,7 +83,7 @@ public class MParseStack {
         sb.append(System.getProperty("line.separator"));
         sb.append("  AbstractForest pop() {");
         sb.append(System.getProperty("line.separator"));
-        sb.append("    Forest forest = stack.forest;");
+        sb.append("    AbstractForest forest = stack.forest;");
         sb.append(System.getProperty("line.separator"));
         sb.append("    ParseStackEntry entry = stack;");
         sb.append(System.getProperty("line.separator"));

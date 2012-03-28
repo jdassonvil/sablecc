@@ -12,6 +12,8 @@ public class MNewTreeClass {
 
     private final MNewTreeClass mNewTreeClass = this;
 
+    private final List<Object> eNewTreeClass_NewList = new LinkedList<Object>();
+
     private final List<Object> eNormalParameter_NullParameter_NewParameter_EndParameter = new LinkedList<Object>();
 
     MNewTreeClass(
@@ -26,6 +28,25 @@ public class MNewTreeClass {
             throw new NullPointerException();
         }
         this.pElementName = pElementName;
+    }
+
+    public MNewTreeClass newNewTreeClass(
+            String pElementType,
+            String pElementName) {
+
+        MNewTreeClass lNewTreeClass = new MNewTreeClass(pElementType,
+                pElementName);
+        this.eNewTreeClass_NewList.add(lNewTreeClass);
+        return lNewTreeClass;
+    }
+
+    public MNewList newNewList(
+            String pListName,
+            String pListType) {
+
+        MNewList lNewList = new MNewList(pListName, pListType);
+        this.eNewTreeClass_NewList.add(lNewList);
+        return lNewList;
     }
 
     public MNormalParameter newNormalParameter(
@@ -89,7 +110,10 @@ public class MNewTreeClass {
     public String toString() {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("      new N");
+        for (Object oNewTreeClass_NewList : this.eNewTreeClass_NewList) {
+            sb.append(oNewTreeClass_NewList.toString());
+        }
+        sb.append("	N");
         sb.append(rElementType());
         sb.append(" n");
         sb.append(rElementName());

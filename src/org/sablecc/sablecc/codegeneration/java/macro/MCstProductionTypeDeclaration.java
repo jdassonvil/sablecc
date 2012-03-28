@@ -31,7 +31,7 @@ public class MCstProductionTypeDeclaration {
     public String toString() {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("  P_");
+        sb.append("  ");
         sb.append(rName());
         sb.append(",");
         sb.append(System.getProperty("line.separator"));

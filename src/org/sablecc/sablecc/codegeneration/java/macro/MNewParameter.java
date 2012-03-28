@@ -33,7 +33,6 @@ public class MNewParameter {
         StringBuilder sb = new StringBuilder();
         sb.append("n");
         sb.append(rElementName());
-        sb.append(System.getProperty("line.separator"));
         return sb.toString();
     }
 

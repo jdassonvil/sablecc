@@ -8,13 +8,9 @@ public class MReduceDecision {
 
     private final MReduce mReduce;
 
+    private final List<Object> eNewTreeClass_NewList = new LinkedList<Object>();
+
     private final List<Object> eAddLToForest_AddNullToForest_AddNToForest = new LinkedList<Object>();
-
-    private final List<Object> eNewTreeClass = new LinkedList<Object>();
-
-    private final List<Object> eNewList = new LinkedList<Object>();
-
-    private final List<Object> eNewBoundedList = new LinkedList<Object>();
 
     MReduceDecision(
             MReduce mReduce) {
@@ -31,30 +27,17 @@ public class MReduceDecision {
 
         MNewTreeClass lNewTreeClass = new MNewTreeClass(pElementType,
                 pElementName);
-        this.eNewTreeClass.add(lNewTreeClass);
+        this.eNewTreeClass_NewList.add(lNewTreeClass);
         return lNewTreeClass;
     }
 
     public MNewList newNewList(
             String pListName,
-            String pListType,
-            String pLowerBound) {
+            String pListType) {
 
-        MNewList lNewList = new MNewList(pListName, pListType, pLowerBound);
-        this.eNewList.add(lNewList);
+        MNewList lNewList = new MNewList(pListName, pListType);
+        this.eNewTreeClass_NewList.add(lNewList);
         return lNewList;
-    }
-
-    public MNewBoundedList newNewBoundedList(
-            String pListName,
-            String pListType,
-            String pLowerBound,
-            String pUpperBound) {
-
-        MNewBoundedList lNewBoundedList = new MNewBoundedList(pListName,
-                pListType, pLowerBound, pUpperBound);
-        this.eNewBoundedList.add(lNewBoundedList);
-        return lNewBoundedList;
     }
 
     public MAddLToForest newAddLToForest(
@@ -91,23 +74,20 @@ public class MReduceDecision {
         StringBuilder sb = new StringBuilder();
         sb.append("      List<Node> trees = new LinkedList<Node>();");
         sb.append(System.getProperty("line.separator"));
-        for (Object oNewTreeClass : this.eNewTreeClass) {
-            sb.append(oNewTreeClass.toString());
-        }
-        for (Object oNewList : this.eNewList) {
-            sb.append(oNewList.toString());
-        }
-        for (Object oNewBoundedList : this.eNewBoundedList) {
-            sb.append(oNewBoundedList.toString());
+        sb.append("      ");
+        for (Object oNewTreeClass_NewList : this.eNewTreeClass_NewList) {
+            sb.append(oNewTreeClass_NewList.toString());
         }
         for (Object oAddLToForest_AddNullToForest_AddNToForest : this.eAddLToForest_AddNullToForest_AddNToForest) {
             sb.append(oAddLToForest_AddNullToForest_AddNToForest.toString());
         }
-        sb.append("      stack.push(new AbstractForest(CSTProductionType.P_");
+        sb.append("      stack.push(new AbstractForest(CSTProductionType.");
         sb.append(rReducedProduction());
-        sb.append(",trees, stack.getState().getTarget(CSTProductionType.P_");
+        sb.append(",trees), stack.getState().getProductionTarget(CSTProductionType.");
         sb.append(rReducedProduction());
         sb.append("));");
+        sb.append(System.getProperty("line.separator"));
+        sb.append("      return null;");
         sb.append(System.getProperty("line.separator"));
         return sb.toString();
     }

@@ -2,31 +2,31 @@
 
 package org.sablecc.sablecc.codegeneration.java.macro;
 
-public class MAddElement {
+public class MListConstructorParameter {
 
-    private final String pListName;
+    private final String pListType;
 
     private final String pElementName;
 
-    private final MAddElement mAddElement = this;
+    private final MListConstructorParameter mListConstructorParameter = this;
 
-    MAddElement(
-            String pListName,
+    MListConstructorParameter(
+            String pListType,
             String pElementName) {
 
-        if (pListName == null) {
+        if (pListType == null) {
             throw new NullPointerException();
         }
-        this.pListName = pListName;
+        this.pListType = pListType;
         if (pElementName == null) {
             throw new NullPointerException();
         }
         this.pElementName = pElementName;
     }
 
-    String pListName() {
+    String pListType() {
 
-        return this.pListName;
+        return this.pListType;
     }
 
     String pElementName() {
@@ -34,25 +34,24 @@ public class MAddElement {
         return this.pElementName;
     }
 
-    private String rListName() {
+    private String rListType() {
 
-        return this.mAddElement.pListName();
+        return this.mListConstructorParameter.pListType();
     }
 
     private String rElementName() {
 
-        return this.mAddElement.pElementName();
+        return this.mListConstructorParameter.pElementName();
     }
 
     @Override
     public String toString() {
 
         StringBuilder sb = new StringBuilder();
-        sb.append(rListName());
-        sb.append(".add(");
+        sb.append("NodeList<N");
+        sb.append(rListType());
+        sb.append("> p");
         sb.append(rElementName());
-        sb.append(");");
-        sb.append(System.getProperty("line.separator"));
         return sb.toString();
     }
 

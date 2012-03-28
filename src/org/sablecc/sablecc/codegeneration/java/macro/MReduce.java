@@ -22,9 +22,15 @@ public class MReduce {
 
     private final List<Object> eEndParameter = new LinkedList<Object>();
 
-    private final List<Object> eAddElement = new LinkedList<Object>();
+    private final List<Object> eStringParameter = new LinkedList<Object>();
 
-    private final List<Object> eAddList = new LinkedList<Object>();
+    private final List<Object> eAddPopElement = new LinkedList<Object>();
+
+    private final List<Object> eAddNewElement = new LinkedList<Object>();
+
+    private final List<Object> eAddPopList = new LinkedList<Object>();
+
+    private final List<Object> eAddNewList = new LinkedList<Object>();
 
     private final List<Object> eAcceptDecision = new LinkedList<Object>();
 
@@ -77,22 +83,55 @@ public class MReduce {
         return lEndParameter;
     }
 
-    public MAddElement newAddElement(
-            String pListName,
-            String pElementName) {
+    public MStringParameter newStringParameter(
+            String pString) {
 
-        MAddElement lAddElement = new MAddElement(pListName, pElementName);
-        this.eAddElement.add(lAddElement);
-        return lAddElement;
+        MStringParameter lStringParameter = new MStringParameter(pString);
+        this.eStringParameter.add(lStringParameter);
+        return lStringParameter;
     }
 
-    public MAddList newAddList(
+    public MAddPopElement newAddPopElement(
+            String pListName,
+            String pElementName,
+            String pElementType,
+            String pIndex) {
+
+        MAddPopElement lAddPopElement = new MAddPopElement(pListName,
+                pElementName, pElementType, pIndex);
+        this.eAddPopElement.add(lAddPopElement);
+        return lAddPopElement;
+    }
+
+    public MAddNewElement newAddNewElement(
             String pListName,
             String pElementName) {
 
-        MAddList lAddList = new MAddList(pListName, pElementName);
-        this.eAddList.add(lAddList);
-        return lAddList;
+        MAddNewElement lAddNewElement = new MAddNewElement(pListName,
+                pElementName);
+        this.eAddNewElement.add(lAddNewElement);
+        return lAddNewElement;
+    }
+
+    public MAddPopList newAddPopList(
+            String pListName,
+            String pElementName,
+            String pElementType,
+            String pIndex) {
+
+        MAddPopList lAddPopList = new MAddPopList(pListName, pElementName,
+                pElementType, pIndex);
+        this.eAddPopList.add(lAddPopList);
+        return lAddPopList;
+    }
+
+    public MAddNewList newAddNewList(
+            String pListName,
+            String pElementName) {
+
+        MAddNewList lAddNewList = new MAddNewList(pListName, pElementName);
+        this.eAddNewList.add(lAddNewList);
+        return lAddNewList;
     }
 
     public MAcceptDecision newAcceptDecision(
@@ -129,41 +168,39 @@ public class MReduce {
         StringBuilder sb = new StringBuilder();
         sb.append("      ParseStack stack = parser.getStack();");
         sb.append(System.getProperty("line.separator"));
-        sb.append(System.getProperty("line.separator"));
         for (Object oReduceNormalPop_ReduceEndPop : this.eReduceNormalPop_ReduceEndPop) {
             sb.append(oReduceNormalPop_ReduceEndPop.toString());
         }
-        sb.append(System.getProperty("line.separator"));
-        sb.append(System.getProperty("line.separator"));
-        sb.append(System.getProperty("line.separator"));
         for (Object oReduceDecision : this.eReduceDecision) {
             sb.append(oReduceDecision.toString());
         }
-        sb.append(System.getProperty("line.separator"));
         for (Object oNormalParameter : this.eNormalParameter) {
             sb.append(oNormalParameter.toString());
         }
-        sb.append(System.getProperty("line.separator"));
         for (Object oNewParameter : this.eNewParameter) {
             sb.append(oNewParameter.toString());
         }
-        sb.append(System.getProperty("line.separator"));
         for (Object oNullParameter : this.eNullParameter) {
             sb.append(oNullParameter.toString());
         }
-        sb.append(System.getProperty("line.separator"));
         for (Object oEndParameter : this.eEndParameter) {
             sb.append(oEndParameter.toString());
         }
-        sb.append(System.getProperty("line.separator"));
-        for (Object oAddElement : this.eAddElement) {
-            sb.append(oAddElement.toString());
+        for (Object oStringParameter : this.eStringParameter) {
+            sb.append(oStringParameter.toString());
         }
-        sb.append(System.getProperty("line.separator"));
-        for (Object oAddList : this.eAddList) {
-            sb.append(oAddList.toString());
+        for (Object oAddPopElement : this.eAddPopElement) {
+            sb.append(oAddPopElement.toString());
         }
-        sb.append(System.getProperty("line.separator"));
+        for (Object oAddNewElement : this.eAddNewElement) {
+            sb.append(oAddNewElement.toString());
+        }
+        for (Object oAddPopList : this.eAddPopList) {
+            sb.append(oAddPopList.toString());
+        }
+        for (Object oAddNewList : this.eAddNewList) {
+            sb.append(oAddNewList.toString());
+        }
         for (Object oAcceptDecision : this.eAcceptDecision) {
             sb.append(oAcceptDecision.toString());
         }

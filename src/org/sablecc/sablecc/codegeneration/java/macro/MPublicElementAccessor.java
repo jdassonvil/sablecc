@@ -10,7 +10,7 @@ public class MPublicElementAccessor {
 
     private final MPublicElementAccessor mPublicElementAccessor = this;
 
-    private final List<Object> ePublicElementType_TokenElementType = new LinkedList<Object>();
+    private final List<Object> ePublicElementType_PublicListElementType_TokenElementType = new LinkedList<Object>();
 
     MPublicElementAccessor(
             String pElementName) {
@@ -26,14 +26,26 @@ public class MPublicElementAccessor {
 
         MPublicElementType lPublicElementType = new MPublicElementType(
                 pElementType);
-        this.ePublicElementType_TokenElementType.add(lPublicElementType);
+        this.ePublicElementType_PublicListElementType_TokenElementType
+                .add(lPublicElementType);
         return lPublicElementType;
+    }
+
+    public MPublicListElementType newPublicListElementType(
+            String pElementType) {
+
+        MPublicListElementType lPublicListElementType = new MPublicListElementType(
+                pElementType);
+        this.ePublicElementType_PublicListElementType_TokenElementType
+                .add(lPublicListElementType);
+        return lPublicListElementType;
     }
 
     public MTokenElementType newTokenElementType() {
 
         MTokenElementType lTokenElementType = new MTokenElementType();
-        this.ePublicElementType_TokenElementType.add(lTokenElementType);
+        this.ePublicElementType_PublicListElementType_TokenElementType
+                .add(lTokenElementType);
         return lTokenElementType;
     }
 
@@ -52,12 +64,14 @@ public class MPublicElementAccessor {
 
         StringBuilder sb = new StringBuilder();
         sb.append("  public ");
-        for (Object oPublicElementType_TokenElementType : this.ePublicElementType_TokenElementType) {
-            sb.append(oPublicElementType_TokenElementType.toString());
+        for (Object oPublicElementType_PublicListElementType_TokenElementType : this.ePublicElementType_PublicListElementType_TokenElementType) {
+            sb.append(oPublicElementType_PublicListElementType_TokenElementType
+                    .toString());
         }
         sb.append(" get_");
         sb.append(rElementName());
         sb.append("() {");
+        sb.append(System.getProperty("line.separator"));
         sb.append(System.getProperty("line.separator"));
         sb.append("    return this.e");
         sb.append(rElementName());

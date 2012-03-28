@@ -10,18 +10,17 @@ public class MNewList {
 
     private final String pListType;
 
-    private final String pLowerBound;
-
     private final MNewList mNewList = this;
 
-    private final List<Object> eNormalParameter_NewParameter = new LinkedList<Object>();
+    private final List<Object> eNewTreeClass_NewList = new LinkedList<Object>();
 
-    private final List<Object> eAddElement_AddList = new LinkedList<Object>();
+    private final List<Object> eStringParameter_NormalParameter_NewParameter = new LinkedList<Object>();
+
+    private final List<Object> eAddPopElement_AddNewElement_AddPopList_AddNewList = new LinkedList<Object>();
 
     MNewList(
             String pListName,
-            String pListType,
-            String pLowerBound) {
+            String pListType) {
 
         if (pListName == null) {
             throw new NullPointerException();
@@ -31,10 +30,34 @@ public class MNewList {
             throw new NullPointerException();
         }
         this.pListType = pListType;
-        if (pLowerBound == null) {
-            throw new NullPointerException();
-        }
-        this.pLowerBound = pLowerBound;
+    }
+
+    public MNewTreeClass newNewTreeClass(
+            String pElementType,
+            String pElementName) {
+
+        MNewTreeClass lNewTreeClass = new MNewTreeClass(pElementType,
+                pElementName);
+        this.eNewTreeClass_NewList.add(lNewTreeClass);
+        return lNewTreeClass;
+    }
+
+    public MNewList newNewList(
+            String pListName,
+            String pListType) {
+
+        MNewList lNewList = new MNewList(pListName, pListType);
+        this.eNewTreeClass_NewList.add(lNewList);
+        return lNewList;
+    }
+
+    public MStringParameter newStringParameter(
+            String pString) {
+
+        MStringParameter lStringParameter = new MStringParameter(pString);
+        this.eStringParameter_NormalParameter_NewParameter
+                .add(lStringParameter);
+        return lStringParameter;
     }
 
     public MNormalParameter newNormalParameter(
@@ -44,7 +67,8 @@ public class MNewList {
 
         MNormalParameter lNormalParameter = new MNormalParameter(pElementType,
                 pElementName, pIndex);
-        this.eNormalParameter_NewParameter.add(lNormalParameter);
+        this.eStringParameter_NormalParameter_NewParameter
+                .add(lNormalParameter);
         return lNormalParameter;
     }
 
@@ -52,26 +76,55 @@ public class MNewList {
             String pElementName) {
 
         MNewParameter lNewParameter = new MNewParameter(pElementName);
-        this.eNormalParameter_NewParameter.add(lNewParameter);
+        this.eStringParameter_NormalParameter_NewParameter.add(lNewParameter);
         return lNewParameter;
     }
 
-    public MAddElement newAddElement(
+    public MAddPopElement newAddPopElement(
             String pListName,
-            String pElementName) {
+            String pElementName,
+            String pElementType,
+            String pIndex) {
 
-        MAddElement lAddElement = new MAddElement(pListName, pElementName);
-        this.eAddElement_AddList.add(lAddElement);
-        return lAddElement;
+        MAddPopElement lAddPopElement = new MAddPopElement(pListName,
+                pElementName, pElementType, pIndex);
+        this.eAddPopElement_AddNewElement_AddPopList_AddNewList
+                .add(lAddPopElement);
+        return lAddPopElement;
     }
 
-    public MAddList newAddList(
+    public MAddNewElement newAddNewElement(
             String pListName,
             String pElementName) {
 
-        MAddList lAddList = new MAddList(pListName, pElementName);
-        this.eAddElement_AddList.add(lAddList);
-        return lAddList;
+        MAddNewElement lAddNewElement = new MAddNewElement(pListName,
+                pElementName);
+        this.eAddPopElement_AddNewElement_AddPopList_AddNewList
+                .add(lAddNewElement);
+        return lAddNewElement;
+    }
+
+    public MAddPopList newAddPopList(
+            String pListName,
+            String pElementName,
+            String pElementType,
+            String pIndex) {
+
+        MAddPopList lAddPopList = new MAddPopList(pListName, pElementName,
+                pElementType, pIndex);
+        this.eAddPopElement_AddNewElement_AddPopList_AddNewList
+                .add(lAddPopList);
+        return lAddPopList;
+    }
+
+    public MAddNewList newAddNewList(
+            String pListName,
+            String pElementName) {
+
+        MAddNewList lAddNewList = new MAddNewList(pListName, pElementName);
+        this.eAddPopElement_AddNewElement_AddPopList_AddNewList
+                .add(lAddNewList);
+        return lAddNewList;
     }
 
     String pListName() {
@@ -84,11 +137,6 @@ public class MNewList {
         return this.pListType;
     }
 
-    String pLowerBound() {
-
-        return this.pLowerBound;
-    }
-
     private String rListType() {
 
         return this.mNewList.pListType();
@@ -99,31 +147,38 @@ public class MNewList {
         return this.mNewList.pListName();
     }
 
-    private String rLowerBound() {
-
-        return this.mNewList.pLowerBound();
-    }
-
     @Override
     public String toString() {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("      NodeList<");
+        for (Object oNewTreeClass_NewList : this.eNewTreeClass_NewList) {
+            sb.append(oNewTreeClass_NewList.toString());
+        }
+        sb.append("	NodeList<N");
         sb.append(rListType());
-        sb.append("> ");
+        sb.append("> n");
         sb.append(rListName());
-        sb.append(" = new NodeList<");
+        sb.append(" = new NodeList<N");
         sb.append(rListType());
         sb.append(">(");
-        sb.append(rLowerBound());
-        sb.append(",");
-        for (Object oNormalParameter_NewParameter : this.eNormalParameter_NewParameter) {
-            sb.append(oNormalParameter_NewParameter.toString());
+        {
+            boolean first = true;
+            for (Object oStringParameter_NormalParameter_NewParameter : this.eStringParameter_NormalParameter_NewParameter) {
+                if (first) {
+                    first = false;
+                }
+                else {
+                    sb.append(", ");
+                }
+                sb.append(oStringParameter_NormalParameter_NewParameter
+                        .toString());
+            }
         }
         sb.append(");");
         sb.append(System.getProperty("line.separator"));
-        for (Object oAddElement_AddList : this.eAddElement_AddList) {
-            sb.append(oAddElement_AddList.toString());
+        for (Object oAddPopElement_AddNewElement_AddPopList_AddNewList : this.eAddPopElement_AddNewElement_AddPopList_AddNewList) {
+            sb.append(oAddPopElement_AddNewElement_AddPopList_AddNewList
+                    .toString());
         }
         return sb.toString();
     }

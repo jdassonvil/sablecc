@@ -52,8 +52,6 @@ $end: node_type_enum_entry $
     TAnonymous;
   }
 
-  public abstract ProductionType getProductionType();
-
   public static enum ProductionType {
 $macro: node_production_type_enum_entry(name) $
     T_$name,
@@ -82,14 +80,6 @@ $end: node_production_type_enum_entry $
     return "\\"" + getText() + "\\"@(" + getLine() + "," + getPos() + ")";
   }
 
-  abstract InternalType getInternalType();
-
-  static enum InternalType {
-$macro: node_internal_type_enum_entry(name) $
-    T_$name,
-$end: node_internal_type_enum_entry $
-    TEnd;
-  }
 }
 $end: node $
 
@@ -100,40 +90,97 @@ $insert: header $
 $expand: default_package, specified_package, before_first="\n" $
 
 public class NodeList<TNode extends Node> extends Node{
-
-	private ArrayList<TNode> elements;
 	
-	private int lowerBound;
-	private int upperBound;
+	int lowerBound;
+	int upperBound;
 	
-	private const in INF = -1;
+	int size = 0;
 	
-	NodeList(ArrayList<Node> elements,int lowerBound){
-		
-		this.elements = elements;
+	private final int INF = -1;
+	
+	Entry<TNode> header = new Entry<TNode>(null,null,null);
+	
+	NodeList(){
+		header.next = header.previous = header;
+	}
+	
+	NodeList(int lowerBound){
 		this.lowerBound = lowerBound;
 		this.upperBound = INF;
 	}
 	
-	NodeList(ArrayList<Node> elements, int lowerBound,upperBound){
-		this.elements = elements;
-		this.lowerBound = lowerBound;
+	NodeList(int lowerBound,int upperBound){
+	    this.lowerBound = lowerBound;
 		this.upperBound = upperBound;
 	}
 	
-	add(TNode element){
-		this.elements.add(element);
+	void add(TNode element){
+		 Entry<TNode> newEntry = new Entry<TNode>(element, this.header, this.header.previous);
+		 newEntry.previous.next = newEntry;
+		 newEntry.next.previous = newEntry;
+		 size++;
+		 
+		 //TODO Control list bounds
 	}
 	
-	addList(NodeList elements){
-		this.elements.addAll(elements);
+	void addAll(NodeList<TNode> elements){
+		this.header.previous.next = elements.header.next;
+		elements.header.next.previous = this.header.previous;
+		this.header.previous = elements.header.previous;
+		elements.header.previous.next = this.header;
+		this.size += elements.size;
+		
+		//TODO Control list bounds
 	}
 	
-	List<Nodes> getNodes(){
-		return this.elements;
+	public int size(){
+	
+		return size;
 	}
 	
+	private static class Entry<E>{
 	
+	E element;
+	Entry<E> next;
+	Entry<E> previous;
+	
+		Entry(E element, Entry<E> next,Entry<E> previous) {
+			this.element = element;
+			this.next = next;
+			this.previous = previous;
+		
+		}
+	}
+	
+ @Override
+  public String getText() {
+  	return "";
+  }
+
+  @Override
+  public int getLine() {
+    return 0;
+  }
+
+  @Override
+  public int getPos() {
+    return 0;
+  }
+  
+  @Override
+  public Type getType() {
+    return Type.TAnonymous;
+  }
+  
+  @Override
+  public void applyOnChildren(Walker walker) {
+  }
+  
+  @Override
+  public void apply(Walker walker){
+  
+  }
+  
 }
 
 $end: node_list$
@@ -158,11 +205,6 @@ public abstract class Token
   }
 
   @Override
-  public ProductionType getProductionType() {
-    return ProductionType.TNotAProduction;
-  }
-
-  @Override
   public String getText() {
     return this.text;
   }
@@ -176,9 +218,23 @@ public abstract class Token
   public int getPos() {
     return this.pos;
   }
+  
+    static enum InternalType {
+$macro: node_internal_type_enum_entry(name) $
+    T_$name,
+$end: node_internal_type_enum_entry $
+    TEnd;
+  }
+  
+  abstract InternalType getInternalType();
 
   @Override
   public void applyOnChildren(Walker walker) {
+  }
+  
+   @Override
+  public void apply(Walker walker) {
+
   }
 }
 $end: token $
@@ -764,7 +820,7 @@ $end: alternative_node_parent $
 
   private final int line;
   private final int pos;
-$expand: normal_element_declaration, end_element_declaration $
+$expand: normal_element_declaration,list_element_declaration, end_element_declaration $
 
   @Override
   public int getLine() {
@@ -806,10 +862,13 @@ $macro: end_child_apply $
 $end: end_child_apply $
   }
 
-  N$name(int line, int pos$expand: normal_constructor_parameter, end_constructor_parameter, before_first=", ", separator=", " $) {
+  N$name(int line, int pos$expand: normal_constructor_parameter,list_constructor_parameter, end_constructor_parameter, before_first=", ", separator=", " $) {
 $macro: normal_constructor_parameter(element_type, element_name) $
 N$element_type p$(element_name)$no_eol$
 $end: normal_constructor_parameter $
+$macro: list_constructor_parameter(list_type, element_name) $
+NodeList<N$list_type> p$(element_name)$no_eol$
+$end: list_constructor_parameter $
 $macro: end_constructor_parameter $
 End p\$end$no_eol$
 $end: end_constructor_parameter $
@@ -833,27 +892,23 @@ $macro: anonymous_alt_type $
 $end: anonymous_alt_type $
   }
 
-  @Override
-  public ProductionType getProductionType() {
-$macro: alt_prod_type(prod_name) $
-    return ProductionType.T_$prod_name;
-$end: alt_prod_type $
-  }
-
-  @Override
-  InternalType getInternalType() {
-    return InternalType.T_$name;
-  }
 $expand: public_element_accessor, before_first="\n", separator="\n" $
 $expand: normal_element_accessor, end_element_accessor, before_first="\n", separator="\n" $
 $macro: normal_element_declaration(element_type, element_name) $
   private final N$element_type e$element_name;
 $end: normal_element_declaration $
+$macro: list_element_declaration(list_type, element_name) $
+  private final NodeList<N$list_type> e$element_name;
+$end: list_element_declaration $
 $macro: public_element_accessor(element_name) $
-  public $expand: public_element_type, token_element_type $ get_$element_name() {
+  public $expand: public_element_type,public_list_element_type, token_element_type $ get_$element_name() {
 $macro: public_element_type(element_type) $
 N$(element_type)$no_eol$
 $end: public_element_type $
+$macro: public_list_element_type(element_type) $
+NodeList<N$(element_type)>$no_eol$
+$end: public_list_element_type $
+
 $macro: token_element_type $
 Token$no_eol$
 $end: token_element_type $
@@ -865,6 +920,11 @@ $macro: normal_element_accessor(element_type, element_name) $
     return this.e$element_name;
   }
 $end: normal_element_accessor$
+$macro: list_element_accessor(list_type, element_name) $
+  NodeList<N$list_type> internalGet$element_name() {
+    return this.e$element_name;
+  }
+$end: list_element_accessor$
 $macro: end_element_declaration $
   private final End e\$end;
 $end: end_element_declaration $
@@ -934,7 +994,7 @@ $expand: default_package, specified_package, before_first="\n" $
 
 enum CSTProductionType {
 $macro: cst_production_type_declaration(name) $
-  P_$name,
+  $name,
 $end: cst_production_type_declaration $
 }
 $end: cst_production_type $
@@ -991,7 +1051,8 @@ public class Parser {
     else {
       token = lexer.next();
     }
-    stack.push(token, stack.getState().getTarget(token));
+    
+    stack.push(new AbstractForest(CSTProductionType.NOT_A_PRODUCTION,token), stack.getState().getTokenTarget(token));
   }
 }
 
@@ -1025,7 +1086,7 @@ class ParseStack {
   }
 
   AbstractForest pop() {
-    Forest forest = stack.forest;
+    AbstractForest forest = stack.forest;
     ParseStackEntry entry = stack;
     stack = stack.previous;
     entry.set(freeList, null, null);
@@ -1070,20 +1131,27 @@ import java.util.*;
 
 class AbstractForest{
 
-	private CSTProductionType type;
-	private List<Node> nodes = new LinkedList<Node>();
+	private final CSTProductionType type;
+	private final List<Node> nodes;
 
-	public abstractForest(CSTProductionType type,List<Node> nodes){
+	AbstractForest(CSTProductionType type,List<Node> nodes){
 	
 	  this.type = type;
 	  this.nodes = nodes;
 	}
 	
-	public CSTProductionType getProductionType(){
+	AbstractForest(CSTProductionType type,Node node){
+	
+	  this.type = type;
+	  this.nodes = new LinkedList<Node>();
+	  this.nodes.add(node);
+	}
+	
+	CSTProductionType getProductionType(){
 	  return type;
 	}
 	
-	public List<Node> getNodes(){
+	List<Node> getNodes(){
 	  return nodes;
 	}
 }
@@ -1097,15 +1165,17 @@ $macro: lr_state $
 $insert: header $
 $expand: default_package, specified_package, before_first="\n" $
 
+import java.io.*;
+
 abstract class LRState {
 
   abstract Node apply(Parser parser)
       throws ParserException, LexerException, IOException;
   
-  abstract LRState getTokenTarget(InternalType type)
+  abstract LRState getTokenTarget(Token token)
       throws ParserException, LexerException, IOException;
   
-  abstract LRState getProductionTarget(CSTProductionType type)
+  abstract LRState getProductionTarget(CSTProductionType cstType)
       throws ParserException, LexerException, IOException;
 }
 $end: lr_state $
@@ -1113,6 +1183,9 @@ $end: lr_state $
 $macro: lr_state_singleton(number) $
 $insert: header $
 $expand: default_package, specified_package, before_first="\n" $
+
+import java.io.*;
+import java.util.*;
 
 class L_$number
     extends LRState {
@@ -1134,10 +1207,10 @@ $macro: normal_group$
 $expand: normal_condition, end_condition, before_many="(", separator=" || ", after_many=")" $
 $end: normal_group $
 $macro: normal_condition(ahead,token_type) $
-parser.look($ahead).getInternalType() == Node.InternalType.T_$(token_type)$no_eol$
+parser.look($ahead).getInternalType() == Token.InternalType.T_$(token_type)$no_eol$
 $end: normal_condition $
 $macro: end_condition(ahead) $
-parser.look($ahead).getInternalType() == Node.InternalType.TEnd$no_eol$
+parser.look($ahead).getInternalType() == Token.InternalType.TEnd$no_eol$
 $end: end_condition $
 $macro: false_group $
 false$no_eol$
@@ -1146,33 +1219,27 @@ $macro: shift $
       parser.shift();
       return null;
 $end: shift $
-
 $macro: reduce(reduced_production) $
       ParseStack stack = parser.getStack();
-
 $expand: reduce_normal_pop, reduce_end_pop $
-
 $macro: reduce_normal_pop(element_name) $
       AbstractForest l$element_name = stack.pop();
 $end: reduce_normal_pop $
-
 $macro: reduce_end_pop $
-      End l\$end = (End) stack.pop().get(0);
+      End l\$end = (End) stack.pop().getNodes().get(0);
 $end: reduce_end_pop $
-
 $macro: reduce_decision $
       List<Node> trees = new LinkedList<Node>();
+      $expand: new_tree_class,new_list $
 $macro: new_tree_class(element_type,element_name) $
-      new N$(element_type) n$(element_name) = new N$(element_type) (-1, -1$expand: normal_parameter,null_parameter,new_parameter, end_parameter, before_first=", ", separator=", " $);
+$expand: new_tree_class,new_list $
+	N$(element_type) n$(element_name) = new N$(element_type) (-1, -1$expand: normal_parameter,null_parameter,new_parameter, end_parameter, before_first=", ", separator=", " $);
 $end: new_tree_class$
-$macro: new_list(list_name,list_type,lower_bound) $
-      NodeList<$(list_type)> $(list_name) = new NodeList<$(list_type)>($(lower_bound),$expand: normal_parameter,new_parameter$);
-$expand: add_element,add_list $
+$macro: new_list(list_name,list_type) $
+$expand: new_tree_class,new_list $
+	NodeList<N$(list_type)> n$(list_name) = new NodeList<N$(list_type)>($expand: string_parameter,normal_parameter,new_parameter, separator=", "$);
+$expand: add_pop_element,add_new_element,add_pop_list,add_new_list $
 $end: new_list$
-$macro: new_bounded_list(list_name,list_type,lower_bound,upper_bound)$
-NodeList<$(list_type)> $(list_name) = new NodeList<$(list_type)>($(lower_bound),$(upper_bound),$expand: normal_parameter,new_parameter$);
-	$expand: add_element,add_list $
-$end: new_bounded_list$
 $expand: add_l_to_forest,add_null_to_forest,add_n_to_forest $ 
 $macro: add_l_to_forest(element_name) $
       trees.add(l$(element_name));
@@ -1183,35 +1250,38 @@ $end: add_null_to_forest $
 $macro: add_n_to_forest(element_name) $
       trees.add(n$(element_name));
 $end: add_n_to_forest $
-      stack.push(new AbstractForest(CSTProductionType.P_$reduced_production,trees, stack.getState().getTarget(CSTProductionType.P_$reduced_production));
+      stack.push(new AbstractForest(CSTProductionType.$reduced_production,trees), stack.getState().getProductionTarget(CSTProductionType.$reduced_production));
+      return null;
 $end: reduce_decision $
-
 $macro: normal_parameter(element_type,element_name,index) $
-(N$(element_type)) l$(element_name).getNodes.get($index)$no_eol$
+(N$(element_type)) l$(element_name).getNodes().get($index)$no_eol$
 $end: normal_parameter $
-
 $macro: new_parameter(element_name) $
-n$(element_name)
+n$(element_name)$no_eol$
 $end: new_parameter $
-
 $macro: null_parameter $
-null
+null$no_eol$
 $end: null_parameter $
-
 $macro: end_parameter $
 l\$end$no_eol$
 $end: end_parameter $
-
-$macro: add_element(list_name,element_name) $
-$(list_name).add($(element_name));
-$end: add_element $
-
-$macro: add_list(list_name,element_name) $
-$(list_name).addList($(element_name));
-$end: add_list $
-
+$macro: string_parameter(string)$
+$(string)$no_eol$
+$end: string_parameter$
+$macro: add_pop_element(list_name,element_name,element_type,index) $
+      n$(list_name).add((N$(element_type))l$(element_name).getNodes().get($index));
+$end: add_pop_element $
+$macro: add_new_element(list_name,element_name) $
+      n$(list_name).add($element_name);
+$end: add_new_element $
+$macro: add_pop_list(list_name,element_name,element_type,index) $
+      n$(list_name).addAll((NodeList<N$(element_type)>)l$(element_name).getNodes().get($index));
+$end: add_pop_list $
+$macro: add_new_list(list_name,element_name) $
+      n$(list_name).addAll($element_name);
+$end: add_new_list $
 $macro: accept_decision(element_name) $
-      return l$element_name;
+      return l$element_name.getNodes().get(0);
 $end: accept_decision $
 $end: reduce $
     }
@@ -1224,10 +1294,10 @@ $end: lr1_or_more $
   }
 
   @Override
-  LRState getTokenTarget(InternalType type)
+  LRState getTokenTarget(Token token)
       throws ParserException, LexerException, IOException {
 
-    switch(type) {
+    switch(token.getInternalType()) {
 $macro: normal_token_lr_transition_target(node_type, target) $
     case T_$(node_type):
       return L_$target.instance;
@@ -1237,21 +1307,22 @@ $macro: end_token_lr_transition_target(target) $
       return L_$target.instance;
 $end: end_token_lr_transition_target $
     default:
-      throw new ParserException((Token) node);
+      throw new ParserException(token);
     }
   }
 
   @Override
-  LRState getProductionTarget(CSTProductionType type
+  LRState getProductionTarget(CSTProductionType type)
       throws ParserException, LexerException, IOException {
 
     switch(type) {
 $macro: production_lr_transition_target(node_type, target) $
-    case T_$(node_type):
+    case $(node_type):
       return L_$target.instance;
 $end: production_lr_transition_target $
     default:
       throw new RuntimeException("internal error in parsing tables");
+    }
   }
 }
 $end: lr_state_singleton $
