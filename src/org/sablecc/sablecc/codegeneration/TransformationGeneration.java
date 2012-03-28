@@ -144,8 +144,8 @@ public class TransformationGeneration
 
             if (currentMacro instanceof MNewTreeClass) {
                 ((MNewTreeClass) currentMacro).newNormalParameter(
-                        matchedElement.getTypeName(), matchedElement.getName(),
-                        "0");
+                        to_CamelCase(matchedElement.getTypeName()),
+                        matchedElement.getName(), "0");
             }
             else if (currentMacro instanceof MReduceDecision) {
                 ((MReduceDecision) currentMacro).newAddLToForest(matchedElement
@@ -163,8 +163,8 @@ public class TransformationGeneration
 
             if (currentMacro instanceof MNewTreeClass) {
                 ((MNewTreeClass) currentMacro).newNormalParameter(
-                        matchedElement.getTypeName(), matchedElement.getName(),
-                        "0");
+                        to_CamelCase(matchedElement.getTypeName()),
+                        matchedElement.getName(), "0");
             }
             else if (currentMacro instanceof MReduceDecision) {
                 ((MReduceDecision) currentMacro).newAddLToForest(matchedElement
