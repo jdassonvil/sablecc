@@ -243,9 +243,51 @@ public class GrammarSimplificator
             LinkedList<SAlternativeTransformationElement> newElements = new LinkedList<SAlternativeTransformationElement>();
 
             for (Element element : alternative.getElements()) {
-                newElements
-                        .add(new SAlternativeTransformationElement.ReferenceElement(
-                                element));
+                if (element instanceof Element.ProductionElement) {
+                    Element.ProductionElement productionElement = (Element.ProductionElement) element;
+
+                    SProductionTransformationElement targetProdTransformation = productionElement
+                            .getReference().getTransformation().getElements()
+                            .get(0);
+
+                    if (targetProdTransformation instanceof SProductionTransformationElement.NormalElement) {
+                        SProductionTransformationElement.NormalElement normalElement = (SProductionTransformationElement.NormalElement) targetProdTransformation;
+
+                        if (normalElement.getCardinality().equals(
+                                CardinalityInterval.ONE_ONE)
+                                || normalElement.getCardinality().equals(
+                                        CardinalityInterval.ZERO_ONE)) {
+                            newElements
+                                    .add(new SAlternativeTransformationElement.ReferenceElement(
+                                            element));
+
+                        }
+                        else {
+
+                            List<SAlternativeTransformationListElement> listElements = new LinkedList<SAlternativeTransformationListElement>();
+                            listElements
+                                    .add(new SAlternativeTransformationListElement.NormalListElement(
+                                            element));
+                            newElements
+                                    .add(new SAlternativeTransformationElement.ListElement(
+                                            listElements,
+                                            new Type.SimpleType.HomogeneousType(
+                                                    normalElement.getName(),
+                                                    normalElement
+                                                            .getCardinality())));
+
+                        }
+                    }
+                    else {
+                        throw new InternalException("Unhandled case");
+                    }
+                }
+                else {
+                    newElements
+                            .add(new SAlternativeTransformationElement.ReferenceElement(
+                                    element));
+                }
+
             }
             transformationElements
                     .add(new SAlternativeTransformationElement.NewElement(node,

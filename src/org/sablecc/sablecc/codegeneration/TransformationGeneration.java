@@ -335,8 +335,8 @@ public class TransformationGeneration
         if (node.getReference() instanceof Element) {
             String elementName = this.reducedAlternative.getElement(
                     (Element) node.getReference()).getName();
-            String elementType = this.reducedAlternative.getElement(
-                    (Element) node.getReference()).getTypeName();
+            String elementType = to_CamelCase(this.reducedAlternative
+                    .getElement((Element) node.getReference()).getTypeName());
             list.newAddPopElement(this.listStack.peek().getRight(),
                     elementName, elementType, "0");
         }

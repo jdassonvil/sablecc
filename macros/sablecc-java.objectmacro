@@ -101,15 +101,17 @@ public class NodeList<TNode extends Node> extends Node{
 	Entry<TNode> header = new Entry<TNode>(null,null,null);
 	
 	NodeList(){
-		header.next = header.previous = header;
+		this.header.next = this.header.previous = this.header;
 	}
 	
 	NodeList(int lowerBound){
+	    this.header.next = this.header.previous = this.header;
 		this.lowerBound = lowerBound;
 		this.upperBound = INF;
 	}
 	
 	NodeList(int lowerBound,int upperBound){
+	    this.header.next = this.header.previous = this.header;
 	    this.lowerBound = lowerBound;
 		this.upperBound = upperBound;
 	}
@@ -174,10 +176,21 @@ public class NodeList<TNode extends Node> extends Node{
   
   @Override
   public void applyOnChildren(Walker walker) {
+  
+    Entry<TNode> element = header;
+  	for(int i=0;i<this.size;i++){
+  		element.next.element.apply(walker);
+  	    element = element.next;
+  	}
   }
   
   @Override
   public void apply(Walker walker){
+    Entry<TNode> element = header;
+  	for(int i=0;i<this.size;i++){
+  		element.next.element.apply(walker);
+  	    element = element.next;
+  	}
   
   }
   

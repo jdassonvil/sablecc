@@ -567,6 +567,18 @@ public class CodeGenerator {
                             mAlternative.newNormalElementAccessor(
                                     element_CamelCaseInternalType,
                                     element_CamelCaseName);
+
+                            if (elementIsPublicReadable) {
+                                MPublicElementAccessor publicElementAccessor = mAlternative
+                                        .newPublicElementAccessor(element_CamelCaseName);
+                                if (element_CamelCaseType != null) {
+                                    publicElementAccessor
+                                            .newPublicElementType(element_CamelCaseType);
+                                }
+                                else {
+                                    publicElementAccessor.newTokenElementType();
+                                }
+                            }
                         }
                         else {
                             mAlternative.newListConstructorParameter(
@@ -582,21 +594,18 @@ public class CodeGenerator {
                                     element_CamelCaseInternalType,
                                     element_CamelCaseName);
 
+                            if (elementIsPublicReadable) {
+                                MPublicElementAccessor publicElementAccessor = mAlternative
+                                        .newPublicElementAccessor(element_CamelCaseName);
+                                publicElementAccessor
+                                        .newPublicListElementType(element_CamelCaseInternalType);
+
+                            }
+
                         }
 
                         mAlternative.newNormalChildApply(element_CamelCaseName);
 
-                        if (elementIsPublicReadable) {
-                            MPublicElementAccessor publicElementAccessor = mAlternative
-                                    .newPublicElementAccessor(element_CamelCaseName);
-                            if (element_CamelCaseType != null) {
-                                publicElementAccessor
-                                        .newPublicElementType(element_CamelCaseType);
-                            }
-                            else {
-                                publicElementAccessor.newTokenElementType();
-                            }
-                        }
                     }
 
                     try {
@@ -757,32 +766,60 @@ public class CodeGenerator {
                             element_CamelCaseInternalType = element_CamelCaseType;
                         }
 
-                        mAlternative.newNormalConstructorParameter(
-                                element_CamelCaseInternalType,
-                                element_CamelCaseName);
-                        mAlternative
-                                .newNormalContructorInitialization(element_CamelCaseName);
+                        if (parserElement.getType().getCardinality()
+                                .equals(CardinalityInterval.ONE_ONE)
+                                || parserElement.getType().getCardinality()
+                                        .equals(CardinalityInterval.ZERO_ONE)) {
+                            mAlternative.newNormalConstructorParameter(
+                                    element_CamelCaseInternalType,
+                                    element_CamelCaseName);
+                            mAlternative
+                                    .newNormalContructorInitialization(element_CamelCaseName);
 
-                        mAlternative.newNormalElementDeclaration(
-                                element_CamelCaseInternalType,
-                                element_CamelCaseName);
-                        mAlternative.newNormalElementAccessor(
-                                element_CamelCaseInternalType,
-                                element_CamelCaseName);
+                            mAlternative.newNormalElementDeclaration(
+                                    element_CamelCaseInternalType,
+                                    element_CamelCaseName);
+                            mAlternative.newNormalElementAccessor(
+                                    element_CamelCaseInternalType,
+                                    element_CamelCaseName);
 
-                        mAlternative.newNormalChildApply(element_CamelCaseName);
-
-                        if (elementIsPublicReadable) {
-                            MPublicElementAccessor publicElementAccessor = mAlternative
-                                    .newPublicElementAccessor(element_CamelCaseName);
-                            if (element_CamelCaseType != null) {
-                                publicElementAccessor
-                                        .newPublicElementType(element_CamelCaseType);
-                            }
-                            else {
-                                publicElementAccessor.newTokenElementType();
+                            if (elementIsPublicReadable) {
+                                MPublicElementAccessor publicElementAccessor = mAlternative
+                                        .newPublicElementAccessor(element_CamelCaseName);
+                                if (element_CamelCaseType != null) {
+                                    publicElementAccessor
+                                            .newPublicElementType(element_CamelCaseType);
+                                }
+                                else {
+                                    publicElementAccessor.newTokenElementType();
+                                }
                             }
                         }
+                        else {
+                            mAlternative.newListConstructorParameter(
+                                    element_CamelCaseInternalType,
+                                    element_CamelCaseName);
+                            mAlternative
+                                    .newNormalContructorInitialization(element_CamelCaseName);
+
+                            mAlternative.newListElementDeclaration(
+                                    element_CamelCaseInternalType,
+                                    element_CamelCaseName);
+                            mAlternative.newListElementAccessor(
+                                    element_CamelCaseInternalType,
+                                    element_CamelCaseName);
+
+                            if (elementIsPublicReadable) {
+                                MPublicElementAccessor publicElementAccessor = mAlternative
+                                        .newPublicElementAccessor(element_CamelCaseName);
+                                publicElementAccessor
+                                        .newPublicListElementType(element_CamelCaseInternalType);
+
+                            }
+
+                        }
+
+                        mAlternative.newNormalChildApply(element_CamelCaseName);
                     }
 
                     try {
