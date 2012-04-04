@@ -194,6 +194,41 @@ public class NodeList<TNode extends Node> extends Node{
   
   }
   
+  Iterator<TNode> iterator(){
+  	return new NodeListItr();
+  }
+  
+  private class NodeListItr
+            implements Iterator<TNode> {
+
+    private int cursor = 0;
+
+    private Entry<TNode> current;
+
+    NodeListItr() {
+
+         this.current = NodeList.this.header;
+    }
+
+    @Override
+    public boolean hasNext() {
+
+        return this.cursor != size();
+    }
+
+    @Override
+    public TNode next() {
+
+        this.cursor++;
+        return this.current.next.element;
+    }
+
+    @Override
+    public void remove() {
+
+    }
+  }
+  
 }
 
 $end: node_list$
