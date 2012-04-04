@@ -764,23 +764,45 @@ import java.io.*;
 
 public class Tester {
 
-        static public void main(String[] args) {
-                try {
-                        Reader reader = new FileReader(args[0]);
-                        Lexer lexer = new Lexer(reader);
-                        Token token;
-                        do {
-                                token = lexer.next();
-                                System.out.println(token.getType() + "@" + token.getLine() + "," + token.getPos() + ":" + token.getText());
-                        } while (token.getType() != Node.Type.TEnd);
-                } catch (LexerException e) {
-                        System.out.println(e.getLine() + "," + e.getPos()
-                                        + ". Syntax error: Unexpected character '" + e.getChar()
-                                        + "'.");
-                } catch (IOException e) {
-                        System.out.println(e.getMessage());
+    static public void main(
+            String[] args) {
+
+        try {
+            Reader reader = new FileReader(args[0]);
+            Parser parser = new Parser(reader);
+            Node tree = parser.parse();
+
+            tree.apply(new Walker() {
+
+                @Override
+                public void defaultCase(
+                        Node node) {
+
+                    if (node instanceof Token) {
+                        Token token = (Token) node;
+                        System.out.println(token.getText());
+                    }
+                    else {
+                        super.defaultCase(node);
+                    }
+
                 }
+            });
+
         }
+        catch (LexerException e) {
+            System.out.println(e.getMessage() + "," + e.getPos()
+                    + ". Syntax error: Unexpected character '" + e.getChar()
+                    + "'.");
+        }
+        catch (ParserException e) {
+            System.out.println(e.getMessage());
+        }
+
+        catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 }
 $end: tester $
 
