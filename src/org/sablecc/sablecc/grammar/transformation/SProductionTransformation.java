@@ -161,4 +161,16 @@ public class SProductionTransformation {
 
     }
 
+    @Override
+    public String toString() {
+
+        String transformationText = this.production.getName() + " -> ";
+
+        for (SProductionTransformationElement element : this.elements) {
+            transformationText += element.toString() + " ";
+        }
+
+        return transformationText;
+    }
+
 }

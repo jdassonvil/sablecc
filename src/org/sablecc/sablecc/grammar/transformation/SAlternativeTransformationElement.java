@@ -68,6 +68,12 @@ public abstract class SAlternativeTransformationElement
 
         }
 
+        @Override
+        public String toString() {
+
+            return "null";
+        }
+
     }
 
     public static class ReferenceElement
@@ -137,6 +143,12 @@ public abstract class SAlternativeTransformationElement
 
             visitor.visitReferenceElement(this);
 
+        }
+
+        @Override
+        public String toString() {
+
+            return this.reference.toString();
         }
 
     }
@@ -258,6 +270,34 @@ public abstract class SAlternativeTransformationElement
             visitor.visitNewElement(this);
 
         }
+
+        @Override
+        public String toString() {
+
+            String newText = "New ";
+
+            if (this.alternative instanceof Tree.TreeAlternative) {
+                newText += ((Tree.TreeAlternative) this.alternative)
+                        .getProduction().getName()
+                        + ((Tree.TreeAlternative) this.alternative).getName();
+            }
+            else {
+                newText += ((Parser.ParserAlternative) this.alternative)
+                        .getProduction().getName()
+                        + ((Parser.ParserAlternative) this.alternative)
+                                .getName();
+
+            }
+
+            newText += "(";
+            for (SAlternativeTransformationElement element : this.elements) {
+                newText += element.toString();
+            }
+
+            newText += ")";
+
+            return newText;
+        }
     }
 
     public static class ListElement
@@ -326,6 +366,18 @@ public abstract class SAlternativeTransformationElement
 
             visitor.visitListElement(this);
 
+        }
+
+        @Override
+        public String toString() {
+
+            String listText = "List(";
+
+            for (SAlternativeTransformationListElement element : this.elements) {
+                listText += element.toString() + " ";
+            }
+            listText += ")";
+            return listText;
         }
 
     }

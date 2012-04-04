@@ -112,6 +112,20 @@ public abstract class Element
 
             return new TokenElement(this.name, this.typeName);
         }
+
+        @Override
+        public String toString() {
+
+            String text = "";
+
+            if (this.name != null && this.name != "") {
+                text += "[" + this.name + ":]";
+            }
+
+            text += this.typeName;
+
+            return text;
+        }
     }
 
     public static class ProductionElement
@@ -184,6 +198,20 @@ public abstract class Element
         public Element clone() {
 
             return new ProductionElement(this.typeName, this.reference);
+        }
+
+        @Override
+        public String toString() {
+
+            String text = "";
+
+            if (this.name != null && this.name != "") {
+                text += "[" + this.name + ":]";
+            }
+
+            text += this.typeName;
+
+            return text;
         }
     }
 

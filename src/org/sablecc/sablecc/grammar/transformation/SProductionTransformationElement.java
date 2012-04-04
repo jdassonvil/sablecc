@@ -124,6 +124,12 @@ public abstract class SProductionTransformationElement
 
             return getProductionTransformation().getElements().indexOf(this);
         }
+
+        @Override
+        public String toString() {
+
+            return this.name;
+        }
     }
 
     public static class SeparatedElement
@@ -236,6 +242,12 @@ public abstract class SProductionTransformationElement
 
             return getProductionTransformation().getElements().indexOf(this);
         }
+
+        @Override
+        public String toString() {
+
+            return "(" + this.leftName + " Separated " + this.rightName + ")";
+        }
     }
 
     public static class AlternatedElement
@@ -347,6 +359,12 @@ public abstract class SProductionTransformationElement
         public int getIndex() {
 
             return getProductionTransformation().getElements().indexOf(this);
+        }
+
+        @Override
+        public String toString() {
+
+            return "(" + this.leftName + " " + this.rightName + ")";
         }
 
     }

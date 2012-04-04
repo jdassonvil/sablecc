@@ -20,6 +20,7 @@ package org.sablecc.sablecc.grammar.transformation;
 import java.util.*;
 
 import org.sablecc.exception.*;
+import org.sablecc.sablecc.core.*;
 import org.sablecc.sablecc.core.interfaces.*;
 import org.sablecc.sablecc.grammar.*;
 import org.sablecc.sablecc.grammar.interfaces.*;
@@ -125,6 +126,12 @@ public abstract class SAlternativeTransformationListElement
 
         }
 
+        @Override
+        public String toString() {
+
+            return this.reference.toString();
+        }
+
     }
 
     public static class NewElement
@@ -199,6 +206,34 @@ public abstract class SAlternativeTransformationListElement
 
             visitor.visitNewListElement(this);
 
+        }
+
+        @Override
+        public String toString() {
+
+            String newText = "New ";
+
+            if (this.alternative instanceof Tree.TreeAlternative) {
+                newText += ((Tree.TreeAlternative) this.alternative)
+                        .getProduction().getName()
+                        + ((Tree.TreeAlternative) this.alternative).getName();
+            }
+            else {
+                newText += ((Parser.ParserAlternative) this.alternative)
+                        .getProduction().getName()
+                        + ((Parser.ParserAlternative) this.alternative)
+                                .getName();
+
+            }
+
+            newText += "(";
+            for (SAlternativeTransformationElement element : this.elements) {
+                newText += element.toString();
+            }
+
+            newText += ")";
+
+            return newText;
         }
 
     }
@@ -293,6 +328,12 @@ public abstract class SAlternativeTransformationListElement
 
         }
 
+        @Override
+        public String toString() {
+
+            return this.reference.toString() + "...";
+        }
+
     }
 
     public static class LeftListElement
@@ -385,6 +426,12 @@ public abstract class SAlternativeTransformationListElement
 
         }
 
+        @Override
+        public String toString() {
+
+            return this.reference.toString() + ".Left";
+        }
+
     }
 
     public static class RightListElement
@@ -475,6 +522,12 @@ public abstract class SAlternativeTransformationListElement
 
             visitor.visitRightListListElement(this);
 
+        }
+
+        @Override
+        public String toString() {
+
+            return this.reference.toString() + ".Right";
         }
 
     }

@@ -25,7 +25,7 @@ import org.sablecc.util.*;
 
 public class SAlternativeTransformation {
 
-    private Alternative alternative;
+    private final Alternative alternative;
 
     private List<SAlternativeTransformationElement> elements = new LinkedList<SAlternativeTransformationElement>();
 
@@ -57,6 +57,8 @@ public class SAlternativeTransformation {
             throw new InternalException("element shouldn't be null");
         }
 
+        this.alternative = alternative;
+
         this.elements
                 .add(new SAlternativeTransformationElement.ReferenceElement(
                         element));
@@ -73,6 +75,8 @@ public class SAlternativeTransformation {
         if (elements == null) {
             throw new InternalException("elements shouldn't be null");
         }
+
+        this.alternative = alternative;
 
         for (Element element : elements) {
             this.elements
@@ -93,6 +97,9 @@ public class SAlternativeTransformation {
         if (elements == null) {
             throw new InternalException("elements shouldn't be null");
         }
+
+        this.alternative = alternative;
+
         this.elements.add(new SAlternativeTransformationElement.ListElement(
                 elements, type));
 
@@ -104,6 +111,8 @@ public class SAlternativeTransformation {
         if (alternative == null) {
             throw new InternalException("alternative shouldn't be null");
         }
+
+        this.alternative = alternative;
 
         this.elements.add(new SAlternativeTransformationElement.NullElement());
     }
@@ -131,5 +140,22 @@ public class SAlternativeTransformation {
 
         return new SAlternativeTransformation(inlinedAlternative,
                 newAlternativeTransformationElements);
+    }
+
+    @Override
+    public String toString() {
+
+        String transformationText = this.alternative.getProduction().getName()
+                + "."
+                + this.alternative.getProduction().getAlternatives()
+                        .indexOf(this.alternative) + " -> ";
+
+        for (SAlternativeTransformationElement element : this.elements) {
+            transformationText += element.toString() + " ";
+        }
+
+        transformationText += ";";
+
+        return transformationText;
     }
 }

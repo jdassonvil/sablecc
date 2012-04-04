@@ -179,7 +179,23 @@ public class Production {
     @Override
     public String toString() {
 
-        return this.name;
+        String productionText = getName() + " = " + "\r\n";
+
+        if (this.alternatives.size() > 1) {
+            for (Alternative alternative : this.alternatives.subList(0,
+                    this.alternatives.size() - 1)) {
+
+                productionText += "\t " + alternative.toString() + " | \r\n";
+            }
+        }
+
+        if (this.alternatives.size() > 0) {
+            productionText += this.alternatives.get(
+                    this.alternatives.size() - 1).toString()
+                    + ";";
+        }
+
+        return productionText;
     }
 
 }

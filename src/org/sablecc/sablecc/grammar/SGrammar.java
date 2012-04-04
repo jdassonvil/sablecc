@@ -173,4 +173,25 @@ public class SGrammar {
         this.nextProductionId = this.nextProductionId.add(BigInteger.ONE);
         return productionId;
     }
+
+    @Override
+    public String toString() {
+
+        String parserPart = "Parser \r\n";
+        String productionTransformationPart = "Transformation \r\n Production \r\n ";
+        String alternativeTransformationPart = "Alternatives \r\n";
+
+        for (Production production : this.productions.values()) {
+            parserPart += production.toString() + "\r\n";
+            productionTransformationPart += production.getTransformation()
+                    .toString() + "\r\n";
+            for (Alternative alternative : production.getAlternatives()) {
+                alternativeTransformationPart += alternative
+                        .getTransformation().toString() + "\r\n";
+            }
+        }
+
+        return parserPart + productionTransformationPart
+                + alternativeTransformationPart;
+    }
 }
