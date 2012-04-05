@@ -89,7 +89,10 @@ $macro: node_list $
 $insert: header $
 $expand: default_package, specified_package, before_first="\n" $
 
-public class NodeList<TNode extends Node> extends Node{
+import java.util.*;
+
+public class NodeList<TNode extends Node>extends Node
+        implements Iterable<TNode> {
 	
 	int lowerBound;
 	int upperBound;
@@ -176,25 +179,18 @@ public class NodeList<TNode extends Node> extends Node{
   
   @Override
   public void applyOnChildren(Walker walker) {
-  
-    Entry<TNode> element = header;
-  	for(int i=0;i<this.size;i++){
-  		element.next.element.apply(walker);
-  	    element = element.next;
-  	}
+        for (TNode node : this) {
+            node.apply(walker);
+        }
   }
   
   @Override
   public void apply(Walker walker){
-    Entry<TNode> element = header;
-  	for(int i=0;i<this.size;i++){
-  		element.next.element.apply(walker);
-  	    element = element.next;
-  	}
-  
+    this.applyOnChildren(walker);
   }
   
-  Iterator<TNode> iterator(){
+  @Override
+  public Iterator<TNode> iterator(){
   	return new NodeListItr();
   }
   
@@ -220,6 +216,7 @@ public class NodeList<TNode extends Node> extends Node{
     public TNode next() {
 
         this.cursor++;
+        current = this.current.next;
         return this.current.next.element;
     }
 
