@@ -129,7 +129,29 @@ public abstract class SAlternativeTransformationListElement
         @Override
         public String toString() {
 
-            return this.reference.toString();
+            if (this.reference instanceof Element.ProductionElement) {
+                Element.ProductionElement element = (Element.ProductionElement) this.reference;
+                return element.getName().equals("") ? element.getReference()
+                        .getName() : element.getName();
+            }
+            else if (this.reference instanceof Element.TokenElement) {
+                Element.TokenElement element = (Element.TokenElement) this.reference;
+                return element.getName().equals("") ? element.getTypeName()
+                        : element.getName();
+            }
+            else if (this.reference instanceof SProductionTransformationElement.NormalElement) {
+                SProductionTransformationElement.NormalElement normalement = (SProductionTransformationElement.NormalElement) this.reference;
+                return normalement.getProductionTransformation()
+                        .getProduction().getName()
+                        + "."
+                        + (normalement.getName().equals("") ? "$"
+                                + normalement.getIndex() : normalement
+                                .getName());
+            }
+            else {
+                throw new InternalException("Undhandel"
+                        + this.reference.getClass());
+            }
         }
 
     }
@@ -215,20 +237,29 @@ public abstract class SAlternativeTransformationListElement
 
             if (this.alternative instanceof Tree.TreeAlternative) {
                 newText += ((Tree.TreeAlternative) this.alternative)
-                        .getProduction().getName()
-                        + ((Tree.TreeAlternative) this.alternative).getName();
+                        .getProduction().getName();
+                if (((Tree.TreeAlternative) this.alternative).getName() != "") {
+                    newText += "."
+                            + ((Tree.TreeAlternative) this.alternative)
+                                    .getName();
+                }
+
             }
             else {
                 newText += ((Parser.ParserAlternative) this.alternative)
-                        .getProduction().getName()
-                        + ((Parser.ParserAlternative) this.alternative)
-                                .getName();
+                        .getProduction().getName();
+
+                if (((Parser.ParserAlternative) this.alternative).getName() != "") {
+                    newText += "."
+                            + ((Parser.ParserAlternative) this.alternative)
+                                    .getName();
+                }
 
             }
 
             newText += "(";
             for (SAlternativeTransformationElement element : this.elements) {
-                newText += element.toString();
+                newText += element.toString() + " ";
             }
 
             newText += ")";
@@ -331,7 +362,30 @@ public abstract class SAlternativeTransformationListElement
         @Override
         public String toString() {
 
-            return this.reference.toString() + "...";
+            if (this.reference instanceof Element.ProductionElement) {
+                Element.ProductionElement element = (Element.ProductionElement) this.reference;
+                return (element.getName().equals("") ? element.getReference()
+                        .getName() : element.getName()) + "...";
+            }
+            else if (this.reference instanceof Element.TokenElement) {
+                Element.TokenElement element = (Element.TokenElement) this.reference;
+                return (element.getName().equals("") ? element.getTypeName()
+                        : element.getName()) + "...";
+            }
+            else if (this.reference instanceof SProductionTransformationElement.NormalElement) {
+                SProductionTransformationElement.NormalElement normalement = (SProductionTransformationElement.NormalElement) this.reference;
+                return normalement.getProductionTransformation()
+                        .getProduction().getName()
+                        + "."
+                        + (normalement.getName().equals("") ? "$"
+                                + normalement.getIndex() : normalement
+                                .getName()) + "...";
+            }
+            else {
+                throw new InternalException("Undhandel"
+                        + this.reference.getClass());
+            }
+
         }
 
     }

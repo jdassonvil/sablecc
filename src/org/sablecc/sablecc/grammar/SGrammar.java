@@ -178,16 +178,16 @@ public class SGrammar {
     public String toString() {
 
         String parserPart = "Parser \r\n";
-        String productionTransformationPart = "Transformation \r\n Production \r\n ";
+        String productionTransformationPart = "\r\nTransformation \r\nProduction \r\n ";
         String alternativeTransformationPart = "Alternatives \r\n";
 
         for (Production production : this.productions.values()) {
             parserPart += production.toString() + "\r\n";
-            productionTransformationPart += production.getTransformation()
-                    .toString() + "\r\n";
+            productionTransformationPart += "  "
+                    + production.getTransformation().toString() + "\r\n";
             for (Alternative alternative : production.getAlternatives()) {
-                alternativeTransformationPart += alternative
-                        .getTransformation().toString() + "\r\n";
+                alternativeTransformationPart += "  "
+                        + alternative.getTransformation().toString() + "\r\n";
             }
         }
 

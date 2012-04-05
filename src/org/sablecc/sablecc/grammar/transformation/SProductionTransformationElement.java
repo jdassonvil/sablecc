@@ -128,7 +128,9 @@ public abstract class SProductionTransformationElement
         @Override
         public String toString() {
 
-            return this.name;
+            return this.name
+                    + (this.cardinality.equals(CardinalityInterval.ONE_ONE) ? ""
+                            : this.cardinality);
         }
     }
 

@@ -170,7 +170,7 @@ public class SProductionTransformation {
             transformationText += element.toString() + " ";
         }
 
-        return transformationText;
+        return transformationText + ";";
     }
 
 }

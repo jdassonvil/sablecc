@@ -185,14 +185,14 @@ public class Production {
             for (Alternative alternative : this.alternatives.subList(0,
                     this.alternatives.size() - 1)) {
 
-                productionText += "\t " + alternative.toString() + " | \r\n";
+                productionText += "  " + alternative.toString() + " | \r\n";
             }
         }
 
         if (this.alternatives.size() > 0) {
-            productionText += this.alternatives.get(
-                    this.alternatives.size() - 1).toString()
-                    + ";";
+            productionText += "  "
+                    + this.alternatives.get(this.alternatives.size() - 1)
+                            .toString() + ";";
         }
 
         return productionText;
