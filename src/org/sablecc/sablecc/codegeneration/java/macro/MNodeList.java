@@ -287,7 +287,7 @@ public class MNodeList {
         sb.append(System.getProperty("line.separator"));
         sb.append("        current = this.current.next;");
         sb.append(System.getProperty("line.separator"));
-        sb.append("        return this.current.next.element;");
+        sb.append("        return this.current.element;");
         sb.append(System.getProperty("line.separator"));
         sb.append("    }");
         sb.append(System.getProperty("line.separator"));

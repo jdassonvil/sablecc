@@ -32,7 +32,6 @@ import org.sablecc.sablecc.grammar.Element.TokenElement;
 import org.sablecc.sablecc.grammar.interfaces.*;
 import org.sablecc.sablecc.grammar.transformation.*;
 import org.sablecc.sablecc.oldlrautomaton.*;
-import org.sablecc.util.*;
 import org.sablecc.util.Type.SimpleType.HomogeneousType;
 
 public class TransformationGeneration
@@ -40,7 +39,7 @@ public class TransformationGeneration
 
     private final Stack<Object> macroStack = new Stack<Object>();
 
-    private final Stack<Pair<String, String>> listStack = new Stack<Pair<String, String>>();
+    private final Stack<ListDescriptor> listStack = new Stack<ListDescriptor>();
 
     private final OldAlternative reducedAlternative;
 
@@ -258,50 +257,58 @@ public class TransformationGeneration
 
         Object currentMacro = this.macroStack.peek();
 
-        String listTypeName = computeListType(node);
-        String listName = getNextVarId("");
+        if (node.getType() instanceof HomogeneousType) {
 
-        MNewList newList;
-        if (currentMacro instanceof MReduceDecision) {
-            newList = ((MReduceDecision) currentMacro).newNewList(listName,
-                    listTypeName);
-        }
-        else if (currentMacro instanceof MNewTreeClass) {
-            newList = ((MNewTreeClass) currentMacro).newNewList(listName,
-                    listTypeName);
-        }
-        else {
-            throw new InternalException("Unhandle " + currentMacro.getClass());
-        }
+            String listType = computeListType(node);
+            String listName = getNextVarId("");
 
-        this.macroStack.push(newList);
-        this.listStack.push(new Pair<String, String>(listTypeName, listName));
+            MNewList newList;
+            if (currentMacro instanceof MReduceDecision) {
+                newList = ((MReduceDecision) currentMacro).newNewList(listName,
+                        listType);
+            }
+            else if (currentMacro instanceof MNewTreeClass) {
+                newList = ((MNewTreeClass) currentMacro).newNewList(listName,
+                        listType);
+            }
+            else {
+                throw new InternalException("Unhandle "
+                        + currentMacro.getClass());
+            }
 
-        for (SAlternativeTransformationListElement e : node.getElements()) {
-            e.apply(this);
-        }
+            this.macroStack.push(newList);
+            this.listStack.push(new NormalListDescriptor(listName, listType));
 
-        this.listStack.pop();
-        newList = (MNewList) this.macroStack.pop();
+            for (SAlternativeTransformationListElement e : node.getElements()) {
+                e.apply(this);
+            }
 
-        newList.newStringParameter(node.getType().getCardinality()
-                .getLowerBound().getValue()
-                + "");
+            this.listStack.pop();
+            newList = (MNewList) this.macroStack.pop();
 
-        if (!node.getType().getCardinality().upperBoundIsInfinite()) {
             newList.newStringParameter(node.getType().getCardinality()
-                    .getUpperBound().getValue()
+                    .getLowerBound().getValue()
                     + "");
-        }
 
-        if (currentMacro instanceof MReduceDecision) {
-            ((MReduceDecision) currentMacro).newAddNToForest(listName);
-        }
-        else if (currentMacro instanceof MNewTreeClass) {
-            ((MNewTreeClass) currentMacro).newNewParameter(listName);
+            if (!node.getType().getCardinality().upperBoundIsInfinite()) {
+                newList.newStringParameter(node.getType().getCardinality()
+                        .getUpperBound().getValue()
+                        + "");
+            }
+
+            if (currentMacro instanceof MReduceDecision) {
+                ((MReduceDecision) currentMacro).newAddNToForest(listName);
+            }
+            else if (currentMacro instanceof MNewTreeClass) {
+                ((MNewTreeClass) currentMacro).newNewParameter(listName);
+            }
+            else {
+                throw new InternalException("Unhandled "
+                        + currentMacro.getClass());
+            }
         }
         else {
-            throw new InternalException("Unhandled " + currentMacro.getClass());
+            // TODO Handle Double List here
         }
 
     }
@@ -338,7 +345,7 @@ public class TransformationGeneration
             String elementType = to_CamelCase(this.reducedAlternative
                     .getElement((Element) node.getTargetReference())
                     .getTypeName());
-            list.newAddPopElement(this.listStack.peek().getRight(),
+            list.newAddPopElement(this.listStack.peek().getListName(),
                     elementName, elementType, "0");
         }
         else if (node.getTargetReference() instanceof SProductionTransformationElement) {
@@ -346,55 +353,55 @@ public class TransformationGeneration
             SProductionTransformationElement reference = (SProductionTransformationElement) node
                     .getTargetReference();
 
-            if (reference instanceof SProductionTransformationElement.NormalElement) {
-                SProductionTransformationElement.NormalElement normalElement = (SProductionTransformationElement.NormalElement) reference;
+            String elementName = this.grammar.getSimplifiedGrammar()
+                    .getOldElement(node.getOriginReference()).getName();
+            String listName = this.listStack.peek().getListName();
+            String elementType;
 
-                if (normalElement.getCoreReference() instanceof Tree.TreeProduction) {
-                    String prodCamelCaseType = ((Tree.TreeProduction) normalElement
-                            .getCoreReference()).getName_CamelCase();
+            if (this.listStack.peek() instanceof NormalListDescriptor) {
+                elementType = ((NormalListDescriptor) this.listStack.peek())
+                        .getListType();
 
-                    String elementName = to_camelCase(normalElement
-                            .getProductionTransformation().getProduction()
-                            .getName());
-                    list.newAddPopElement(this.listStack.peek().getRight(),
-                            elementName, prodCamelCaseType,
-                            normalElement.getIndex() + "");
-
-                }
-                else if (normalElement.getCoreReference() instanceof LexerExpression.NamedExpression) {
-                    String tokenCamelCaseType = ((LexerExpression.NamedExpression) normalElement
-                            .getCoreReference()).getName_CamelCase();
-                    String elementName = to_camelCase(normalElement
-                            .getProductionTransformation().getProduction()
-                            .getName());
-
-                    list.newAddPopElement(this.listStack.peek().getRight(),
-                            elementName, tokenCamelCaseType,
-                            normalElement.getIndex() + "");
-                }
-                else if (normalElement.getCoreReference() instanceof LexerExpression.InlineExpression) {
-                    String tokenCamelCaseType = ((LexerExpression.InlineExpression) normalElement
-                            .getCoreReference()).getInternalName_CamelCase();
-                    String elementName = to_camelCase(normalElement
-                            .getProductionTransformation().getProduction()
-                            .getName());
-
-                    list.newAddPopElement(this.listStack.peek().getRight(),
-                            elementName, tokenCamelCaseType,
-                            normalElement.getIndex() + "");
-                }
-                else {
-                    throw new InternalException("unhandle case");
-                }
-
+                list.newAddPopElement(listName, elementName, elementType,
+                        reference.getIndex() + "");
             }
             else {
-                throw new InternalException("Unhandled " + reference.getClass());
+
+                if (reference instanceof SProductionTransformationElement.NormalElement) {
+
+                    SProductionTransformationElement.NormalElement normalElement = (SProductionTransformationElement.NormalElement) reference;
+
+                    if (normalElement.getCoreReference() instanceof Tree.TreeProduction) {
+                        elementType = ((Tree.TreeProduction) normalElement
+                                .getCoreReference()).getName_CamelCase();
+
+                    }
+                    else if (normalElement.getCoreReference() instanceof LexerExpression.NamedExpression) {
+                        elementType = ((LexerExpression.NamedExpression) normalElement
+                                .getCoreReference()).getName_CamelCase();
+                    }
+                    else if (normalElement.getCoreReference() instanceof LexerExpression.InlineExpression) {
+                        elementType = ((LexerExpression.InlineExpression) normalElement
+                                .getCoreReference())
+                                .getInternalName_CamelCase();
+                    }
+                    else {
+                        throw new InternalException("unhandle case");
+                    }
+
+                    // TODO Add element here to Double List
+
+                }
+                else {
+                    throw new InternalException("Unexpected reference "
+                            + reference.getClass());
+                }
             }
 
         }
         else {
             throw new InternalException("Unhandled " + node.getClass());
+
         }
 
     }
@@ -420,7 +427,7 @@ public class TransformationGeneration
 
         this.macroStack.pop();
 
-        list.newAddNewElement(this.listStack.peek().getRight(), elementName);
+        list.newAddNewElement(this.listStack.peek().getListName(), elementName);
 
     }
 
@@ -429,13 +436,14 @@ public class TransformationGeneration
             SAlternativeTransformationListElement.NormalListElement node) {
 
         MNewList list = (MNewList) this.macroStack.peek();
-        String elementType = this.listStack.peek().getLeft();
+        String elementType = ((NormalListDescriptor) this.listStack.peek())
+                .getListType();
 
         if (node.getTargetReference() instanceof Element) {
             String elementName = to_camelCase(this.reducedAlternative
                     .getElement((Element) node.getTargetReference()).getName());
-            list.newAddPopList(this.listStack.peek().getRight(), elementName,
-                    elementType, "0");
+            list.newAddPopList(this.listStack.peek().getListName(),
+                    elementName, elementType, "0");
         }
         else if (node.getTargetReference() instanceof SProductionTransformationElement) {
 
@@ -450,7 +458,7 @@ public class TransformationGeneration
                     String elementName = to_camelCase(normalElement
                             .getProductionTransformation().getProduction()
                             .getName());
-                    list.newAddPopList(this.listStack.peek().getRight(),
+                    list.newAddPopList(this.listStack.peek().getListName(),
                             elementName, elementType, normalElement.getIndex()
                                     + "");
 
@@ -460,7 +468,7 @@ public class TransformationGeneration
                             .getProductionTransformation().getProduction()
                             .getName());
 
-                    list.newAddPopList(this.listStack.peek().getRight(),
+                    list.newAddPopList(this.listStack.peek().getListName(),
                             elementName, elementType, normalElement.getIndex()
                                     + "");
                 }
@@ -469,7 +477,7 @@ public class TransformationGeneration
                             .getProductionTransformation().getProduction()
                             .getName());
 
-                    list.newAddPopList(this.listStack.peek().getRight(),
+                    list.newAddPopList(this.listStack.peek().getListName(),
                             elementName, elementType, normalElement.getIndex()
                                     + "");
                 }
@@ -505,6 +513,59 @@ public class TransformationGeneration
 
         // TODO Auto-generated method stub
 
+    }
+
+    private static abstract class ListDescriptor {
+
+        private final String listName;
+
+        public ListDescriptor(
+                String listName) {
+
+            this.listName = listName;
+        }
+
+        public String getListName() {
+
+            return this.listName;
+        }
+    }
+
+    private static class NormalListDescriptor
+            extends ListDescriptor {
+
+        private final String listType;
+
+        public NormalListDescriptor(
+                String listName,
+                String listType) {
+
+            super(listName);
+            this.listType = listType;
+        }
+
+        public String getListType() {
+
+            return this.listType;
+        }
+    }
+
+    private static class DoubleListDescriptor
+            extends ListDescriptor {
+
+        private final String leftListType;
+
+        private final String rightListType;
+
+        public DoubleListDescriptor(
+                String listName,
+                String leftlistType,
+                String rightlistType) {
+
+            super(listName);
+            this.leftListType = leftlistType;
+            this.rightListType = rightlistType;
+        }
     }
 
 }

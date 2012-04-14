@@ -29,6 +29,8 @@ public class SGrammar {
 
     private Map<String, Production> productions = new LinkedHashMap<String, Production>();
 
+    private Map<Element, OldElement> sElementToOldElementMap = new LinkedHashMap<Element, OldElement>();
+
     private final Grammar grammar;
 
     private LRAutomaton lrAutomaton;
@@ -172,6 +174,19 @@ public class SGrammar {
         BigInteger productionId = this.nextProductionId;
         this.nextProductionId = this.nextProductionId.add(BigInteger.ONE);
         return productionId;
+    }
+
+    public void addOldElement(
+            Element sElement,
+            OldElement oldEement) {
+
+        this.sElementToOldElementMap.put(sElement, oldEement);
+    }
+
+    public OldElement getOldElement(
+            Element element) {
+
+        return this.sElementToOldElementMap.get(element);
     }
 
     @Override
