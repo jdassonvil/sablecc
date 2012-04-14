@@ -596,9 +596,10 @@ public abstract class ReferenceVerifier
                 PElementReference elementReference = transformationElement
                         .getDeclaration().getElementReference();
 
-                IReferencable reference = resolveAlternativeElementReference(elementReference);
+                Pair<Parser.ParserElement, IReferencable> references = resolveAlternativeElementReference(elementReference);
 
-                transformationElement.addReference(reference);
+                transformationElement.addOriginReference(references.getLeft());
+                transformationElement.addTargetReference(references.getRight());
             }
 
         }
@@ -652,22 +653,24 @@ public abstract class ReferenceVerifier
                 PElementReference elementReference = listElement
                         .getDeclaration().getElementReference();
 
-                IReferencable reference = resolveAlternativeElementReference(elementReference);
+                Pair<Parser.ParserElement, IReferencable> references = resolveAlternativeElementReference(elementReference);
 
-                if (reference instanceof Parser.ParserElement) {
-                    if (((Parser.ParserElement) reference).getCardinality()
-                            .getUpperBound().compareTo(Bound.ONE) > 0) {
-                        throw SemanticException.listExpansionMissing(node);
-                    }
-                }
-                else {
-                    if (((ProductionTransformationElement) reference)
+                if (references.getRight() instanceof Parser.ParserElement) {
+                    if (((Parser.ParserElement) references.getRight())
                             .getCardinality().getUpperBound()
                             .compareTo(Bound.ONE) > 0) {
                         throw SemanticException.listExpansionMissing(node);
                     }
                 }
-                listElement.addReference(reference);
+                else {
+                    if (((ProductionTransformationElement) references
+                            .getRight()).getCardinality().getUpperBound()
+                            .compareTo(Bound.ONE) > 0) {
+                        throw SemanticException.listExpansionMissing(node);
+                    }
+                }
+                listElement.addOriginReference(references.getLeft());
+                listElement.addTargetReference(references.getRight());
             }
 
         }
@@ -682,9 +685,10 @@ public abstract class ReferenceVerifier
                 PElementReference elementReference = listElement
                         .getDeclaration().getElementReference();
 
-                IReferencable reference = resolveAlternativeElementReference(elementReference);
+                Pair<Parser.ParserElement, IReferencable> references = resolveAlternativeElementReference(elementReference);
 
-                listElement.addReference(reference);
+                listElement.addTargetReference(references.getRight());
+                listElement.addOriginReference(references.getLeft());
 
                 String name = listElement.getElement().substring(0,
                         listElement.getElement().length() - 4);
@@ -709,9 +713,10 @@ public abstract class ReferenceVerifier
                 PElementReference elementReference = listElement
                         .getDeclaration().getElementReference();
 
-                IReferencable reference = resolveAlternativeElementReference(elementReference);
+                Pair<Parser.ParserElement, IReferencable> references = resolveAlternativeElementReference(elementReference);
 
-                listElement.addReference(reference);
+                listElement.addTargetReference(references.getRight());
+                listElement.addOriginReference(references.getLeft());
 
                 String name = listElement.getElement().substring(0,
                         listElement.getElement().length() - 8);
@@ -736,9 +741,10 @@ public abstract class ReferenceVerifier
                 PElementReference elementReference = listElement
                         .getDeclaration().getElementReference();
 
-                IReferencable reference = resolveAlternativeElementReference(elementReference);
+                Pair<Parser.ParserElement, IReferencable> references = resolveAlternativeElementReference(elementReference);
 
-                listElement.addReference(reference);
+                listElement.addTargetReference(references.getRight());
+                listElement.addOriginReference(references.getLeft());
 
                 String name = listElement.getElement().substring(0,
                         listElement.getElement().length() - 9);
@@ -753,21 +759,29 @@ public abstract class ReferenceVerifier
 
         }
 
-        private IReferencable resolveAlternativeElementReference(
+        private Pair<Parser.ParserElement, IReferencable> resolveAlternativeElementReference(
                 PElementReference elementReference) {
 
-            IReferencable reference;
+            Parser.ParserElement originReference;
+            IReferencable targetReference;
+
+            originReference = findElement(
+                    ((ANaturalElementReference) elementReference).getElement(),
+                    this.currentAlternative);
+
+            if (originReference == null) {
+                throw SemanticException
+                        .undefinedReference(((ANaturalElementReference) elementReference)
+                                .getElement());
+            }
 
             if (elementReference instanceof ATransformedElementReference) {
-
-                TIdentifier typeIdentifier = ((ATransformedElementReference) elementReference)
-                        .getElement();
 
                 TIdentifier transformationElementIdentifier = ((ATransformedElementReference) elementReference)
                         .getPart();
 
-                ProductionTransformation.ExplicitProductionTransformation productionTransformation = findProductionTransformation(
-                        typeIdentifier, transformationElementIdentifier);
+                ProductionTransformation.ExplicitProductionTransformation productionTransformation = (ProductionTransformation.ExplicitProductionTransformation) originReference
+                        .getAlternative().getProduction().getTransformation();
 
                 ProductionTransformationElement transformationElement = productionTransformation
                         .getLocalReference(transformationElementIdentifier
@@ -780,15 +794,10 @@ public abstract class ReferenceVerifier
                                     productionTransformation);
                 }
 
-                reference = transformationElement;
+                targetReference = transformationElement;
 
             }
             else {
-
-                reference = findElement(
-                        ((ANaturalElementReference) elementReference)
-                                .getElement(),
-                        this.currentAlternative);
 
                 // Normal ref should only be used with non transformed prof
 
@@ -808,45 +817,12 @@ public abstract class ReferenceVerifier
                     }
                 }
 
+                targetReference = originReference;
+
             }
 
-            return reference;
-        }
-
-        private ProductionTransformation.ExplicitProductionTransformation findProductionTransformation(
-                TIdentifier typeIdentifier,
-                TIdentifier transformationElementIdentifier) {
-
-            Parser.ParserElement element = findElement(typeIdentifier,
-                    this.currentAlternative);
-
-            if (!(element.getElementType() == ElementType.NORMAL)) {
-                String[] expectedNames = { "normal parser element" };
-                throw SemanticException.badReference(typeIdentifier,
-                        element.getNameType(), expectedNames);
-            }
-
-            PUnit unit = ((ANormalElement) element.getDeclaration()).getUnit();
-
-            if (!(unit instanceof ANameUnit)) {
-                throw SemanticException.badProductionReference(typeIdentifier,
-                        this.currentAlternative.getProduction());
-            }
-
-            Parser.ParserProduction production = (Parser.ParserProduction) this.grammar
-                    .getGlobalReference(((ANameUnit) unit).getIdentifier()
-                            .getText());
-
-            ProductionTransformation.ExplicitProductionTransformation productionTransformation = (ProductionTransformation.ExplicitProductionTransformation) production
-                    .getTransformation();
-
-            if (productionTransformation == null) {
-                throw SemanticException.badAlternativeTransformationReference(
-                        typeIdentifier, transformationElementIdentifier,
-                        production);
-            }
-
-            return productionTransformation;
+            return new Pair<Parser.ParserElement, IReferencable>(
+                    originReference, targetReference);
         }
 
         private Parser.ParserAlternative findParserAlternative(

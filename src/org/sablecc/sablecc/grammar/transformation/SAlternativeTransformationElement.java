@@ -79,20 +79,29 @@ public abstract class SAlternativeTransformationElement
     public static class ReferenceElement
             extends SAlternativeTransformationElement {
 
-        private IElement reference;
+        private Element originReference;
+
+        private IElement targetReference;
 
         public ReferenceElement(
-                IElement reference) {
+                Element originReference,
+                IElement targetReference) {
 
-            if (reference == null) {
+            if (originReference == null || targetReference == null) {
                 throw new InternalException("reference shouldn't be null");
             }
-            this.reference = reference;
+            this.originReference = originReference;
+            this.targetReference = targetReference;
         }
 
-        public IElement getReference() {
+        public IElement getTargetReference() {
 
-            return this.reference;
+            return this.targetReference;
+        }
+
+        public Element getOriginReference() {
+
+            return this.originReference;
         }
 
         @Override
@@ -102,30 +111,30 @@ public abstract class SAlternativeTransformationElement
 
             LinkedList<SAlternativeTransformationElement> inlineResult = new LinkedList<SAlternativeTransformationElement>();
 
-            if (this.reference instanceof Element.ProductionElement) {
-                Element.ProductionElement productionElement = (Element.ProductionElement) this.reference;
+            if (this.originReference instanceof Element.ProductionElement
+                    && ((Element.ProductionElement) this.originReference)
+                            .getReference().equals(
+                                    inlinedAlternative.getProduction())) {
 
-                if (productionElement.getReference().equals(
-                        inlinedAlternative.getProduction())) {
+                for (SAlternativeTransformationElement element : inlinedAlternative
+                        .getTransformation().getElements()) {
 
-                    for (SAlternativeTransformationElement element : inlinedAlternative
-                            .getTransformation().getElements()) {
-
-                        inlineResult.addAll(element.inline(inlinedAlternative,
-                                oldToNewElement));
-                    }
-
-                }
-                else {
-                    inlineResult
-                            .add(new SAlternativeTransformationElement.ReferenceElement(
-                                    oldToNewElement.get(this.reference)));
+                    inlineResult.addAll(element.inline(inlinedAlternative,
+                            oldToNewElement));
                 }
             }
             else {
+                IElement target;
+                if (this.targetReference instanceof Element) {
+                    target = oldToNewElement.get(this.targetReference);
+                }
+                else {
+                    target = this.targetReference;
+                }
                 inlineResult
                         .add(new SAlternativeTransformationElement.ReferenceElement(
-                                oldToNewElement.get(this.reference)));
+                                oldToNewElement.get(this.originReference),
+                                target));
             }
 
             return inlineResult;
@@ -134,7 +143,8 @@ public abstract class SAlternativeTransformationElement
         @Override
         public SAlternativeTransformationElement clone() {
 
-            return new ReferenceElement(this.reference);
+            return new ReferenceElement(this.originReference,
+                    this.targetReference);
         }
 
         @Override
@@ -148,18 +158,18 @@ public abstract class SAlternativeTransformationElement
         @Override
         public String toString() {
 
-            if (this.reference instanceof Element.ProductionElement) {
-                Element.ProductionElement element = (Element.ProductionElement) this.reference;
+            if (this.targetReference instanceof Element.ProductionElement) {
+                Element.ProductionElement element = (Element.ProductionElement) this.targetReference;
                 return element.getName().equals("") ? element.getReference()
                         .getName() : element.getName();
             }
-            else if (this.reference instanceof Element.TokenElement) {
-                Element.TokenElement element = (Element.TokenElement) this.reference;
+            else if (this.targetReference instanceof Element.TokenElement) {
+                Element.TokenElement element = (Element.TokenElement) this.targetReference;
                 return element.getName().equals("") ? element.getTypeName()
                         : element.getName();
             }
-            else if (this.reference instanceof SProductionTransformationElement.NormalElement) {
-                SProductionTransformationElement.NormalElement normalement = (SProductionTransformationElement.NormalElement) this.reference;
+            else if (this.targetReference instanceof SProductionTransformationElement.NormalElement) {
+                SProductionTransformationElement.NormalElement normalement = (SProductionTransformationElement.NormalElement) this.targetReference;
                 return normalement.getProductionTransformation()
                         .getProduction().getName()
                         + "."
@@ -169,7 +179,7 @@ public abstract class SAlternativeTransformationElement
             }
             else {
                 throw new InternalException("Undhandel"
-                        + this.reference.getClass());
+                        + this.targetReference.getClass());
             }
         }
 

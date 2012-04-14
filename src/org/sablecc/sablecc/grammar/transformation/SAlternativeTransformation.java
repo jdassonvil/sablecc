@@ -47,25 +47,6 @@ public class SAlternativeTransformation {
 
     public SAlternativeTransformation(
             Alternative alternative,
-            Element element) {
-
-        if (alternative == null) {
-            throw new InternalException("alternative shouldn't be null");
-        }
-
-        if (element == null) {
-            throw new InternalException("element shouldn't be null");
-        }
-
-        this.alternative = alternative;
-
-        this.elements
-                .add(new SAlternativeTransformationElement.ReferenceElement(
-                        element));
-    }
-
-    public SAlternativeTransformation(
-            Alternative alternative,
             LinkedList<Element> elements) {
 
         if (alternative == null) {
@@ -81,7 +62,7 @@ public class SAlternativeTransformation {
         for (Element element : elements) {
             this.elements
                     .add(new SAlternativeTransformationElement.ReferenceElement(
-                            element));
+                            element, element));
         }
     }
 

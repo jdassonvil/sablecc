@@ -20,7 +20,6 @@ package org.sablecc.sablecc.grammar;
 import java.util.*;
 
 import org.sablecc.exception.*;
-import org.sablecc.sablecc.core.*;
 import org.sablecc.sablecc.core.analysis.*;
 import org.sablecc.sablecc.core.transformation.*;
 import org.sablecc.sablecc.core.transformation.AlternativeTransformationElement.NewElement;
@@ -29,6 +28,7 @@ import org.sablecc.sablecc.core.transformation.AlternativeTransformationListElem
 import org.sablecc.sablecc.core.transformation.AlternativeTransformationListElement.NormalListElement;
 import org.sablecc.sablecc.core.transformation.AlternativeTransformationListElement.ReferenceElement;
 import org.sablecc.sablecc.core.transformation.AlternativeTransformationListElement.RightListElement;
+import org.sablecc.sablecc.grammar.interfaces.*;
 import org.sablecc.sablecc.grammar.transformation.*;
 
 public class AlternativeTransformationBuilder
@@ -123,7 +123,7 @@ public class AlternativeTransformationBuilder
         }
 
         SAlternativeTransformationListElement.NewElement newElement = new SAlternativeTransformationListElement.NewElement(
-                node.getReference(), this.elementListStack.pop());
+                node.getTargetReference(), this.elementListStack.pop());
 
         List<SAlternativeTransformationListElement> currentList = this.listElementListStack
                 .pop();
@@ -159,39 +159,34 @@ public class AlternativeTransformationBuilder
     public void visitAlternativeTransformationReferenceElement(
             AlternativeTransformationElement.ReferenceElement node) {
 
-        if (node.getReference() instanceof Parser.ParserElement) {
-            Parser.ParserElement reference = (Parser.ParserElement) node
-                    .getReference();
+        Element origin = this.alternative.getElements().get(
+                node.getOriginReference().getIndex());
+        IElement target;
 
-            List<SAlternativeTransformationElement> currentList = this.elementListStack
-                    .pop();
+        List<SAlternativeTransformationElement> currentList = this.elementListStack
+                .pop();
 
-            currentList
-                    .add(new SAlternativeTransformationElement.ReferenceElement(
-                            this.alternative.getElements().get(
-                                    reference.getIndex())));
-
-            this.elementListStack.push(currentList);
-        }
-        else if (node.getReference() instanceof ProductionTransformationElement) {
+        if (node.isTransformed()) {
             ProductionTransformationElement reference = (ProductionTransformationElement) node
-                    .getReference();
-
-            List<SAlternativeTransformationElement> currentList = this.elementListStack
-                    .pop();
+                    .getTargetReference();
 
             SProductionTransformation productionTransformation = this.sGrammar
                     .getProduction(
                             reference.getProductionTransformation().getName())
                     .getTransformation();
 
-            currentList
-                    .add(new SAlternativeTransformationElement.ReferenceElement(
-                            productionTransformation.getElements().get(
-                                    reference.index())));
+            target = productionTransformation.getElements().get(
+                    reference.index());
 
-            this.elementListStack.push(currentList);
         }
+        else {
+            target = origin;
+        }
+
+        currentList.add(new SAlternativeTransformationElement.ReferenceElement(
+                origin, target));
+
+        this.elementListStack.push(currentList);
 
     };
 
@@ -199,150 +194,140 @@ public class AlternativeTransformationBuilder
     public void visitAlternativeTransformationReferenceListElement(
             ReferenceElement node) {
 
-        if (node.getReference() instanceof Parser.ParserElement) {
-            Parser.ParserElement reference = (Parser.ParserElement) node
-                    .getReference();
+        Element origin = this.alternative.getElements().get(
+                node.getOriginReference().getIndex());
+        IElement target;
 
-            List<SAlternativeTransformationListElement> currentList = this.listElementListStack
-                    .pop();
+        List<SAlternativeTransformationListElement> currentList = this.listElementListStack
+                .pop();
 
-            currentList
-                    .add(new SAlternativeTransformationListElement.ReferenceElement(
-                            this.alternative.getElements().get(
-                                    reference.getIndex())));
-
-            this.listElementListStack.push(currentList);
-        }
-        else if (node.getReference() instanceof ProductionTransformationElement) {
+        if (node.isTransformed()) {
             ProductionTransformationElement reference = (ProductionTransformationElement) node
-                    .getReference();
-
-            List<SAlternativeTransformationListElement> currentList = this.listElementListStack
-                    .pop();
+                    .getTargetReference();
 
             SProductionTransformation productionTransformation = this.sGrammar
                     .getProduction(
                             reference.getProductionTransformation().getName())
                     .getTransformation();
 
-            currentList
-                    .add(new SAlternativeTransformationListElement.ReferenceElement(
-                            productionTransformation.getElements().get(
-                                    reference.index())));
+            target = productionTransformation.getElements().get(
+                    reference.index());
 
-            this.listElementListStack.push(currentList);
         }
+        else {
+            target = origin;
+        }
+
+        currentList
+                .add(new SAlternativeTransformationListElement.ReferenceElement(
+                        origin, target));
+
+        this.listElementListStack.push(currentList);
     }
 
     @Override
     public void visitAlternativeTransformationNormalListReferenceListElement(
             NormalListElement node) {
 
-        if (node.getReference() instanceof Parser.ParserElement) {
-            Parser.ParserElement reference = (Parser.ParserElement) node
-                    .getReference();
+        Element origin = this.alternative.getElements().get(
+                node.getOriginReference().getIndex());
+        IElement target;
 
-            List<SAlternativeTransformationListElement> currentList = this.listElementListStack
-                    .pop();
+        List<SAlternativeTransformationListElement> currentList = this.listElementListStack
+                .pop();
 
-            currentList
-                    .add(new SAlternativeTransformationListElement.NormalListElement(
-                            this.alternative.getElements().get(
-                                    reference.getIndex())));
-
-            this.listElementListStack.push(currentList);
-        }
-        else if (node.getReference() instanceof ProductionTransformationElement) {
+        if (node.isTransformed()) {
             ProductionTransformationElement reference = (ProductionTransformationElement) node
-                    .getReference();
+                    .getTargetReference();
 
-            List<SAlternativeTransformationListElement> currentList = this.listElementListStack
-                    .pop();
+            SProductionTransformation productionTransformation = this.sGrammar
+                    .getProduction(
+                            reference.getProductionTransformation().getName())
+                    .getTransformation();
 
-            SProductionTransformation productionTransformation = this.alternative
-                    .getProduction().getTransformation();
+            target = productionTransformation.getElements().get(
+                    reference.index());
 
-            currentList
-                    .add(new SAlternativeTransformationListElement.NormalListElement(
-                            productionTransformation.getElements().get(
-                                    reference.index())));
-
-            this.listElementListStack.push(currentList);
         }
+        else {
+            target = origin;
+        }
+
+        currentList
+                .add(new SAlternativeTransformationListElement.NormalListElement(
+                        origin, target));
+
+        this.listElementListStack.push(currentList);
     }
 
     @Override
     public void visitAlternativeTransformationLeftListReferenceListElement(
             LeftListElement node) {
 
-        if (node.getReference() instanceof Parser.ParserElement) {
-            Parser.ParserElement reference = (Parser.ParserElement) node
-                    .getReference();
+        Element origin = this.alternative.getElements().get(
+                node.getOriginReference().getIndex());
+        IElement target;
 
-            List<SAlternativeTransformationListElement> currentList = this.listElementListStack
-                    .pop();
+        List<SAlternativeTransformationListElement> currentList = this.listElementListStack
+                .pop();
 
-            currentList
-                    .add(new SAlternativeTransformationListElement.LeftListElement(
-                            this.alternative.getElements().get(
-                                    reference.getIndex())));
-
-            this.listElementListStack.push(currentList);
-        }
-        else if (node.getReference() instanceof ProductionTransformationElement) {
+        if (node.isTransformed()) {
             ProductionTransformationElement reference = (ProductionTransformationElement) node
-                    .getReference();
+                    .getTargetReference();
 
-            List<SAlternativeTransformationListElement> currentList = this.listElementListStack
-                    .pop();
+            SProductionTransformation productionTransformation = this.sGrammar
+                    .getProduction(
+                            reference.getProductionTransformation().getName())
+                    .getTransformation();
 
-            SProductionTransformation productionTransformation = this.alternative
-                    .getProduction().getTransformation();
+            target = productionTransformation.getElements().get(
+                    reference.index());
 
-            currentList
-                    .add(new SAlternativeTransformationListElement.LeftListElement(
-                            productionTransformation.getElements().get(
-                                    reference.index())));
-
-            this.listElementListStack.push(currentList);
         }
+        else {
+            target = origin;
+        }
+
+        currentList
+                .add(new SAlternativeTransformationListElement.LeftListElement(
+                        origin, target));
+
+        this.listElementListStack.push(currentList);
     }
 
     @Override
     public void visitAlternativeTransformationRightListReferenceListElement(
             RightListElement node) {
 
-        if (node.getReference() instanceof Parser.ParserElement) {
-            Parser.ParserElement reference = (Parser.ParserElement) node
-                    .getReference();
+        Element origin = this.alternative.getElements().get(
+                node.getOriginReference().getIndex());
+        IElement target;
 
-            List<SAlternativeTransformationListElement> currentList = this.listElementListStack
-                    .pop();
+        List<SAlternativeTransformationListElement> currentList = this.listElementListStack
+                .pop();
 
-            currentList
-                    .add(new SAlternativeTransformationListElement.RightListElement(
-                            this.alternative.getElements().get(
-                                    reference.getIndex())));
-
-            this.listElementListStack.push(currentList);
-        }
-        else if (node.getReference() instanceof ProductionTransformationElement) {
+        if (node.isTransformed()) {
             ProductionTransformationElement reference = (ProductionTransformationElement) node
-                    .getReference();
+                    .getTargetReference();
 
-            List<SAlternativeTransformationListElement> currentList = this.listElementListStack
-                    .pop();
+            SProductionTransformation productionTransformation = this.sGrammar
+                    .getProduction(
+                            reference.getProductionTransformation().getName())
+                    .getTransformation();
 
-            SProductionTransformation productionTransformation = this.alternative
-                    .getProduction().getTransformation();
+            target = productionTransformation.getElements().get(
+                    reference.index());
 
-            currentList
-                    .add(new SAlternativeTransformationListElement.RightListElement(
-                            productionTransformation.getElements().get(
-                                    reference.index())));
-
-            this.listElementListStack.push(currentList);
         }
+        else {
+            target = origin;
+        }
+
+        currentList
+                .add(new SAlternativeTransformationListElement.LeftListElement(
+                        origin, target));
+
+        this.listElementListStack.push(currentList);
     }
 
 }

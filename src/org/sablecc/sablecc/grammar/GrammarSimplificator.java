@@ -259,7 +259,7 @@ public class GrammarSimplificator
                                         CardinalityInterval.ZERO_ONE)) {
                             newElements
                                     .add(new SAlternativeTransformationElement.ReferenceElement(
-                                            element));
+                                            element, element));
 
                         }
                         else {
@@ -267,7 +267,7 @@ public class GrammarSimplificator
                             List<SAlternativeTransformationListElement> listElements = new LinkedList<SAlternativeTransformationListElement>();
                             listElements
                                     .add(new SAlternativeTransformationListElement.NormalListElement(
-                                            element));
+                                            element, element));
                             newElements
                                     .add(new SAlternativeTransformationElement.ListElement(
                                             listElements,
@@ -285,7 +285,7 @@ public class GrammarSimplificator
                 else {
                     newElements
                             .add(new SAlternativeTransformationElement.ReferenceElement(
-                                    element));
+                                    element, element));
                 }
 
             }
@@ -627,13 +627,13 @@ public class GrammarSimplificator
             firstAlternativeElements.add(firstElement);
             firstAltTransformationElements
                     .add(new SAlternativeTransformationListElement.NormalListElement(
-                            firstElement));
+                            firstElement, firstElement));
 
             Element secondElement = this.sElement.clone();
             firstAlternativeElements.add(secondElement);
             firstAltTransformationElements
                     .add(new SAlternativeTransformationListElement.ReferenceElement(
-                            secondElement));
+                            secondElement, secondElement));
 
             plusProd.addAlternative(newListAlternative(plusProd,
                     firstAlternativeElements, firstAltTransformationElements));
@@ -645,6 +645,7 @@ public class GrammarSimplificator
             secondAlternativeElements.add(this.sElement.clone());
             secondAltTransformationElements
                     .add(new SAlternativeTransformationListElement.ReferenceElement(
+                            secondAlternativeElements.get(0),
                             secondAlternativeElements.get(0)));
             plusProd.addAlternative(newListAlternative(plusProd,
                     secondAlternativeElements, secondAltTransformationElements));
@@ -682,7 +683,7 @@ public class GrammarSimplificator
             firstAlternativeElements.add(firstElement);
             firstAltTransformationElements
                     .add(new SAlternativeTransformationListElement.NormalListElement(
-                            firstElement));
+                            firstElement, firstElement));
 
             starProd.addAlternative(newListAlternative(starProd,
                     firstAlternativeElements, firstAltTransformationElements));
@@ -712,10 +713,12 @@ public class GrammarSimplificator
                 LinkedList<SAlternativeTransformationListElement> alternativeTransformationElement = new LinkedList<SAlternativeTransformationListElement>();
                 alternativeTransformationElement
                         .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                alternativeElements.get(0)));
+                                alternativeElements.get(0), alternativeElements
+                                        .get(0)));
                 alternativeTransformationElement
                         .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                alternativeElements.get(1)));
+                                alternativeElements.get(1), alternativeElements
+                                        .get(1)));
 
                 numberProd.addAlternative(newListAlternative(numberProd,
                         alternativeElements, alternativeTransformationElement));
@@ -749,10 +752,11 @@ public class GrammarSimplificator
                 LinkedList<SAlternativeTransformationListElement> alternativeTransformationElement = new LinkedList<SAlternativeTransformationListElement>();
                 alternativeTransformationElement
                         .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                firstElement));
+                                firstElement, firstElement));
                 alternativeTransformationElement
                         .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                alternativeElements.get(1)));
+                                alternativeElements.get(1), alternativeElements
+                                        .get(1)));
 
                 numberProd.addAlternative(newListAlternative(numberProd,
                         alternativeElements, alternativeTransformationElement));
@@ -811,10 +815,10 @@ public class GrammarSimplificator
 
             altTransformationElements
                     .add(new SAlternativeTransformationListElement.NormalListElement(
-                            firstElement));
+                            firstElement, firstElement));
             altTransformationElements
                     .add(new SAlternativeTransformationListElement.NormalListElement(
-                            secondElement));
+                            secondElement, secondElement));
 
             atLeastProd.addAlternative(newListAlternative(atLeastProd,
                     alternativeElements, altTransformationElements));
@@ -855,7 +859,7 @@ public class GrammarSimplificator
 
                     firstAltTransformationElements
                             .add(new SAlternativeTransformationListElement.NormalListElement(
-                                    firstElement));
+                                    firstElement, firstElement));
                 }
                 else {
                     firstElement = new Element.ProductionElement("",
@@ -868,7 +872,7 @@ public class GrammarSimplificator
                 firstAlternativeElements.add(firstElement);
                 firstAltTransformationElements
                         .add(new SAlternativeTransformationListElement.NormalListElement(
-                                firstElement));
+                                firstElement, firstElement));
 
                 intervalProd.addAlternative(newListAlternative(intervalProd,
                         firstAlternativeElements,
@@ -889,6 +893,7 @@ public class GrammarSimplificator
                 firstAlternativeElements.add(this.sElement.clone());
                 firstAltTransformationElements
                         .add(new SAlternativeTransformationListElement.ReferenceElement(
+                                firstAlternativeElements.get(0),
                                 firstAlternativeElements.get(0)));
 
                 intervalProd.addAlternative(newListAlternative(intervalProd,
@@ -903,9 +908,11 @@ public class GrammarSimplificator
                 secondAlternativeElements.add(this.sElement.clone());
                 secondAltTransformationElements
                         .add(new SAlternativeTransformationListElement.ReferenceElement(
+                                secondAlternativeElements.get(0),
                                 secondAlternativeElements.get(0)));
                 secondAltTransformationElements
                         .add(new SAlternativeTransformationListElement.ReferenceElement(
+                                secondAlternativeElements.get(1),
                                 secondAlternativeElements.get(1)));
 
                 intervalProd.addAlternative(newListAlternative(intervalProd,
@@ -940,10 +947,11 @@ public class GrammarSimplificator
                 LinkedList<SAlternativeTransformationListElement> alternativeTransformationElements = new LinkedList<SAlternativeTransformationListElement>();
                 alternativeTransformationElements
                         .add(new SAlternativeTransformationListElement.NormalListElement(
-                                firstElement));
+                                firstElement, firstElement));
                 alternativeTransformationElements
                         .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                alternativeElements.get(1)));
+                                alternativeElements.get(1), alternativeElements
+                                        .get(1)));
 
                 intervalProd
                         .addAlternative(newListAlternative(intervalProd,
@@ -999,10 +1007,10 @@ public class GrammarSimplificator
 
                 firstAltTransformationElements
                         .add(new SAlternativeTransformationListElement.NormalListElement(
-                                firstElement));
+                                firstElement, firstElement));
                 firstAltTransformationElements
                         .add(new SAlternativeTransformationListElement.NormalListElement(
-                                secondElement));
+                                secondElement, secondElement));
 
                 intervalProd.addAlternative(newListAlternative(intervalProd,
                         firstAlternativeElements,
@@ -1154,10 +1162,10 @@ public class GrammarSimplificator
             LinkedList<SAlternativeTransformationListElement> altTransformationElements = new LinkedList<SAlternativeTransformationListElement>();
             altTransformationElements
                     .add(new SAlternativeTransformationListElement.ReferenceElement(
-                            firstElement));
+                            firstElement, firstElement));
             altTransformationElements
                     .add(new SAlternativeTransformationListElement.NormalListElement(
-                            secondElement));
+                            secondElement, secondElement));
 
             plusProd.addAlternative(newListAlternative(plusProd,
                     alternativeElements, altTransformationElements));
@@ -1199,7 +1207,7 @@ public class GrammarSimplificator
             LinkedList<SAlternativeTransformationListElement> firstAltTransformationElements = new LinkedList<SAlternativeTransformationListElement>();
             firstAltTransformationElements
                     .add(new SAlternativeTransformationListElement.NormalListElement(
-                            firstElement));
+                            firstElement, firstElement));
 
             starProd.addAlternative(newListAlternative(starProd,
                     firstAltElements, firstAltTransformationElements));
@@ -1231,13 +1239,13 @@ public class GrammarSimplificator
 
                 altTransformationElements
                         .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                altElements.get(0)));
+                                altElements.get(0), altElements.get(0)));
                 altTransformationElements
                         .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                altElements.get(1)));
+                                altElements.get(1), altElements.get(1)));
                 altTransformationElements
                         .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                altElements.get(2)));
+                                altElements.get(2), altElements.get(2)));
 
                 numberProd.addAlternative(newListAlternative(numberProd,
                         altElements, altTransformationElements));
@@ -1279,13 +1287,13 @@ public class GrammarSimplificator
 
                 altTransformationElements
                         .add(new SAlternativeTransformationListElement.NormalListElement(
-                                firstElement));
+                                firstElement, firstElement));
                 altTransformationElements
                         .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                altElements.get(1)));
+                                altElements.get(1), altElements.get(1)));
                 altTransformationElements
                         .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                altElements.get(2)));
+                                altElements.get(2), altElements.get(2)));
             }
 
             numberProd.addAlternative(newListAlternative(numberProd,
@@ -1350,10 +1358,10 @@ public class GrammarSimplificator
 
             altTransformationElements
                     .add(new SAlternativeTransformationListElement.NormalListElement(
-                            firstElement));
+                            firstElement, firstElement));
             altTransformationElements
                     .add(new SAlternativeTransformationListElement.NormalListElement(
-                            secondElement));
+                            secondElement, secondElement));
 
             atLeastProd.addAlternative(newListAlternative(atLeastProd,
                     altElements, altTransformationElements));
@@ -1408,7 +1416,7 @@ public class GrammarSimplificator
                     firstAlternativeElement.add(firstElement);
                     firstAltTransformationElement
                             .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                    firstElement));
+                                    firstElement, firstElement));
 
                     intervalProd.addAlternative(newListAlternative(
                             intervalProd, firstAlternativeElement,
@@ -1445,7 +1453,7 @@ public class GrammarSimplificator
 
                     firstAltTransformationElement
                             .add(new SAlternativeTransformationListElement.NormalListElement(
-                                    firstElement));
+                                    firstElement, firstElement));
 
                     intervalProd.addAlternative(newListAlternative(
                             intervalProd, firstAlternativeElement,
@@ -1495,10 +1503,10 @@ public class GrammarSimplificator
                 LinkedList<SAlternativeTransformationListElement> alternativeTransformationListElement = new LinkedList<SAlternativeTransformationListElement>();
                 alternativeTransformationListElement
                         .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                firstElement));
+                                firstElement, firstElement));
                 alternativeTransformationListElement
                         .add(new SAlternativeTransformationListElement.NormalListElement(
-                                secondElement));
+                                secondElement, secondElement));
 
                 intervalProd.addAlternative(newListAlternative(intervalProd,
                         alternativeElements,
@@ -1558,10 +1566,10 @@ public class GrammarSimplificator
                 LinkedList<SAlternativeTransformationListElement> altTransformationElements = new LinkedList<SAlternativeTransformationListElement>();
                 altTransformationElements
                         .add(new SAlternativeTransformationListElement.NormalListElement(
-                                firstElement));
+                                firstElement, firstElement));
                 altTransformationElements
                         .add(new SAlternativeTransformationListElement.NormalListElement(
-                                secondElement));
+                                secondElement, secondElement));
 
                 intervalProd.addAlternative(newListAlternative(intervalProd,
                         alternativeElements, altTransformationElements));
@@ -1694,15 +1702,19 @@ public class GrammarSimplificator
 
             firstAltTransformationElements
                     .add(new SAlternativeTransformationListElement.NormalListElement(
+                            firstAlternativeElements.get(0),
                             firstAlternativeElements.get(0)));
             firstAltTransformationElements
                     .add(new SAlternativeTransformationListElement.ReferenceElement(
+                            firstAlternativeElements.get(1),
                             firstAlternativeElements.get(1)));
             firstAltTransformationElements
                     .add(new SAlternativeTransformationListElement.ReferenceElement(
+                            firstAlternativeElements.get(1),
                             firstAlternativeElements.get(1)));
             firstAltTransformationElements
                     .add(new SAlternativeTransformationListElement.ReferenceElement(
+                            firstAlternativeElements.get(2),
                             firstAlternativeElements.get(2)));
 
             plusProd.addAlternative(newListAlternative(plusProd,
@@ -1716,9 +1728,11 @@ public class GrammarSimplificator
 
             secondAltTransformationElements
                     .add(new SAlternativeTransformationListElement.ReferenceElement(
+                            secondAlternativeElements.get(0),
                             secondAlternativeElements.get(0)));
             secondAltTransformationElements
                     .add(new SAlternativeTransformationListElement.ReferenceElement(
+                            secondAlternativeElements.get(1),
                             secondAlternativeElements.get(1)));
 
             plusProd.addAlternative(newListAlternative(plusProd,
@@ -1760,7 +1774,7 @@ public class GrammarSimplificator
             firstAlternativeElements.add(firstElement);
             firstAltTransformationElements
                     .add(new SAlternativeTransformationListElement.NormalListElement(
-                            firstElement));
+                            firstElement, firstElement));
 
             starProd.addAlternative(newListAlternative(starProd,
                     firstAlternativeElements, firstAltTransformationElements));
@@ -1790,10 +1804,12 @@ public class GrammarSimplificator
 
                 altTransformationElement
                         .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                alternativeElements.get(0)));
+                                alternativeElements.get(0), alternativeElements
+                                        .get(0)));
                 altTransformationElement
                         .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                alternativeElements.get(1)));
+                                alternativeElements.get(1), alternativeElements
+                                        .get(1)));
 
                 numberProd.addAlternative(newListAlternative(numberProd,
                         alternativeElements, altTransformationElement));
@@ -1832,13 +1848,16 @@ public class GrammarSimplificator
 
                 altTransformationElement
                         .add(new SAlternativeTransformationListElement.NormalListElement(
-                                alternativeElements.get(0)));
+                                alternativeElements.get(0), alternativeElements
+                                        .get(0)));
                 altTransformationElement
                         .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                alternativeElements.get(1)));
+                                alternativeElements.get(1), alternativeElements
+                                        .get(1)));
                 altTransformationElement
                         .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                alternativeElements.get(1)));
+                                alternativeElements.get(1), alternativeElements
+                                        .get(1)));
 
                 numberProd.addAlternative(newListAlternative(numberProd,
                         alternativeElements, altTransformationElement));
@@ -1905,10 +1924,10 @@ public class GrammarSimplificator
 
             altTransformationElements
                     .add(new SAlternativeTransformationListElement.NormalListElement(
-                            firstElement));
+                            firstElement, firstElement));
             altTransformationElements
                     .add(new SAlternativeTransformationListElement.NormalListElement(
-                            secondElement));
+                            secondElement, secondElement));
 
             atLeastProd.addAlternative(newListAlternative(atLeastProd,
                     alternativeElements, altTransformationElements));
@@ -1944,10 +1963,10 @@ public class GrammarSimplificator
 
                     altTransformationElements
                             .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                    altElements.get(0)));
+                                    altElements.get(0), altElements.get(0)));
                     altTransformationElements
                             .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                    altElements.get(1)));
+                                    altElements.get(1), altElements.get(1)));
 
                     intervalProd.addAlternative(newListAlternative(
                             intervalProd, altElements,
@@ -1983,7 +2002,7 @@ public class GrammarSimplificator
 
                     altTransformationElements
                             .add(new SAlternativeTransformationListElement.NormalListElement(
-                                    firstElement));
+                                    firstElement, firstElement));
                 }
 
                 // Second alternative
@@ -2006,9 +2025,11 @@ public class GrammarSimplificator
 
                     firstAltTransformationElements
                             .add(new SAlternativeTransformationListElement.ReferenceElement(
+                                    firstAlternativeElements.get(0),
                                     firstAlternativeElements.get(0)));
                     firstAltTransformationElements
                             .add(new SAlternativeTransformationListElement.ReferenceElement(
+                                    firstAlternativeElements.get(1),
                                     firstAlternativeElements.get(1)));
 
                     intervalProd.addAlternative(newListAlternative(
@@ -2027,15 +2048,19 @@ public class GrammarSimplificator
 
                     secondAltTransformationElements
                             .add(new SAlternativeTransformationListElement.ReferenceElement(
+                                    secondAlternativeElements.get(0),
                                     secondAlternativeElements.get(0)));
                     secondAltTransformationElements
                             .add(new SAlternativeTransformationListElement.ReferenceElement(
+                                    secondAlternativeElements.get(1),
                                     secondAlternativeElements.get(1)));
                     secondAltTransformationElements
                             .add(new SAlternativeTransformationListElement.ReferenceElement(
+                                    secondAlternativeElements.get(2),
                                     secondAlternativeElements.get(2)));
                     secondAltTransformationElements
                             .add(new SAlternativeTransformationListElement.ReferenceElement(
+                                    secondAlternativeElements.get(3),
                                     secondAlternativeElements.get(3)));
 
                     intervalProd.addAlternative(newListAlternative(
@@ -2099,10 +2124,10 @@ public class GrammarSimplificator
 
                 altTransformationElements
                         .add(new SAlternativeTransformationListElement.NormalListElement(
-                                firstElement));
+                                firstElement, firstElement));
                 altTransformationElements
                         .add(new SAlternativeTransformationListElement.NormalListElement(
-                                secondElement));
+                                secondElement, secondElement));
                 intervalProd.addAlternative(newListAlternative(intervalProd,
                         altElements, altTransformationElements));
             }

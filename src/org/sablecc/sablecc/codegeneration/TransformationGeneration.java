@@ -134,7 +134,7 @@ public class TransformationGeneration
     public void visitReferenceElement(
             SAlternativeTransformationElement.ReferenceElement node) {
 
-        IElement reference = node.getReference();
+        IElement reference = node.getTargetReference();
         Object currentMacro = this.macroStack.peek();
 
         if (reference instanceof TokenElement) {
@@ -332,18 +332,19 @@ public class TransformationGeneration
 
         MNewList list = (MNewList) this.macroStack.peek();
 
-        if (node.getReference() instanceof Element) {
+        if (node.getTargetReference() instanceof Element) {
             String elementName = this.reducedAlternative.getElement(
-                    (Element) node.getReference()).getName();
+                    (Element) node.getTargetReference()).getName();
             String elementType = to_CamelCase(this.reducedAlternative
-                    .getElement((Element) node.getReference()).getTypeName());
+                    .getElement((Element) node.getTargetReference())
+                    .getTypeName());
             list.newAddPopElement(this.listStack.peek().getRight(),
                     elementName, elementType, "0");
         }
-        else if (node.getReference() instanceof SProductionTransformationElement) {
+        else if (node.getTargetReference() instanceof SProductionTransformationElement) {
 
             SProductionTransformationElement reference = (SProductionTransformationElement) node
-                    .getReference();
+                    .getTargetReference();
 
             if (reference instanceof SProductionTransformationElement.NormalElement) {
                 SProductionTransformationElement.NormalElement normalElement = (SProductionTransformationElement.NormalElement) reference;
@@ -430,16 +431,16 @@ public class TransformationGeneration
         MNewList list = (MNewList) this.macroStack.peek();
         String elementType = this.listStack.peek().getLeft();
 
-        if (node.getReference() instanceof Element) {
+        if (node.getTargetReference() instanceof Element) {
             String elementName = to_camelCase(this.reducedAlternative
-                    .getElement((Element) node.getReference()).getName());
+                    .getElement((Element) node.getTargetReference()).getName());
             list.newAddPopList(this.listStack.peek().getRight(), elementName,
                     elementType, "0");
         }
-        else if (node.getReference() instanceof SProductionTransformationElement) {
+        else if (node.getTargetReference() instanceof SProductionTransformationElement) {
 
             SProductionTransformationElement reference = (SProductionTransformationElement) node
-                    .getReference();
+                    .getTargetReference();
 
             if (reference instanceof SProductionTransformationElement.NormalElement) {
                 SProductionTransformationElement.NormalElement normalElement = (SProductionTransformationElement.NormalElement) reference;

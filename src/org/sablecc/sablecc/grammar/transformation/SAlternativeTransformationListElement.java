@@ -38,16 +38,20 @@ public abstract class SAlternativeTransformationListElement
     public static class ReferenceElement
             extends SAlternativeTransformationListElement {
 
-        private IElement reference;
+        private IElement targetReference;
+
+        private Element originReference;
 
         public ReferenceElement(
-                IElement reference) {
+                Element originReference,
+                IElement targetReference) {
 
-            if (reference == null) {
+            if (originReference == null || targetReference == null) {
                 throw new InternalException("reference shouldn't be null");
             }
 
-            this.reference = reference;
+            this.targetReference = targetReference;
+            this.originReference = originReference;
         }
 
         @Override
@@ -57,65 +61,74 @@ public abstract class SAlternativeTransformationListElement
 
             LinkedList<SAlternativeTransformationListElement> inlineResult = new LinkedList<SAlternativeTransformationListElement>();
 
-            if (this.reference instanceof Element.ProductionElement) {
-                Element.ProductionElement productionElement = (Element.ProductionElement) this.reference;
+            if (this.targetReference instanceof Element.ProductionElement
+                    && ((Element.ProductionElement) this.targetReference)
+                            .getReference().equals(
+                                    inlinedAlternative.getProduction())) {
 
-                if (productionElement.getReference().equals(
-                        inlinedAlternative.getProduction())) {
+                for (SAlternativeTransformationElement element : inlinedAlternative
+                        .getTransformation().getElements()) {
 
-                    for (SAlternativeTransformationElement element : inlinedAlternative
-                            .getTransformation().getElements()) {
+                    for (SAlternativeTransformationElement newElement : element
+                            .inline(inlinedAlternative, oldToNewElement)) {
 
-                        for (SAlternativeTransformationElement newElement : element
-                                .inline(inlinedAlternative, oldToNewElement)) {
-
-                            if (newElement instanceof SAlternativeTransformationElement.ReferenceElement) {
-                                inlineResult
-                                        .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                                ((SAlternativeTransformationElement.ReferenceElement) newElement)
-                                                        .getReference()));
-                            }
-                            else if (newElement instanceof SAlternativeTransformationElement.NewElement) {
-                                SAlternativeTransformationElement.NewElement newNewElemnt = (SAlternativeTransformationElement.NewElement) newElement;
-                                inlineResult
-                                        .add(new SAlternativeTransformationListElement.NewElement(
-                                                newNewElemnt.getAlternative(),
-                                                newNewElemnt.getElements()));
-                            }
-                            else if (newElement instanceof SAlternativeTransformationElement.ListElement) {
-                                inlineResult
-                                        .addAll(((SAlternativeTransformationElement.ListElement) newElement)
-                                                .getElements());
-                            }
+                        if (newElement instanceof SAlternativeTransformationElement.ReferenceElement) {
+                            SAlternativeTransformationElement.ReferenceElement referenceElement = (SAlternativeTransformationElement.ReferenceElement) newElement;
+                            inlineResult
+                                    .add(new SAlternativeTransformationListElement.ReferenceElement(
+                                            referenceElement
+                                                    .getOriginReference(),
+                                            referenceElement
+                                                    .getTargetReference()));
                         }
-
+                        else if (newElement instanceof SAlternativeTransformationElement.NewElement) {
+                            SAlternativeTransformationElement.NewElement newNewElemnt = (SAlternativeTransformationElement.NewElement) newElement;
+                            inlineResult
+                                    .add(new SAlternativeTransformationListElement.NewElement(
+                                            newNewElemnt.getAlternative(),
+                                            newNewElemnt.getElements()));
+                        }
+                        else if (newElement instanceof SAlternativeTransformationElement.ListElement) {
+                            inlineResult
+                                    .addAll(((SAlternativeTransformationElement.ListElement) newElement)
+                                            .getElements());
+                        }
                     }
 
                 }
-                else {
-                    inlineResult
-                            .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                    oldToNewElement.get(this.reference)));
-                }
             }
             else {
+                IElement target;
+                if (this.targetReference instanceof Element) {
+                    target = oldToNewElement.get(this.targetReference);
+                }
+                else {
+                    target = this.targetReference;
+                }
                 inlineResult
                         .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                oldToNewElement.get(this.reference)));
+                                oldToNewElement.get(this.originReference),
+                                target));
             }
 
             return inlineResult;
         }
 
-        public IElement getReference() {
+        public IElement getTargetReference() {
 
-            return this.reference;
+            return this.targetReference;
+        }
+
+        public Element getOriginReference() {
+
+            return this.originReference;
         }
 
         @Override
         public SAlternativeTransformationListElement clone() {
 
-            return new ReferenceElement(this.reference);
+            return new ReferenceElement(this.originReference,
+                    this.targetReference);
         }
 
         @Override
@@ -129,18 +142,18 @@ public abstract class SAlternativeTransformationListElement
         @Override
         public String toString() {
 
-            if (this.reference instanceof Element.ProductionElement) {
-                Element.ProductionElement element = (Element.ProductionElement) this.reference;
+            if (this.targetReference instanceof Element.ProductionElement) {
+                Element.ProductionElement element = (Element.ProductionElement) this.targetReference;
                 return element.getName().equals("") ? element.getReference()
                         .getName() : element.getName();
             }
-            else if (this.reference instanceof Element.TokenElement) {
-                Element.TokenElement element = (Element.TokenElement) this.reference;
+            else if (this.targetReference instanceof Element.TokenElement) {
+                Element.TokenElement element = (Element.TokenElement) this.targetReference;
                 return element.getName().equals("") ? element.getTypeName()
                         : element.getName();
             }
-            else if (this.reference instanceof SProductionTransformationElement.NormalElement) {
-                SProductionTransformationElement.NormalElement normalement = (SProductionTransformationElement.NormalElement) this.reference;
+            else if (this.targetReference instanceof SProductionTransformationElement.NormalElement) {
+                SProductionTransformationElement.NormalElement normalement = (SProductionTransformationElement.NormalElement) this.targetReference;
                 return normalement.getProductionTransformation()
                         .getProduction().getName()
                         + "."
@@ -150,7 +163,7 @@ public abstract class SAlternativeTransformationListElement
             }
             else {
                 throw new InternalException("Undhandel"
-                        + this.reference.getClass());
+                        + this.targetReference.getClass());
             }
         }
 
@@ -272,21 +285,29 @@ public abstract class SAlternativeTransformationListElement
     public static class NormalListElement
             extends SAlternativeTransformationListElement {
 
-        private IElement reference;
+        private IElement targetReference;
+
+        private Element originReference;
 
         public NormalListElement(
+                Element originReference,
                 IElement reference) {
 
             if (reference == null) {
                 throw new InternalException("reference shouldn't be null");
             }
 
-            this.reference = reference;
+            this.targetReference = reference;
         }
 
-        public IElement getReference() {
+        public IElement getTargetReference() {
 
-            return this.reference;
+            return this.targetReference;
+        }
+
+        public Element getOriginReference() {
+
+            return this.originReference;
         }
 
         @Override
@@ -296,49 +317,53 @@ public abstract class SAlternativeTransformationListElement
 
             LinkedList<SAlternativeTransformationListElement> inlineResult = new LinkedList<SAlternativeTransformationListElement>();
 
-            if (this.reference instanceof Element.ProductionElement) {
-                Element.ProductionElement productionElement = (Element.ProductionElement) this.reference;
+            if (this.targetReference instanceof Element.ProductionElement
+                    && ((Element.ProductionElement) this.targetReference)
+                            .getReference().equals(
+                                    inlinedAlternative.getProduction())) {
 
-                if (productionElement.getReference().equals(
-                        inlinedAlternative.getProduction())) {
+                for (SAlternativeTransformationElement element : inlinedAlternative
+                        .getTransformation().getElements()) {
+                    for (SAlternativeTransformationElement newElement : element
+                            .inline(inlinedAlternative, oldToNewElement)) {
 
-                    for (SAlternativeTransformationElement element : inlinedAlternative
-                            .getTransformation().getElements()) {
-                        for (SAlternativeTransformationElement newElement : element
-                                .inline(inlinedAlternative, oldToNewElement)) {
-
-                            if (newElement instanceof SAlternativeTransformationElement.ReferenceElement) {
-                                inlineResult
-                                        .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                                ((SAlternativeTransformationElement.ReferenceElement) newElement)
-                                                        .getReference()));
-                            }
-                            else if (newElement instanceof SAlternativeTransformationElement.NewElement) {
-                                SAlternativeTransformationElement.NewElement newNewElemnt = (SAlternativeTransformationElement.NewElement) newElement;
-                                inlineResult
-                                        .add(new SAlternativeTransformationListElement.NewElement(
-                                                newNewElemnt.getAlternative(),
-                                                newNewElemnt.getElements()));
-                            }
-                            else if (newElement instanceof SAlternativeTransformationElement.ListElement) {
-                                inlineResult
-                                        .addAll(((SAlternativeTransformationElement.ListElement) newElement)
-                                                .getElements());
-                            }
+                        if (newElement instanceof SAlternativeTransformationElement.ReferenceElement) {
+                            SAlternativeTransformationElement.ReferenceElement referenceElement = (SAlternativeTransformationElement.ReferenceElement) newElement;
+                            inlineResult
+                                    .add(new SAlternativeTransformationListElement.ReferenceElement(
+                                            referenceElement
+                                                    .getOriginReference(),
+                                            referenceElement
+                                                    .getTargetReference()));
+                        }
+                        else if (newElement instanceof SAlternativeTransformationElement.NewElement) {
+                            SAlternativeTransformationElement.NewElement newNewElemnt = (SAlternativeTransformationElement.NewElement) newElement;
+                            inlineResult
+                                    .add(new SAlternativeTransformationListElement.NewElement(
+                                            newNewElemnt.getAlternative(),
+                                            newNewElemnt.getElements()));
+                        }
+                        else if (newElement instanceof SAlternativeTransformationElement.ListElement) {
+                            inlineResult
+                                    .addAll(((SAlternativeTransformationElement.ListElement) newElement)
+                                            .getElements());
                         }
                     }
-
-                }
-                else {
-                    inlineResult
-                            .add(new SAlternativeTransformationListElement.NormalListElement(
-                                    oldToNewElement.get(this.reference)));
                 }
             }
             else {
+
+                IElement target;
+                if (this.targetReference instanceof Element) {
+                    target = oldToNewElement.get(this.targetReference);
+                }
+                else {
+                    target = this.targetReference;
+                }
                 inlineResult
                         .add(new SAlternativeTransformationListElement.NormalListElement(
-                                oldToNewElement.get(this.reference)));
+                                oldToNewElement.get(this.originReference),
+                                target));
             }
 
             return inlineResult;
@@ -362,18 +387,18 @@ public abstract class SAlternativeTransformationListElement
         @Override
         public String toString() {
 
-            if (this.reference instanceof Element.ProductionElement) {
-                Element.ProductionElement element = (Element.ProductionElement) this.reference;
+            if (this.targetReference instanceof Element.ProductionElement) {
+                Element.ProductionElement element = (Element.ProductionElement) this.targetReference;
                 return (element.getName().equals("") ? element.getReference()
                         .getName() : element.getName()) + "...";
             }
-            else if (this.reference instanceof Element.TokenElement) {
-                Element.TokenElement element = (Element.TokenElement) this.reference;
+            else if (this.targetReference instanceof Element.TokenElement) {
+                Element.TokenElement element = (Element.TokenElement) this.targetReference;
                 return (element.getName().equals("") ? element.getTypeName()
                         : element.getName()) + "...";
             }
-            else if (this.reference instanceof SProductionTransformationElement.NormalElement) {
-                SProductionTransformationElement.NormalElement normalement = (SProductionTransformationElement.NormalElement) this.reference;
+            else if (this.targetReference instanceof SProductionTransformationElement.NormalElement) {
+                SProductionTransformationElement.NormalElement normalement = (SProductionTransformationElement.NormalElement) this.targetReference;
                 return normalement.getProductionTransformation()
                         .getProduction().getName()
                         + "."
@@ -383,7 +408,7 @@ public abstract class SAlternativeTransformationListElement
             }
             else {
                 throw new InternalException("Undhandel"
-                        + this.reference.getClass());
+                        + this.targetReference.getClass());
             }
 
         }
@@ -393,21 +418,30 @@ public abstract class SAlternativeTransformationListElement
     public static class LeftListElement
             extends SAlternativeTransformationListElement {
 
-        private IElement reference;
+        private IElement targetReference;
+
+        private Element originReference;
 
         public LeftListElement(
-                IElement reference) {
+                Element originReference,
+                IElement targetReference) {
 
-            if (reference == null) {
+            if (targetReference == null || originReference == null) {
                 throw new InternalException("reference shouldn't be null");
             }
 
-            this.reference = reference;
+            this.targetReference = targetReference;
+            this.originReference = originReference;
         }
 
-        public IElement getReference() {
+        public IElement getTargetReference() {
 
-            return this.reference;
+            return this.targetReference;
+        }
+
+        public Element getOriginReference() {
+
+            return this.originReference;
         }
 
         @Override
@@ -424,49 +458,53 @@ public abstract class SAlternativeTransformationListElement
 
             LinkedList<SAlternativeTransformationListElement> inlineResult = new LinkedList<SAlternativeTransformationListElement>();
 
-            if (this.reference instanceof Element.ProductionElement) {
-                Element.ProductionElement productionElement = (Element.ProductionElement) this.reference;
+            if (this.targetReference instanceof Element.ProductionElement
+                    && ((Element.ProductionElement) this.targetReference)
+                            .getReference().equals(
+                                    inlinedAlternative.getProduction())) {
 
-                if (productionElement.getReference().equals(
-                        inlinedAlternative.getProduction())) {
+                for (SAlternativeTransformationElement element : inlinedAlternative
+                        .getTransformation().getElements()) {
+                    for (SAlternativeTransformationElement newElement : element
+                            .inline(inlinedAlternative, oldToNewElement)) {
 
-                    for (SAlternativeTransformationElement element : inlinedAlternative
-                            .getTransformation().getElements()) {
-                        for (SAlternativeTransformationElement newElement : element
-                                .inline(inlinedAlternative, oldToNewElement)) {
-
-                            if (newElement instanceof SAlternativeTransformationElement.ReferenceElement) {
-                                inlineResult
-                                        .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                                ((SAlternativeTransformationElement.ReferenceElement) newElement)
-                                                        .getReference()));
-                            }
-                            else if (newElement instanceof SAlternativeTransformationElement.NewElement) {
-                                SAlternativeTransformationElement.NewElement newNewElemnt = (SAlternativeTransformationElement.NewElement) newElement;
-                                inlineResult
-                                        .add(new SAlternativeTransformationListElement.NewElement(
-                                                newNewElemnt.getAlternative(),
-                                                newNewElemnt.getElements()));
-                            }
-                            else if (newElement instanceof SAlternativeTransformationElement.ListElement) {
-                                inlineResult
-                                        .addAll(((SAlternativeTransformationElement.ListElement) newElement)
-                                                .getElements());
-                            }
+                        if (newElement instanceof SAlternativeTransformationElement.ReferenceElement) {
+                            SAlternativeTransformationElement.ReferenceElement referenceElement = (SAlternativeTransformationElement.ReferenceElement) newElement;
+                            inlineResult
+                                    .add(new SAlternativeTransformationListElement.ReferenceElement(
+                                            referenceElement
+                                                    .getOriginReference(),
+                                            referenceElement
+                                                    .getTargetReference()));
+                        }
+                        else if (newElement instanceof SAlternativeTransformationElement.NewElement) {
+                            SAlternativeTransformationElement.NewElement newNewElemnt = (SAlternativeTransformationElement.NewElement) newElement;
+                            inlineResult
+                                    .add(new SAlternativeTransformationListElement.NewElement(
+                                            newNewElemnt.getAlternative(),
+                                            newNewElemnt.getElements()));
+                        }
+                        else if (newElement instanceof SAlternativeTransformationElement.ListElement) {
+                            inlineResult
+                                    .addAll(((SAlternativeTransformationElement.ListElement) newElement)
+                                            .getElements());
                         }
                     }
-
-                }
-                else {
-                    inlineResult
-                            .add(new SAlternativeTransformationListElement.LeftListElement(
-                                    oldToNewElement.get(this.reference)));
                 }
             }
             else {
+
+                IElement target;
+                if (this.targetReference instanceof Element) {
+                    target = oldToNewElement.get(this.targetReference);
+                }
+                else {
+                    target = this.targetReference;
+                }
                 inlineResult
                         .add(new SAlternativeTransformationListElement.LeftListElement(
-                                oldToNewElement.get(this.reference)));
+                                oldToNewElement.get(this.originReference),
+                                target));
             }
 
             return inlineResult;
@@ -483,7 +521,7 @@ public abstract class SAlternativeTransformationListElement
         @Override
         public String toString() {
 
-            return this.reference.toString() + ".Left";
+            return this.targetReference.toString() + ".Left";
         }
 
     }
@@ -491,21 +529,30 @@ public abstract class SAlternativeTransformationListElement
     public static class RightListElement
             extends SAlternativeTransformationListElement {
 
-        private IElement reference;
+        private IElement targetReference;
+
+        private Element originReference;
 
         public RightListElement(
-                IElement reference) {
+                Element originReference,
+                IElement targetReference) {
 
-            if (reference == null) {
+            if (targetReference == null || originReference == null) {
                 throw new InternalException("reference shouldn't be null");
             }
 
-            this.reference = reference;
+            this.targetReference = targetReference;
+            this.originReference = originReference;
         }
 
-        public IElement getReference() {
+        public IElement getTargetReference() {
 
-            return this.reference;
+            return this.targetReference;
+        }
+
+        public Element getOriginReference() {
+
+            return this.originReference;
         }
 
         @Override
@@ -522,49 +569,53 @@ public abstract class SAlternativeTransformationListElement
 
             LinkedList<SAlternativeTransformationListElement> inlineResult = new LinkedList<SAlternativeTransformationListElement>();
 
-            if (this.reference instanceof Element.ProductionElement) {
-                Element.ProductionElement productionElement = (Element.ProductionElement) this.reference;
+            if (this.targetReference instanceof Element.ProductionElement
+                    && ((Element.ProductionElement) this.targetReference)
+                            .getReference().equals(
+                                    inlinedAlternative.getProduction())) {
 
-                if (productionElement.getReference().equals(
-                        inlinedAlternative.getProduction())) {
+                for (SAlternativeTransformationElement element : inlinedAlternative
+                        .getTransformation().getElements()) {
+                    for (SAlternativeTransformationElement newElement : element
+                            .inline(inlinedAlternative, oldToNewElement)) {
 
-                    for (SAlternativeTransformationElement element : inlinedAlternative
-                            .getTransformation().getElements()) {
-                        for (SAlternativeTransformationElement newElement : element
-                                .inline(inlinedAlternative, oldToNewElement)) {
-
-                            if (newElement instanceof SAlternativeTransformationElement.ReferenceElement) {
-                                inlineResult
-                                        .add(new SAlternativeTransformationListElement.ReferenceElement(
-                                                ((SAlternativeTransformationElement.ReferenceElement) newElement)
-                                                        .getReference()));
-                            }
-                            else if (newElement instanceof SAlternativeTransformationElement.NewElement) {
-                                SAlternativeTransformationElement.NewElement newNewElemnt = (SAlternativeTransformationElement.NewElement) newElement;
-                                inlineResult
-                                        .add(new SAlternativeTransformationListElement.NewElement(
-                                                newNewElemnt.getAlternative(),
-                                                newNewElemnt.getElements()));
-                            }
-                            else if (newElement instanceof SAlternativeTransformationElement.ListElement) {
-                                inlineResult
-                                        .addAll(((SAlternativeTransformationElement.ListElement) newElement)
-                                                .getElements());
-                            }
+                        if (newElement instanceof SAlternativeTransformationElement.ReferenceElement) {
+                            SAlternativeTransformationElement.ReferenceElement referenceElement = (SAlternativeTransformationElement.ReferenceElement) newElement;
+                            inlineResult
+                                    .add(new SAlternativeTransformationListElement.ReferenceElement(
+                                            referenceElement
+                                                    .getOriginReference(),
+                                            referenceElement
+                                                    .getTargetReference()));
+                        }
+                        else if (newElement instanceof SAlternativeTransformationElement.NewElement) {
+                            SAlternativeTransformationElement.NewElement newNewElemnt = (SAlternativeTransformationElement.NewElement) newElement;
+                            inlineResult
+                                    .add(new SAlternativeTransformationListElement.NewElement(
+                                            newNewElemnt.getAlternative(),
+                                            newNewElemnt.getElements()));
+                        }
+                        else if (newElement instanceof SAlternativeTransformationElement.ListElement) {
+                            inlineResult
+                                    .addAll(((SAlternativeTransformationElement.ListElement) newElement)
+                                            .getElements());
                         }
                     }
-
-                }
-                else {
-                    inlineResult
-                            .add(new SAlternativeTransformationListElement.RightListElement(
-                                    oldToNewElement.get(this.reference)));
                 }
             }
             else {
+
+                IElement target;
+                if (this.targetReference instanceof Element) {
+                    target = oldToNewElement.get(this.targetReference);
+                }
+                else {
+                    target = this.targetReference;
+                }
                 inlineResult
                         .add(new SAlternativeTransformationListElement.RightListElement(
-                                oldToNewElement.get(this.reference)));
+                                oldToNewElement.get(this.originReference),
+                                target));
             }
 
             return inlineResult;
@@ -581,7 +632,7 @@ public abstract class SAlternativeTransformationListElement
         @Override
         public String toString() {
 
-            return this.reference.toString() + ".Right";
+            return this.targetReference.toString() + ".Right";
         }
 
     }
