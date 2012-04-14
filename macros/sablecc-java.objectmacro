@@ -217,7 +217,7 @@ public class NodeList<TNode extends Node>extends Node
 
         this.cursor++;
         current = this.current.next;
-        return this.current.next.element;
+        return this.current.element;
     }
 
     @Override
