@@ -26,6 +26,10 @@ public class MReduce {
 
     private final List<Object> eAddPopElement = new LinkedList<Object>();
 
+    private final List<Object> eAddPopElementLeft = new LinkedList<Object>();
+
+    private final List<Object> eAddPopElementRight = new LinkedList<Object>();
+
     private final List<Object> eAddNewElement = new LinkedList<Object>();
 
     private final List<Object> eAddPopList = new LinkedList<Object>();
@@ -101,6 +105,30 @@ public class MReduce {
                 pElementName, pElementType, pIndex);
         this.eAddPopElement.add(lAddPopElement);
         return lAddPopElement;
+    }
+
+    public MAddPopElementLeft newAddPopElementLeft(
+            String pListName,
+            String pElementName,
+            String pElementType,
+            String pIndex) {
+
+        MAddPopElementLeft lAddPopElementLeft = new MAddPopElementLeft(
+                pListName, pElementName, pElementType, pIndex);
+        this.eAddPopElementLeft.add(lAddPopElementLeft);
+        return lAddPopElementLeft;
+    }
+
+    public MAddPopElementRight newAddPopElementRight(
+            String pListName,
+            String pElementName,
+            String pElementType,
+            String pIndex) {
+
+        MAddPopElementRight lAddPopElementRight = new MAddPopElementRight(
+                pListName, pElementName, pElementType, pIndex);
+        this.eAddPopElementRight.add(lAddPopElementRight);
+        return lAddPopElementRight;
     }
 
     public MAddNewElement newAddNewElement(
@@ -191,6 +219,12 @@ public class MReduce {
         }
         for (Object oAddPopElement : this.eAddPopElement) {
             sb.append(oAddPopElement.toString());
+        }
+        for (Object oAddPopElementLeft : this.eAddPopElementLeft) {
+            sb.append(oAddPopElementLeft.toString());
+        }
+        for (Object oAddPopElementRight : this.eAddPopElementRight) {
+            sb.append(oAddPopElementRight.toString());
         }
         for (Object oAddNewElement : this.eAddNewElement) {
             sb.append(oAddNewElement.toString());

@@ -406,12 +406,11 @@ public abstract class SAlternativeTransformationListElement
                                 + normalement.getIndex() : normalement
                                 .getName()) + "...";
             }
-            else if(this.targetReference instanceof SProductionTransformationElement.SeparatedElement ||
-                    this.targetReference instanceof SProductionTransformationElement.AlternatedElement){
+            else if (this.targetReference instanceof SProductionTransformationElement.SeparatedElement
+                    || this.targetReference instanceof SProductionTransformationElement.AlternatedElement) {
                 SProductionTransformationElement separatedElement = (SProductionTransformationElement) this.targetReference;
-                return this.originReference.getName()
-                        + "."
-                        + "$" + separatedElement.getIndex() + "...";
+                return this.originReference.getName() + "." + "$"
+                        + separatedElement.getIndex() + "...";
             }
             else {
                 throw new InternalException("Undhandel"

@@ -108,7 +108,7 @@ public class MSeparatedNodeList {
         sb.append("    }");
         sb.append(System.getProperty("line.separator"));
         sb.append(System.getProperty("line.separator"));
-        sb.append("    void addElement(");
+        sb.append("    void addLeft(");
         sb.append(System.getProperty("line.separator"));
         sb.append("            TNodeLeft element) {");
         sb.append(System.getProperty("line.separator"));
@@ -129,7 +129,7 @@ public class MSeparatedNodeList {
         sb.append("    }");
         sb.append(System.getProperty("line.separator"));
         sb.append(System.getProperty("line.separator"));
-        sb.append("    void addSeparator(");
+        sb.append("    void addRight(");
         sb.append(System.getProperty("line.separator"));
         sb.append("            TNodeRight element) {");
         sb.append(System.getProperty("line.separator"));

@@ -533,7 +533,7 @@ public class SeparatedNodeList<TNodeLeft extends Node, TNodeRight extends Node>
         this.upperBound = upperBound;
     }
 
-    void addElement(
+    void addLeft(
             TNodeLeft element) {
 
         Entry<TNodeLeft> newEntry = new Entry<TNodeLeft>(element,
@@ -545,7 +545,7 @@ public class SeparatedNodeList<TNodeLeft extends Node, TNodeRight extends Node>
         // TODO Control list bounds
     }
 
-    void addSeparator(
+    void addRight(
             TNodeRight element) {
 
         Entry<TNodeRight> newEntry = new Entry<TNodeRight>(element,
@@ -1849,7 +1849,7 @@ $end: new_tree_class$
 $macro: new_list(list_name) $
 $expand: new_tree_class,new_list $
 	$expand:normal_declaration,alternated_declaration,separated_declaration$ n$(list_name) = new $expand:normal_declaration,alternated_declaration,separated_declaration$ ($expand: string_parameter,normal_parameter,new_parameter, separator=", "$);
-$expand: add_pop_element,add_new_element,add_pop_list,add_new_list $
+$expand: add_pop_element,add_pop_element_left,add_pop_element_right,add_new_element,add_pop_list,add_new_list $
 $macro: normal_declaration(normal_list_type) $
 NodeList<N$(normal_list_type)>
 $end: normal_declaration$
@@ -1891,6 +1891,12 @@ $end: string_parameter$
 $macro: add_pop_element(list_name,element_name,element_type,index) $
       n$(list_name).add((N$(element_type))l$(element_name).getNodes().get($index));
 $end: add_pop_element $
+$macro: add_pop_element_left(list_name,element_name,element_type,index) $
+      n$(list_name).addLeft((N$(element_type))l$(element_name).getNodes().get($index));
+$end: add_pop_element_left $
+$macro: add_pop_element_right(list_name,element_name,element_type,index) $
+      n$(list_name).addRight((N$(element_type))l$(element_name).getNodes().get($index));
+$end: add_pop_element_right $
 $macro: add_new_element(list_name,element_name) $
       n$(list_name).add($element_name);
 $end: add_new_element $
