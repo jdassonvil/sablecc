@@ -105,6 +105,8 @@ public class CodeGenerator {
         MCstProductionType mCstName = new MCstProductionType();
         MAbstractForest mAbstractForest = new MAbstractForest();
         MNodeList mNodeList = new MNodeList();
+        MPairNodeList mPairNodeList = new MPairNodeList();
+        MSeparatedNodeList mSeparatedNodeList = new MSeparatedNodeList();
 
         if (this.destinationPackage.equals("")) {
             packageDirectory = new File(this.destinationDirectory,
@@ -129,6 +131,9 @@ public class CodeGenerator {
             mCstName.newDefaultPackage(this.grammar.getName_camelCase());
             mAbstractForest.newDefaultPackage(this.grammar.getName_camelCase());
             mNodeList.newDefaultPackage(this.grammar.getName_camelCase());
+            mPairNodeList.newDefaultPackage(this.grammar.getName_camelCase());
+            mSeparatedNodeList.newDefaultPackage(this.grammar
+                    .getName_camelCase());
         }
         else {
             packageDirectory = new File(this.destinationDirectory,
@@ -170,6 +175,10 @@ public class CodeGenerator {
                     this.grammar.getName_camelCase(), this.destinationPackage);
             mNodeList.newSpecifiedPackage(this.grammar.getName_camelCase(),
                     this.destinationPackage);
+            mPairNodeList.newSpecifiedPackage(this.grammar.getName_camelCase(),
+                    this.destinationPackage);
+            mSeparatedNodeList.newSpecifiedPackage(
+                    this.grammar.getName_camelCase(), this.destinationPackage);
         }
 
         packageDirectory.mkdirs();
@@ -1288,6 +1297,29 @@ public class CodeGenerator {
         }
         catch (IOException e) {
             new InternalException("TODO: raise error " + "NodeList.java", e);
+        }
+
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(new File(
+                    packageDirectory, "PairNodeList.java")));
+
+            bw.write(mPairNodeList.toString());
+            bw.close();
+        }
+        catch (IOException e) {
+            new InternalException("TODO: raise error " + "PairNodeList.java", e);
+        }
+
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(new File(
+                    packageDirectory, "SeparatedNodeList.java")));
+
+            bw.write(mSeparatedNodeList.toString());
+            bw.close();
+        }
+        catch (IOException e) {
+            new InternalException("TODO: raise error "
+                    + "SeparatedNodeList.java", e);
         }
     }
 }

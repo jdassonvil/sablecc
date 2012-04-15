@@ -230,6 +230,521 @@ public class NodeList<TNode extends Node>extends Node
 
 $end: node_list$
 
+$comment: ========== pair_node_list ========== $
+
+$macro: pair_node_list $
+$insert: header $
+$expand: default_package, specified_package, before_first="\n" $
+
+import java.util.*;
+
+public class PairNodeList<TNodeLeft extends Node, TNodeRight extends Node>
+        extends Node {
+
+    int lowerBound;
+
+    int upperBound;
+
+    int size = 0;
+
+    private final int INF = -1;
+
+    Entry<TNodeLeft> leftHeader = new Entry<TNodeLeft>(null, null, null);
+
+    Entry<TNodeRight> rightHeader = new Entry<TNodeRight>(null, null, null);
+    
+    PairNodeList(){
+        this.leftHeader.next = this.leftHeader.previous = this.leftHeader;
+        this.rightHeader.next = this.rightHeader.previous = this.rightHeader;
+    }
+    
+    PairNodeList(int lowerBound){
+        this.leftHeader.next = this.leftHeader.previous = this.leftHeader;
+        this.rightHeader.next = this.rightHeader.previous = this.rightHeader;
+        this.lowerBound = lowerBound;
+        this.upperBound = INF;
+    }
+    
+    PairNodeList(int lowerBound,int upperBound){
+        this.leftHeader.next = this.leftHeader.previous = this.leftHeader;
+        this.rightHeader.next = this.rightHeader.previous = this.rightHeader;
+        this.lowerBound = lowerBound;
+        this.upperBound = upperBound;
+    }
+
+    void addLeft(
+            TNodeLeft element) {
+
+        Entry<TNodeLeft> newEntry = new Entry<TNodeLeft>(element,
+                this.leftHeader, this.leftHeader.previous);
+        newEntry.previous.next = newEntry;
+        newEntry.next.previous = newEntry;
+        this.size++;
+
+        // TODO Control list bounds
+    }
+
+    void addRight(
+            TNodeRight element) {
+
+        Entry<TNodeRight> newEntry = new Entry<TNodeRight>(element,
+                this.rightHeader, this.rightHeader.previous);
+        newEntry.previous.next = newEntry;
+        newEntry.next.previous = newEntry;
+        this.size++;
+
+        // TODO Control list bounds
+    }
+
+    void addAll(
+            PairNodeList<TNodeLeft, TNodeRight> elements) {
+
+        this.leftHeader.previous.next = elements.leftHeader.next;
+        elements.leftHeader.next.previous = this.leftHeader.previous;
+        this.leftHeader.previous = elements.leftHeader.previous;
+        elements.leftHeader.previous.next = this.leftHeader;
+
+        this.rightHeader.previous.next = elements.rightHeader.next;
+        elements.rightHeader.next.previous = this.rightHeader.previous;
+        this.rightHeader.previous = elements.rightHeader.previous;
+        elements.rightHeader.previous.next = this.rightHeader;
+
+        this.size += elements.size;
+
+        // TODO Control list bounds
+    }
+    
+    NodeList<TNodeLeft> getLeft(){
+        NodeList<TNodeLeft> list = new NodeList<TNodeLeft>();
+        Iterator<TNodeLeft> leftIterator = this.leftIterator();
+        
+        while(this.leftIterator().hasNext()){
+            list.add(leftIterator.next());
+        }
+        
+        return list;    
+    }
+    
+    NodeList<TNodeRight> getRight(){
+        NodeList<TNodeRight> list = new NodeList<TNodeRight>();
+        Iterator<TNodeRight> rightIterator = this.rightIterator();
+        
+        while(this.rightIterator().hasNext()){
+            list.add(rightIterator.next());
+        }
+        
+        return list;    
+    }
+
+    public Iterator<TNodeLeft> leftIterator() {
+
+        return new LeftNodeListItr();
+    }
+    
+    public Iterator<TNodeRight> rightIterator() {
+
+        return new RightNodeListItr();
+    }
+
+    public int size() {
+
+        return this.size;
+    }
+
+    @Override
+    public Type getType() {
+
+        return Type.TAnonymous;
+    }
+
+    @Override
+    public String getText() {
+
+        return "";
+    }
+
+    @Override
+    public int getLine() {
+
+        return 0;
+    }
+
+    @Override
+    public int getPos() {
+
+        return 0;
+    }
+
+    @Override
+    public void apply(
+            Walker walker) {
+
+        this.applyOnChildren(walker);
+
+    }
+
+    @Override
+    public void applyOnChildren(
+            Walker walker) {
+        
+        Iterator<TNodeLeft> leftIterator = leftIterator();
+        Iterator<TNodeRight> rightIterator = rightIterator();
+        
+        while(leftIterator.hasNext()){
+            leftIterator.next().apply(walker);
+            rightIterator.next().apply(walker);
+        }
+
+    }
+
+    static class Entry<E> {
+
+        E element;
+
+        Entry<E> next;
+
+        Entry<E> previous;
+
+        Entry(
+                E element,
+                Entry<E> next,
+                Entry<E> previous) {
+
+            this.element = element;
+            this.next = next;
+            this.previous = previous;
+
+        }
+    }
+
+    private class LeftNodeListItr
+            implements Iterator<TNodeLeft> {
+
+        private int cursor = 0;
+        
+        private int size;
+
+        private Entry<TNodeLeft> current;
+
+        LeftNodeListItr() {
+
+            this.current = PairNodeList.this.leftHeader;
+            this.size = size() /2;
+        }
+
+        @Override
+        public boolean hasNext() {
+
+            return this.cursor != size;
+        }
+
+        @Override
+        public TNodeLeft next() {
+
+            this.cursor++;
+            this.current = this.current.next;
+            return this.current.element;
+        }
+
+        @Override
+        public void remove() {
+
+        }
+    }
+
+    private class RightNodeListItr
+            implements Iterator<TNodeRight> {
+
+        private int cursor = 0;
+        
+        private int size;
+
+        private Entry<TNodeRight> current;
+
+        RightNodeListItr() {
+
+            this.current = PairNodeList.this.rightHeader;
+            this.size = size() /2;
+        }
+
+        @Override
+        public boolean hasNext() {
+
+            return this.cursor != size;
+        }
+
+        @Override
+        public TNodeRight next() {
+
+            this.cursor++;
+            this.current = this.current.next;
+            return this.current.element;
+        }
+
+        @Override
+        public void remove() {
+
+        }
+    }
+
+}
+$end: pair_node_list$
+
+$comment: ========== separated_node_list ========== $
+
+$macro: separated_node_list $
+$insert: header $
+$expand: default_package, specified_package, before_first="\n" $
+
+import java.util.*;
+
+public class SeparatedNodeList<TNodeLeft extends Node, TNodeRight extends Node>
+        extends Node
+        implements Iterable<TNodeLeft> {
+
+    int lowerBound;
+
+    int upperBound;
+
+    int size = 0;
+
+    private final int INF = -1;
+
+    Entry<TNodeLeft> leftHeader = new Entry<TNodeLeft>(null, null, null);
+
+    Entry<TNodeRight> rightHeader = new Entry<TNodeRight>(null, null, null);
+    
+    SeparatedNodeList(){
+        this.leftHeader.next = this.leftHeader.previous = this.leftHeader;
+        this.rightHeader.next = this.rightHeader.previous = this.rightHeader;
+    }
+    
+    SeparatedNodeList(int lowerBound){
+        this.leftHeader.next = this.leftHeader.previous = this.leftHeader;
+        this.rightHeader.next = this.rightHeader.previous = this.rightHeader;
+        this.lowerBound = lowerBound;
+        this.upperBound = INF;
+    }
+    
+    SeparatedNodeList(int lowerBound,int upperBound){
+        this.leftHeader.next = this.leftHeader.previous = this.leftHeader;
+        this.rightHeader.next = this.rightHeader.previous = this.rightHeader;
+        this.lowerBound = lowerBound;
+        this.upperBound = upperBound;
+    }
+
+    void addElement(
+            TNodeLeft element) {
+
+        Entry<TNodeLeft> newEntry = new Entry<TNodeLeft>(element,
+                this.leftHeader, this.leftHeader.previous);
+        newEntry.previous.next = newEntry;
+        newEntry.next.previous = newEntry;
+        this.size++;
+
+        // TODO Control list bounds
+    }
+
+    void addSeparator(
+            TNodeRight element) {
+
+        Entry<TNodeRight> newEntry = new Entry<TNodeRight>(element,
+                this.rightHeader, this.rightHeader.previous);
+        newEntry.previous.next = newEntry;
+        newEntry.next.previous = newEntry;
+        this.size++;
+
+        // TODO Control list bounds
+    }
+
+    void addAll(
+            SeparatedNodeList<TNodeLeft, TNodeRight> elements) {
+
+            this.leftHeader.previous.next = elements.leftHeader.next;
+            elements.leftHeader.next.previous = this.leftHeader.previous;
+            this.leftHeader.previous = elements.leftHeader.previous;
+            elements.leftHeader.previous.next = this.leftHeader;
+
+            this.rightHeader.previous.next = elements.rightHeader.next;
+            elements.rightHeader.next.previous = this.rightHeader.previous;
+            this.rightHeader.previous = elements.rightHeader.previous;
+            elements.rightHeader.previous.next = this.rightHeader;
+
+        this.size += elements.size;
+
+        // TODO Control list bounds
+    }
+    
+    NodeList<TNodeLeft> getElements(){
+        NodeList<TNodeLeft> list = new NodeList<TNodeLeft>();
+        Iterator<TNodeLeft> leftIterator = this.iterator();
+        
+        while(this.iterator().hasNext()){
+            list.add(leftIterator.next());
+        }
+        
+        return list;    
+    }
+    
+    NodeList<TNodeRight> getSeparators(){
+        NodeList<TNodeRight> list = new NodeList<TNodeRight>();
+        Iterator<TNodeRight> rightIterator = this.separatorIterator();
+        
+        while(this.separatorIterator().hasNext()){
+            list.add(rightIterator.next());
+        }
+        
+        return list;    
+    }
+
+    @Override
+    public Iterator<TNodeLeft> iterator() {
+
+        return new LeftNodeListItr();
+    }
+
+    public Iterator<TNodeRight> separatorIterator() {
+
+        return new RightNodeListItr();
+    }
+
+    public int size() {
+
+        return this.size;
+    }
+
+    @Override
+    public Type getType() {
+
+        return Type.TAnonymous;
+    }
+
+    @Override
+    public String getText() {
+
+        return "";
+    }
+
+    @Override
+    public int getLine() {
+
+        return 0;
+    }
+
+    @Override
+    public int getPos() {
+
+        return 0;
+    }
+
+    @Override
+    public void apply(
+            Walker walker) {
+
+        this.applyOnChildren(walker);
+
+    }
+
+    @Override
+    public void applyOnChildren(
+            Walker walker) {
+
+    }
+
+    private static class Entry<E> {
+
+        E element;
+
+        Entry<E> next;
+
+        Entry<E> previous;
+
+        Entry(
+                E element,
+                Entry<E> next,
+                Entry<E> previous) {
+
+            this.element = element;
+            this.next = next;
+            this.previous = previous;
+
+        }
+    }
+
+    private class LeftNodeListItr
+            implements Iterator<TNodeLeft> {
+
+        private int cursor = 0;
+
+        private int size;
+
+        private Entry<TNodeLeft> current;
+
+        LeftNodeListItr() {
+
+            this.current = SeparatedNodeList.this.leftHeader;
+            this.size = size() / 2 + 1;
+        }
+
+        @Override
+        public boolean hasNext() {
+
+            return this.cursor != this.size;
+        }
+
+        @Override
+        public TNodeLeft next() {
+
+            this.cursor++;
+            this.current = this.current.next;
+            return this.current.element;
+        }
+
+        @Override
+        public void remove() {
+
+        }
+    }
+
+    private class RightNodeListItr
+            implements Iterator<TNodeRight> {
+
+        private int cursor = 0;
+
+        private int size;
+
+        private Entry<TNodeRight> current;
+
+        RightNodeListItr() {
+
+            this.current = SeparatedNodeList.this.rightHeader;
+            this.size = size() / 2;
+        }
+
+        @Override
+        public boolean hasNext() {
+
+            return this.cursor != size;
+        }
+
+        @Override
+        public TNodeRight next() {
+
+            this.cursor++;
+            this.current = this.current.next;
+            return this.current.element;
+        }
+
+        @Override
+        public void remove() {
+
+        }
+    }
+
+}
+
+$end: separated_node_list$
+
 $comment: ========== token ========== $
 
 $macro: token $
