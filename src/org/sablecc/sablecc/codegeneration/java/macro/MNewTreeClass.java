@@ -41,10 +41,9 @@ public class MNewTreeClass {
     }
 
     public MNewList newNewList(
-            String pListName,
-            String pListType) {
+            String pListName) {
 
-        MNewList lNewList = new MNewList(pListName, pListType);
+        MNewList lNewList = new MNewList(pListName);
         this.eNewTreeClass_NewList.add(lNewList);
         return lNewList;
     }

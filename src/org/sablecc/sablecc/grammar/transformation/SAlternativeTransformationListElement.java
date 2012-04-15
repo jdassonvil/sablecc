@@ -291,13 +291,14 @@ public abstract class SAlternativeTransformationListElement
 
         public NormalListElement(
                 Element originReference,
-                IElement reference) {
+                IElement targetReference) {
 
-            if (reference == null) {
+            if (originReference == null || targetReference == null) {
                 throw new InternalException("reference shouldn't be null");
             }
 
-            this.targetReference = reference;
+            this.targetReference = targetReference;
+            this.originReference = originReference;
         }
 
         public IElement getTargetReference() {

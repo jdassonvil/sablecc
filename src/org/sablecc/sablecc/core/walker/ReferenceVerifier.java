@@ -240,7 +240,7 @@ public abstract class ReferenceVerifier
                 node.addRightReference(reference);
             }
             else {
-                node.addLeftReference(findInlineToken(this.grammar, rightUnit));
+                node.addRightReference(findInlineToken(this.grammar, rightUnit));
             }
 
             node.getAlternative().getProduction().getContext()

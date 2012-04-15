@@ -8,28 +8,23 @@ public class MNewList {
 
     private final String pListName;
 
-    private final String pListType;
-
     private final MNewList mNewList = this;
 
     private final List<Object> eNewTreeClass_NewList = new LinkedList<Object>();
+
+    private final List<Object> eNormalDeclaration_AlternatedDeclaration_SeparatedDeclaration = new LinkedList<Object>();
 
     private final List<Object> eStringParameter_NormalParameter_NewParameter = new LinkedList<Object>();
 
     private final List<Object> eAddPopElement_AddNewElement_AddPopList_AddNewList = new LinkedList<Object>();
 
     MNewList(
-            String pListName,
-            String pListType) {
+            String pListName) {
 
         if (pListName == null) {
             throw new NullPointerException();
         }
         this.pListName = pListName;
-        if (pListType == null) {
-            throw new NullPointerException();
-        }
-        this.pListType = pListType;
     }
 
     public MNewTreeClass newNewTreeClass(
@@ -43,12 +38,43 @@ public class MNewList {
     }
 
     public MNewList newNewList(
-            String pListName,
-            String pListType) {
+            String pListName) {
 
-        MNewList lNewList = new MNewList(pListName, pListType);
+        MNewList lNewList = new MNewList(pListName);
         this.eNewTreeClass_NewList.add(lNewList);
         return lNewList;
+    }
+
+    public MNormalDeclaration newNormalDeclaration(
+            String pNormalListType) {
+
+        MNormalDeclaration lNormalDeclaration = new MNormalDeclaration(
+                pNormalListType);
+        this.eNormalDeclaration_AlternatedDeclaration_SeparatedDeclaration
+                .add(lNormalDeclaration);
+        return lNormalDeclaration;
+    }
+
+    public MAlternatedDeclaration newAlternatedDeclaration(
+            String pLeftListType,
+            String pRightListType) {
+
+        MAlternatedDeclaration lAlternatedDeclaration = new MAlternatedDeclaration(
+                pLeftListType, pRightListType);
+        this.eNormalDeclaration_AlternatedDeclaration_SeparatedDeclaration
+                .add(lAlternatedDeclaration);
+        return lAlternatedDeclaration;
+    }
+
+    public MSeparatedDeclaration newSeparatedDeclaration(
+            String pLeftListType,
+            String pRightListType) {
+
+        MSeparatedDeclaration lSeparatedDeclaration = new MSeparatedDeclaration(
+                pLeftListType, pRightListType);
+        this.eNormalDeclaration_AlternatedDeclaration_SeparatedDeclaration
+                .add(lSeparatedDeclaration);
+        return lSeparatedDeclaration;
     }
 
     public MStringParameter newStringParameter(
@@ -132,16 +158,6 @@ public class MNewList {
         return this.pListName;
     }
 
-    String pListType() {
-
-        return this.pListType;
-    }
-
-    private String rListType() {
-
-        return this.mNewList.pListType();
-    }
-
     private String rListName() {
 
         return this.mNewList.pListName();
@@ -154,13 +170,19 @@ public class MNewList {
         for (Object oNewTreeClass_NewList : this.eNewTreeClass_NewList) {
             sb.append(oNewTreeClass_NewList.toString());
         }
-        sb.append("	NodeList<N");
-        sb.append(rListType());
-        sb.append("> n");
+        sb.append("	");
+        for (Object oNormalDeclaration_AlternatedDeclaration_SeparatedDeclaration : this.eNormalDeclaration_AlternatedDeclaration_SeparatedDeclaration) {
+            sb.append(oNormalDeclaration_AlternatedDeclaration_SeparatedDeclaration
+                    .toString());
+        }
+        sb.append(" n");
         sb.append(rListName());
-        sb.append(" = new NodeList<N");
-        sb.append(rListType());
-        sb.append(">(");
+        sb.append(" = new ");
+        for (Object oNormalDeclaration_AlternatedDeclaration_SeparatedDeclaration : this.eNormalDeclaration_AlternatedDeclaration_SeparatedDeclaration) {
+            sb.append(oNormalDeclaration_AlternatedDeclaration_SeparatedDeclaration
+                    .toString());
+        }
+        sb.append(" (");
         {
             boolean first = true;
             for (Object oStringParameter_NormalParameter_NewParameter : this.eStringParameter_NormalParameter_NewParameter) {

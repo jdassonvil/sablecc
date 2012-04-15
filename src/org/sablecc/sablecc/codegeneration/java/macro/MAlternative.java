@@ -16,11 +16,11 @@ public class MAlternative {
 
     private final List<Object> eAlternativeNamedParent_AlternativeNodeParent = new LinkedList<Object>();
 
-    private final List<Object> eNormalElementDeclaration_ListElementDeclaration_EndElementDeclaration = new LinkedList<Object>();
+    private final List<Object> eNormalElementDeclaration_ListElementDeclaration_AlternatedListElementDeclaration_SeparatedListElementDeclaration_EndElementDeclaration = new LinkedList<Object>();
 
     private final List<Object> eNormalChildApply_EndChildApply = new LinkedList<Object>();
 
-    private final List<Object> eNormalConstructorParameter_ListConstructorParameter_EndConstructorParameter = new LinkedList<Object>();
+    private final List<Object> eNormalConstructorParameter_ListConstructorParameter_AlternatedListConstructorParameter_SeparatedListConstructorParameter_EndConstructorParameter = new LinkedList<Object>();
 
     private final List<Object> ePublicElementAccessor = new LinkedList<Object>();
 
@@ -39,6 +39,10 @@ public class MAlternative {
     private final List<Object> eAnonymousAltType = new LinkedList<Object>();
 
     private final List<Object> eListElementAccessor = new LinkedList<Object>();
+
+    private final List<Object> eSeparatedListElementAccessor = new LinkedList<Object>();
+
+    private final List<Object> eAlternatedListElementAccessor = new LinkedList<Object>();
 
     public MAlternative(
             String pName) {
@@ -104,6 +108,28 @@ public class MAlternative {
         return lListElementAccessor;
     }
 
+    public MSeparatedListElementAccessor newSeparatedListElementAccessor(
+            String pLeftListType,
+            String pRightListType,
+            String pElementName) {
+
+        MSeparatedListElementAccessor lSeparatedListElementAccessor = new MSeparatedListElementAccessor(
+                pLeftListType, pRightListType, pElementName);
+        this.eSeparatedListElementAccessor.add(lSeparatedListElementAccessor);
+        return lSeparatedListElementAccessor;
+    }
+
+    public MAlternatedListElementAccessor newAlternatedListElementAccessor(
+            String pLeftListType,
+            String pRightListType,
+            String pElementName) {
+
+        MAlternatedListElementAccessor lAlternatedListElementAccessor = new MAlternatedListElementAccessor(
+                pLeftListType, pRightListType, pElementName);
+        this.eAlternatedListElementAccessor.add(lAlternatedListElementAccessor);
+        return lAlternatedListElementAccessor;
+    }
+
     public MDefaultPackage newDefaultPackage(
             String pLanguageName) {
 
@@ -153,7 +179,7 @@ public class MAlternative {
 
         MNormalElementDeclaration lNormalElementDeclaration = new MNormalElementDeclaration(
                 pElementType, pElementName);
-        this.eNormalElementDeclaration_ListElementDeclaration_EndElementDeclaration
+        this.eNormalElementDeclaration_ListElementDeclaration_AlternatedListElementDeclaration_SeparatedListElementDeclaration_EndElementDeclaration
                 .add(lNormalElementDeclaration);
         return lNormalElementDeclaration;
     }
@@ -164,15 +190,39 @@ public class MAlternative {
 
         MListElementDeclaration lListElementDeclaration = new MListElementDeclaration(
                 pListType, pElementName);
-        this.eNormalElementDeclaration_ListElementDeclaration_EndElementDeclaration
+        this.eNormalElementDeclaration_ListElementDeclaration_AlternatedListElementDeclaration_SeparatedListElementDeclaration_EndElementDeclaration
                 .add(lListElementDeclaration);
         return lListElementDeclaration;
+    }
+
+    public MAlternatedListElementDeclaration newAlternatedListElementDeclaration(
+            String pLeftListType,
+            String pRightListType,
+            String pElementName) {
+
+        MAlternatedListElementDeclaration lAlternatedListElementDeclaration = new MAlternatedListElementDeclaration(
+                pLeftListType, pRightListType, pElementName);
+        this.eNormalElementDeclaration_ListElementDeclaration_AlternatedListElementDeclaration_SeparatedListElementDeclaration_EndElementDeclaration
+                .add(lAlternatedListElementDeclaration);
+        return lAlternatedListElementDeclaration;
+    }
+
+    public MSeparatedListElementDeclaration newSeparatedListElementDeclaration(
+            String pLeftListType,
+            String pRightListType,
+            String pElementName) {
+
+        MSeparatedListElementDeclaration lSeparatedListElementDeclaration = new MSeparatedListElementDeclaration(
+                pLeftListType, pRightListType, pElementName);
+        this.eNormalElementDeclaration_ListElementDeclaration_AlternatedListElementDeclaration_SeparatedListElementDeclaration_EndElementDeclaration
+                .add(lSeparatedListElementDeclaration);
+        return lSeparatedListElementDeclaration;
     }
 
     public MEndElementDeclaration newEndElementDeclaration() {
 
         MEndElementDeclaration lEndElementDeclaration = new MEndElementDeclaration();
-        this.eNormalElementDeclaration_ListElementDeclaration_EndElementDeclaration
+        this.eNormalElementDeclaration_ListElementDeclaration_AlternatedListElementDeclaration_SeparatedListElementDeclaration_EndElementDeclaration
                 .add(lEndElementDeclaration);
         return lEndElementDeclaration;
     }
@@ -199,7 +249,7 @@ public class MAlternative {
 
         MNormalConstructorParameter lNormalConstructorParameter = new MNormalConstructorParameter(
                 pElementType, pElementName);
-        this.eNormalConstructorParameter_ListConstructorParameter_EndConstructorParameter
+        this.eNormalConstructorParameter_ListConstructorParameter_AlternatedListConstructorParameter_SeparatedListConstructorParameter_EndConstructorParameter
                 .add(lNormalConstructorParameter);
         return lNormalConstructorParameter;
     }
@@ -210,15 +260,39 @@ public class MAlternative {
 
         MListConstructorParameter lListConstructorParameter = new MListConstructorParameter(
                 pListType, pElementName);
-        this.eNormalConstructorParameter_ListConstructorParameter_EndConstructorParameter
+        this.eNormalConstructorParameter_ListConstructorParameter_AlternatedListConstructorParameter_SeparatedListConstructorParameter_EndConstructorParameter
                 .add(lListConstructorParameter);
         return lListConstructorParameter;
+    }
+
+    public MAlternatedListConstructorParameter newAlternatedListConstructorParameter(
+            String pLeftListType,
+            String pRightListType,
+            String pElementName) {
+
+        MAlternatedListConstructorParameter lAlternatedListConstructorParameter = new MAlternatedListConstructorParameter(
+                pLeftListType, pRightListType, pElementName);
+        this.eNormalConstructorParameter_ListConstructorParameter_AlternatedListConstructorParameter_SeparatedListConstructorParameter_EndConstructorParameter
+                .add(lAlternatedListConstructorParameter);
+        return lAlternatedListConstructorParameter;
+    }
+
+    public MSeparatedListConstructorParameter newSeparatedListConstructorParameter(
+            String pLeftListType,
+            String pRightListType,
+            String pElementName) {
+
+        MSeparatedListConstructorParameter lSeparatedListConstructorParameter = new MSeparatedListConstructorParameter(
+                pLeftListType, pRightListType, pElementName);
+        this.eNormalConstructorParameter_ListConstructorParameter_AlternatedListConstructorParameter_SeparatedListConstructorParameter_EndConstructorParameter
+                .add(lSeparatedListConstructorParameter);
+        return lSeparatedListConstructorParameter;
     }
 
     public MEndConstructorParameter newEndConstructorParameter() {
 
         MEndConstructorParameter lEndConstructorParameter = new MEndConstructorParameter();
-        this.eNormalConstructorParameter_ListConstructorParameter_EndConstructorParameter
+        this.eNormalConstructorParameter_ListConstructorParameter_AlternatedListConstructorParameter_SeparatedListConstructorParameter_EndConstructorParameter
                 .add(lEndConstructorParameter);
         return lEndConstructorParameter;
     }
@@ -289,8 +363,8 @@ public class MAlternative {
         sb.append(System.getProperty("line.separator"));
         sb.append("  private final int pos;");
         sb.append(System.getProperty("line.separator"));
-        for (Object oNormalElementDeclaration_ListElementDeclaration_EndElementDeclaration : this.eNormalElementDeclaration_ListElementDeclaration_EndElementDeclaration) {
-            sb.append(oNormalElementDeclaration_ListElementDeclaration_EndElementDeclaration
+        for (Object oNormalElementDeclaration_ListElementDeclaration_AlternatedListElementDeclaration_SeparatedListElementDeclaration_EndElementDeclaration : this.eNormalElementDeclaration_ListElementDeclaration_AlternatedListElementDeclaration_SeparatedListElementDeclaration_EndElementDeclaration) {
+            sb.append(oNormalElementDeclaration_ListElementDeclaration_AlternatedListElementDeclaration_SeparatedListElementDeclaration_EndElementDeclaration
                     .toString());
         }
         sb.append(System.getProperty("line.separator"));
@@ -347,20 +421,20 @@ public class MAlternative {
         sb.append("  N");
         sb.append(rName());
         sb.append("(int line, int pos");
-        if (this.eNormalConstructorParameter_ListConstructorParameter_EndConstructorParameter
+        if (this.eNormalConstructorParameter_ListConstructorParameter_AlternatedListConstructorParameter_SeparatedListConstructorParameter_EndConstructorParameter
                 .size() > 0) {
             sb.append(", ");
         }
         {
             boolean first = true;
-            for (Object oNormalConstructorParameter_ListConstructorParameter_EndConstructorParameter : this.eNormalConstructorParameter_ListConstructorParameter_EndConstructorParameter) {
+            for (Object oNormalConstructorParameter_ListConstructorParameter_AlternatedListConstructorParameter_SeparatedListConstructorParameter_EndConstructorParameter : this.eNormalConstructorParameter_ListConstructorParameter_AlternatedListConstructorParameter_SeparatedListConstructorParameter_EndConstructorParameter) {
                 if (first) {
                     first = false;
                 }
                 else {
                     sb.append(", ");
                 }
-                sb.append(oNormalConstructorParameter_ListConstructorParameter_EndConstructorParameter
+                sb.append(oNormalConstructorParameter_ListConstructorParameter_AlternatedListConstructorParameter_SeparatedListConstructorParameter_EndConstructorParameter
                         .toString());
             }
         }
@@ -424,6 +498,12 @@ public class MAlternative {
         }
         for (Object oListElementAccessor : this.eListElementAccessor) {
             sb.append(oListElementAccessor.toString());
+        }
+        for (Object oSeparatedListElementAccessor : this.eSeparatedListElementAccessor) {
+            sb.append(oSeparatedListElementAccessor.toString());
+        }
+        for (Object oAlternatedListElementAccessor : this.eAlternatedListElementAccessor) {
+            sb.append(oAlternatedListElementAccessor.toString());
         }
         sb.append("}");
         sb.append(System.getProperty("line.separator"));

@@ -29,6 +29,7 @@ import org.sablecc.sablecc.alphabet.Bound;
 import org.sablecc.sablecc.automaton.*;
 import org.sablecc.sablecc.codegeneration.java.macro.*;
 import org.sablecc.sablecc.core.*;
+import org.sablecc.sablecc.core.Parser.ParserElement.ElementType;
 import org.sablecc.sablecc.core.interfaces.*;
 import org.sablecc.sablecc.grammar.*;
 import org.sablecc.sablecc.grammar.transformation.*;
@@ -740,95 +741,231 @@ public class CodeGenerator {
 
                     for (Parser.ParserElement parserElement : alternative
                             .getElements()) {
-                        Parser.ParserElement.SingleElement normalElement = (Parser.ParserElement.SingleElement) parserElement;
-                        String element_CamelCaseName = normalElement
-                                .getName_CamelCase();
-                        boolean elementIsPublicReadable;
-                        if (element_CamelCaseName == null) {
-                            element_CamelCaseName = "$"
-                                    + normalElement.getIndex();
-                            elementIsPublicReadable = false;
-                        }
-                        else {
-                            elementIsPublicReadable = true;
-                        }
-                        String element_CamelCaseType;
-                        String element_CamelCaseInternalType;
+                        if (parserElement instanceof Parser.ParserElement.SingleElement) {
 
-                        IReferencable reference = normalElement.getReference();
-                        if (reference instanceof LexerExpression.NamedExpression) {
-                            LexerExpression.NamedExpression namedToken = (LexerExpression.NamedExpression) reference;
-                            element_CamelCaseType = namedToken
+                            Parser.ParserElement.SingleElement normalElement = (Parser.ParserElement.SingleElement) parserElement;
+                            String element_CamelCaseName = normalElement
                                     .getName_CamelCase();
-                            element_CamelCaseInternalType = element_CamelCaseType;
-                        }
-                        else if (reference instanceof LexerExpression.InlineExpression) {
-                            LexerExpression.InlineExpression inlineToken = (LexerExpression.InlineExpression) reference;
-                            element_CamelCaseType = null;
-                            element_CamelCaseInternalType = inlineToken
-                                    .getInternalName_CamelCase();
-                        }
-                        else {
-                            Parser.ParserProduction referencedProduction = (Parser.ParserProduction) reference;
-                            element_CamelCaseType = referencedProduction
-                                    .getName_CamelCase();
-                            element_CamelCaseInternalType = element_CamelCaseType;
-                        }
+                            boolean elementIsPublicReadable;
+                            if (element_CamelCaseName == null) {
+                                element_CamelCaseName = "$"
+                                        + normalElement.getIndex();
+                                elementIsPublicReadable = false;
+                            }
+                            else {
+                                elementIsPublicReadable = true;
+                            }
+                            String element_CamelCaseType;
+                            String element_CamelCaseInternalType;
 
-                        if (parserElement.getType().getCardinality()
-                                .equals(CardinalityInterval.ONE_ONE)
-                                || parserElement.getType().getCardinality()
-                                        .equals(CardinalityInterval.ZERO_ONE)) {
-                            mAlternative.newNormalConstructorParameter(
-                                    element_CamelCaseInternalType,
-                                    element_CamelCaseName);
-                            mAlternative
-                                    .newNormalContructorInitialization(element_CamelCaseName);
+                            IReferencable reference = normalElement
+                                    .getReference();
+                            if (reference instanceof LexerExpression.NamedExpression) {
+                                LexerExpression.NamedExpression namedToken = (LexerExpression.NamedExpression) reference;
+                                element_CamelCaseType = namedToken
+                                        .getName_CamelCase();
+                                element_CamelCaseInternalType = element_CamelCaseType;
+                            }
+                            else if (reference instanceof LexerExpression.InlineExpression) {
+                                LexerExpression.InlineExpression inlineToken = (LexerExpression.InlineExpression) reference;
+                                element_CamelCaseType = null;
+                                element_CamelCaseInternalType = inlineToken
+                                        .getInternalName_CamelCase();
+                            }
+                            else {
+                                Parser.ParserProduction referencedProduction = (Parser.ParserProduction) reference;
+                                element_CamelCaseType = referencedProduction
+                                        .getName_CamelCase();
+                                element_CamelCaseInternalType = element_CamelCaseType;
+                            }
 
-                            mAlternative.newNormalElementDeclaration(
-                                    element_CamelCaseInternalType,
-                                    element_CamelCaseName);
-                            mAlternative.newNormalElementAccessor(
-                                    element_CamelCaseInternalType,
-                                    element_CamelCaseName);
+                            if (parserElement.getType().getCardinality()
+                                    .equals(CardinalityInterval.ONE_ONE)
+                                    || parserElement
+                                            .getType()
+                                            .getCardinality()
+                                            .equals(CardinalityInterval.ZERO_ONE)) {
+                                mAlternative.newNormalConstructorParameter(
+                                        element_CamelCaseInternalType,
+                                        element_CamelCaseName);
+                                mAlternative
+                                        .newNormalContructorInitialization(element_CamelCaseName);
 
-                            if (elementIsPublicReadable) {
-                                MPublicElementAccessor publicElementAccessor = mAlternative
-                                        .newPublicElementAccessor(element_CamelCaseName);
-                                if (element_CamelCaseType != null) {
+                                mAlternative.newNormalElementDeclaration(
+                                        element_CamelCaseInternalType,
+                                        element_CamelCaseName);
+                                mAlternative.newNormalElementAccessor(
+                                        element_CamelCaseInternalType,
+                                        element_CamelCaseName);
+
+                                if (elementIsPublicReadable) {
+                                    MPublicElementAccessor publicElementAccessor = mAlternative
+                                            .newPublicElementAccessor(element_CamelCaseName);
+                                    if (element_CamelCaseType != null) {
+                                        publicElementAccessor
+                                                .newPublicElementType(element_CamelCaseType);
+                                    }
+                                    else {
+                                        publicElementAccessor
+                                                .newTokenElementType();
+                                    }
+                                }
+                            }
+                            else {
+                                mAlternative.newListConstructorParameter(
+                                        element_CamelCaseInternalType,
+                                        element_CamelCaseName);
+                                mAlternative
+                                        .newNormalContructorInitialization(element_CamelCaseName);
+
+                                mAlternative.newListElementDeclaration(
+                                        element_CamelCaseInternalType,
+                                        element_CamelCaseName);
+                                mAlternative.newListElementAccessor(
+                                        element_CamelCaseInternalType,
+                                        element_CamelCaseName);
+
+                                if (elementIsPublicReadable) {
+                                    MPublicElementAccessor publicElementAccessor = mAlternative
+                                            .newPublicElementAccessor(element_CamelCaseName);
                                     publicElementAccessor
-                                            .newPublicElementType(element_CamelCaseType);
+                                            .newPublicListElementType(element_CamelCaseInternalType);
+
                                 }
-                                else {
-                                    publicElementAccessor.newTokenElementType();
-                                }
+
                             }
+
+                            mAlternative
+                                    .newNormalChildApply(element_CamelCaseName);
+
                         }
                         else {
-                            mAlternative.newListConstructorParameter(
-                                    element_CamelCaseInternalType,
-                                    element_CamelCaseName);
-                            mAlternative
-                                    .newNormalContructorInitialization(element_CamelCaseName);
+                            Parser.ParserElement.DoubleElement doubleElement = (Parser.ParserElement.DoubleElement) parserElement;
+                            String element_CamelCaseName = doubleElement
+                                    .getName_CamelCase();
 
-                            mAlternative.newListElementDeclaration(
-                                    element_CamelCaseInternalType,
-                                    element_CamelCaseName);
-                            mAlternative.newListElementAccessor(
-                                    element_CamelCaseInternalType,
-                                    element_CamelCaseName);
-
-                            if (elementIsPublicReadable) {
-                                MPublicElementAccessor publicElementAccessor = mAlternative
-                                        .newPublicElementAccessor(element_CamelCaseName);
-                                publicElementAccessor
-                                        .newPublicListElementType(element_CamelCaseInternalType);
-
+                            boolean elementIsPublicReadable;
+                            if (element_CamelCaseName == null) {
+                                element_CamelCaseName = "$"
+                                        + doubleElement.getIndex();
+                                elementIsPublicReadable = false;
                             }
+                            else {
+                                elementIsPublicReadable = true;
+                            }
+                            String leftElement_CamelCaseType;
+                            String leftElement_CamelCaseInternalType;
+
+                            IReferencable leftReference = doubleElement
+                                    .getLeftReference();
+                            if (leftReference instanceof LexerExpression.NamedExpression) {
+                                LexerExpression.NamedExpression namedToken = (LexerExpression.NamedExpression) leftReference;
+                                leftElement_CamelCaseType = namedToken
+                                        .getName_CamelCase();
+                                leftElement_CamelCaseInternalType = leftElement_CamelCaseType;
+                            }
+                            else if (leftReference instanceof LexerExpression.InlineExpression) {
+                                LexerExpression.InlineExpression inlineToken = (LexerExpression.InlineExpression) leftReference;
+                                leftElement_CamelCaseType = null;
+                                leftElement_CamelCaseInternalType = inlineToken
+                                        .getInternalName_CamelCase();
+                            }
+                            else {
+                                Parser.ParserProduction referencedProduction = (Parser.ParserProduction) leftReference;
+                                leftElement_CamelCaseType = referencedProduction
+                                        .getName_CamelCase();
+                                leftElement_CamelCaseInternalType = leftElement_CamelCaseType;
+                            }
+
+                            String rightElement_CamelCaseType;
+                            String rightElement_CamelCaseInternalType;
+
+                            IReferencable rightReference = doubleElement
+                                    .getRightReference();
+                            if (rightReference instanceof LexerExpression.NamedExpression) {
+                                LexerExpression.NamedExpression namedToken = (LexerExpression.NamedExpression) rightReference;
+                                rightElement_CamelCaseType = namedToken
+                                        .getName_CamelCase();
+                                rightElement_CamelCaseInternalType = rightElement_CamelCaseType;
+                            }
+                            else if (rightReference instanceof LexerExpression.InlineExpression) {
+                                LexerExpression.InlineExpression inlineToken = (LexerExpression.InlineExpression) rightReference;
+                                rightElement_CamelCaseType = null;
+                                rightElement_CamelCaseInternalType = inlineToken
+                                        .getInternalName_CamelCase();
+                            }
+                            else {
+                                Parser.ParserProduction referencedProduction = (Parser.ParserProduction) rightReference;
+                                rightElement_CamelCaseType = referencedProduction
+                                        .getName_CamelCase();
+                                rightElement_CamelCaseInternalType = rightElement_CamelCaseType;
+                            }
+
+                            if (doubleElement.getElementType() == ElementType.SEPARATED) {
+
+                                mAlternative
+                                        .newSeparatedListConstructorParameter(
+                                                leftElement_CamelCaseInternalType,
+                                                rightElement_CamelCaseInternalType,
+                                                element_CamelCaseName);
+                                mAlternative
+                                        .newNormalContructorInitialization(element_CamelCaseName);
+
+                                mAlternative
+                                        .newSeparatedListElementDeclaration(
+                                                leftElement_CamelCaseInternalType,
+                                                rightElement_CamelCaseInternalType,
+                                                element_CamelCaseName);
+                                mAlternative.newSeparatedListElementAccessor(
+                                        leftElement_CamelCaseInternalType,
+                                        rightElement_CamelCaseInternalType,
+                                        element_CamelCaseName);
+
+                                if (elementIsPublicReadable) {
+                                    MPublicElementAccessor publicElementAccessor = mAlternative
+                                            .newPublicElementAccessor(element_CamelCaseName);
+                                    publicElementAccessor
+                                            .newPublicSeparatedListElementType(
+                                                    leftElement_CamelCaseInternalType,
+                                                    rightElement_CamelCaseInternalType);
+
+                                }
+                            }
+                            else {
+                                mAlternative
+                                        .newAlternatedListConstructorParameter(
+                                                leftElement_CamelCaseInternalType,
+                                                rightElement_CamelCaseInternalType,
+                                                element_CamelCaseName);
+                                mAlternative
+                                        .newNormalContructorInitialization(element_CamelCaseName);
+
+                                mAlternative
+                                        .newAlternatedListElementDeclaration(
+                                                leftElement_CamelCaseInternalType,
+                                                rightElement_CamelCaseInternalType,
+                                                element_CamelCaseName);
+                                mAlternative.newAlternatedListElementAccessor(
+                                        leftElement_CamelCaseInternalType,
+                                        rightElement_CamelCaseInternalType,
+                                        element_CamelCaseName);
+
+                                if (elementIsPublicReadable) {
+                                    MPublicElementAccessor publicElementAccessor = mAlternative
+                                            .newPublicElementAccessor(element_CamelCaseName);
+                                    publicElementAccessor
+                                            .newPublicAlternatedListElementType(
+                                                    leftElement_CamelCaseInternalType,
+                                                    rightElement_CamelCaseInternalType);
+
+                                }
+                            }
+
+                            mAlternative
+                                    .newNormalChildApply(element_CamelCaseName);
 
                         }
 
-                        mAlternative.newNormalChildApply(element_CamelCaseName);
                     }
 
                     try {

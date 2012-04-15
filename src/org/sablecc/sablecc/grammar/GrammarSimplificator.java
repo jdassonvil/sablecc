@@ -257,9 +257,19 @@ public class GrammarSimplificator
                                 CardinalityInterval.ONE_ONE)
                                 || normalElement.getCardinality().equals(
                                         CardinalityInterval.ZERO_ONE)) {
-                            newElements
-                                    .add(new SAlternativeTransformationElement.ReferenceElement(
-                                            element, element));
+
+                            if (normalElement.getName().equals(
+                                    productionElement.getReference().getName())) {
+                                newElements
+                                        .add(new SAlternativeTransformationElement.ReferenceElement(
+                                                element, element));
+                            }
+                            else {
+                                newElements
+                                        .add(new SAlternativeTransformationElement.ReferenceElement(
+                                                element,
+                                                targetProdTransformation));
+                            }
 
                         }
                         else {
@@ -267,7 +277,7 @@ public class GrammarSimplificator
                             List<SAlternativeTransformationListElement> listElements = new LinkedList<SAlternativeTransformationListElement>();
                             listElements
                                     .add(new SAlternativeTransformationListElement.NormalListElement(
-                                            element, element));
+                                            element, targetProdTransformation));
                             newElements
                                     .add(new SAlternativeTransformationElement.ListElement(
                                             listElements,
@@ -278,8 +288,46 @@ public class GrammarSimplificator
 
                         }
                     }
+                    else if (targetProdTransformation instanceof SProductionTransformationElement.SeparatedElement) {
+
+                        SProductionTransformationElement.SeparatedElement separatedElement = (SProductionTransformationElement.SeparatedElement) targetProdTransformation;
+
+                        List<SAlternativeTransformationListElement> listElements = new LinkedList<SAlternativeTransformationListElement>();
+                        listElements
+                                .add(new SAlternativeTransformationListElement.NormalListElement(
+                                        element, targetProdTransformation));
+                        newElements
+                                .add(new SAlternativeTransformationElement.ListElement(
+                                        listElements,
+                                        new Type.SimpleType.SeparatedType(
+                                                separatedElement.getLeftName(),
+                                                separatedElement.getRightName(),
+                                                separatedElement
+                                                        .getCardinality())));
+
+                    }
+                    else if (targetProdTransformation instanceof SProductionTransformationElement.AlternatedElement) {
+
+                        SProductionTransformationElement.AlternatedElement alternatedElement = (SProductionTransformationElement.AlternatedElement) targetProdTransformation;
+
+                        List<SAlternativeTransformationListElement> listElements = new LinkedList<SAlternativeTransformationListElement>();
+                        listElements
+                                .add(new SAlternativeTransformationListElement.NormalListElement(
+                                        element, targetProdTransformation));
+                        newElements
+                                .add(new SAlternativeTransformationElement.ListElement(
+                                        listElements,
+                                        new Type.SimpleType.AlternatedType(
+                                                alternatedElement.getLeftName(),
+                                                alternatedElement
+                                                        .getRightName(),
+                                                alternatedElement
+                                                        .getCardinality())));
+
+                    }
                     else {
-                        throw new InternalException("Unhandled case");
+                        throw new InternalException(
+                                "Unexpected production transformation element type");
                     }
                 }
                 else {

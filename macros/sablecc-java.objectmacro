@@ -1402,7 +1402,7 @@ $end: alternative_node_parent $
 
   private final int line;
   private final int pos;
-$expand: normal_element_declaration,list_element_declaration, end_element_declaration $
+$expand: normal_element_declaration,list_element_declaration,alternated_list_element_declaration,separated_list_element_declaration, end_element_declaration $
 
   @Override
   public int getLine() {
@@ -1444,13 +1444,19 @@ $macro: end_child_apply $
 $end: end_child_apply $
   }
 
-  N$name(int line, int pos$expand: normal_constructor_parameter,list_constructor_parameter, end_constructor_parameter, before_first=", ", separator=", " $) {
+  N$name(int line, int pos$expand: normal_constructor_parameter,list_constructor_parameter,alternated_list_constructor_parameter,separated_list_constructor_parameter, end_constructor_parameter, before_first=", ", separator=", " $) {
 $macro: normal_constructor_parameter(element_type, element_name) $
 N$element_type p$(element_name)$no_eol$
 $end: normal_constructor_parameter $
 $macro: list_constructor_parameter(list_type, element_name) $
 NodeList<N$list_type> p$(element_name)$no_eol$
 $end: list_constructor_parameter $
+$macro: separated_list_constructor_parameter(left_list_type,right_list_type, element_name) $
+SeparatedNodeList<N$(left_list_type),N$(right_list_type)> p$(element_name)$no_eol$
+$end: separated_list_constructor_parameter $
+$macro: alternated_list_constructor_parameter(left_list_type,right_list_type, element_name) $
+PairNodeList<N$(left_list_type),N$(right_list_type)> p$(element_name)$no_eol$
+$end: alternated_list_constructor_parameter $
 $macro: end_constructor_parameter $
 End p\$end$no_eol$
 $end: end_constructor_parameter $
@@ -1482,14 +1488,27 @@ $end: normal_element_declaration $
 $macro: list_element_declaration(list_type, element_name) $
   private final NodeList<N$list_type> e$element_name;
 $end: list_element_declaration $
+$macro: separated_list_element_declaration(left_list_type,right_list_type, element_name) $
+  private final SeparatedNodeList<N$left_list_type,N$right_list_type> e$element_name;
+$end: separated_list_element_declaration $
+$macro: alternated_list_element_declaration(left_list_type,right_list_type, element_name) $
+  private final PairNodeList<N$left_list_type,N$right_list_type> e$element_name;
+$end: alternated_list_element_declaration $
 $macro: public_element_accessor(element_name) $
-  public $expand: public_element_type,public_list_element_type, token_element_type $ get_$element_name() {
+  public $expand: public_element_type,public_list_element_type,public_alternated_list_element_type,public_separated_list_element_type, token_element_type $ get_$element_name() {
 $macro: public_element_type(element_type) $
 N$(element_type)$no_eol$
 $end: public_element_type $
 $macro: public_list_element_type(element_type) $
 NodeList<N$(element_type)>$no_eol$
 $end: public_list_element_type $
+$macro: public_separated_list_element_type(left_element_type,right_element_type) $
+SeparatedNodeList<N$(left_element_type),N$(right_element_type)>$no_eol$
+$end: public_separated_list_element_type $
+$macro: public_alternated_list_element_type(left_element_type,right_element_type) $
+PairNodeList<N$(left_element_type),N$(right_element_type)>$no_eol$
+$end: public_alternated_list_element_type $
+
 
 $macro: token_element_type $
 Token$no_eol$
@@ -1507,6 +1526,16 @@ $macro: list_element_accessor(list_type, element_name) $
     return this.e$element_name;
   }
 $end: list_element_accessor$
+$macro: separated_list_element_accessor(left_list_type,right_list_type, element_name) $
+  SeparatedNodeList<N$left_list_type,N$right_list_type> internalGet$element_name() {
+    return this.e$element_name;
+  }
+$end: separated_list_element_accessor$
+$macro: alternated_list_element_accessor(left_list_type,right_list_type, element_name) $
+  PairNodeList<N$left_list_type,N$right_list_type> internalGet$element_name() {
+    return this.e$element_name;
+  }
+$end: alternated_list_element_accessor$
 $macro: end_element_declaration $
   private final End e\$end;
 $end: end_element_declaration $
@@ -1817,10 +1846,19 @@ $macro: new_tree_class(element_type,element_name) $
 $expand: new_tree_class,new_list $
 	N$(element_type) n$(element_name) = new N$(element_type) (-1, -1$expand: normal_parameter,null_parameter,new_parameter, end_parameter, before_first=", ", separator=", " $);
 $end: new_tree_class$
-$macro: new_list(list_name,list_type) $
+$macro: new_list(list_name) $
 $expand: new_tree_class,new_list $
-	NodeList<N$(list_type)> n$(list_name) = new NodeList<N$(list_type)>($expand: string_parameter,normal_parameter,new_parameter, separator=", "$);
+	$expand:normal_declaration,alternated_declaration,separated_declaration$ n$(list_name) = new $expand:normal_declaration,alternated_declaration,separated_declaration$ ($expand: string_parameter,normal_parameter,new_parameter, separator=", "$);
 $expand: add_pop_element,add_new_element,add_pop_list,add_new_list $
+$macro: normal_declaration(normal_list_type) $
+NodeList<N$(normal_list_type)>
+$end: normal_declaration$
+$macro: alternated_declaration(left_list_type,right_list_type) $
+PairNodeList<N$(left_list_type),N$(right_list_type)>
+$end: alternated_declaration$
+$macro: separated_declaration(left_list_type,right_list_type) $
+NodeList<N$(left_list_type),N$(right_list_type)>
+$end: separated_declaration$
 $end: new_list$
 $expand: add_l_to_forest,add_null_to_forest,add_n_to_forest $ 
 $macro: add_l_to_forest(element_name) $
