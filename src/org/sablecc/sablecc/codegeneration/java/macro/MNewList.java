@@ -16,7 +16,7 @@ public class MNewList {
 
     private final List<Object> eStringParameter_NormalParameter_NewParameter = new LinkedList<Object>();
 
-    private final List<Object> eAddPopElement_AddPopElementLeft_AddPopElementRight_AddNewElement_AddPopList_AddNewList = new LinkedList<Object>();
+    private final List<Object> eAddPopElement_AddPopElementLeft_AddPopElementRight_AddNewElement_AddPopList_AddPopSeparatedList_AddPopAlternatedList_AddNewList = new LinkedList<Object>();
 
     MNewList(
             String pListName) {
@@ -114,7 +114,7 @@ public class MNewList {
 
         MAddPopElement lAddPopElement = new MAddPopElement(pListName,
                 pElementName, pElementType, pIndex);
-        this.eAddPopElement_AddPopElementLeft_AddPopElementRight_AddNewElement_AddPopList_AddNewList
+        this.eAddPopElement_AddPopElementLeft_AddPopElementRight_AddNewElement_AddPopList_AddPopSeparatedList_AddPopAlternatedList_AddNewList
                 .add(lAddPopElement);
         return lAddPopElement;
     }
@@ -127,7 +127,7 @@ public class MNewList {
 
         MAddPopElementLeft lAddPopElementLeft = new MAddPopElementLeft(
                 pListName, pElementName, pElementType, pIndex);
-        this.eAddPopElement_AddPopElementLeft_AddPopElementRight_AddNewElement_AddPopList_AddNewList
+        this.eAddPopElement_AddPopElementLeft_AddPopElementRight_AddNewElement_AddPopList_AddPopSeparatedList_AddPopAlternatedList_AddNewList
                 .add(lAddPopElementLeft);
         return lAddPopElementLeft;
     }
@@ -140,7 +140,7 @@ public class MNewList {
 
         MAddPopElementRight lAddPopElementRight = new MAddPopElementRight(
                 pListName, pElementName, pElementType, pIndex);
-        this.eAddPopElement_AddPopElementLeft_AddPopElementRight_AddNewElement_AddPopList_AddNewList
+        this.eAddPopElement_AddPopElementLeft_AddPopElementRight_AddNewElement_AddPopList_AddPopSeparatedList_AddPopAlternatedList_AddNewList
                 .add(lAddPopElementRight);
         return lAddPopElementRight;
     }
@@ -151,7 +151,7 @@ public class MNewList {
 
         MAddNewElement lAddNewElement = new MAddNewElement(pListName,
                 pElementName);
-        this.eAddPopElement_AddPopElementLeft_AddPopElementRight_AddNewElement_AddPopList_AddNewList
+        this.eAddPopElement_AddPopElementLeft_AddPopElementRight_AddNewElement_AddPopList_AddPopSeparatedList_AddPopAlternatedList_AddNewList
                 .add(lAddNewElement);
         return lAddNewElement;
     }
@@ -164,9 +164,37 @@ public class MNewList {
 
         MAddPopList lAddPopList = new MAddPopList(pListName, pElementName,
                 pElementType, pIndex);
-        this.eAddPopElement_AddPopElementLeft_AddPopElementRight_AddNewElement_AddPopList_AddNewList
+        this.eAddPopElement_AddPopElementLeft_AddPopElementRight_AddNewElement_AddPopList_AddPopSeparatedList_AddPopAlternatedList_AddNewList
                 .add(lAddPopList);
         return lAddPopList;
+    }
+
+    public MAddPopSeparatedList newAddPopSeparatedList(
+            String pListName,
+            String pElementName,
+            String pLeftType,
+            String pRightType,
+            String pIndex) {
+
+        MAddPopSeparatedList lAddPopSeparatedList = new MAddPopSeparatedList(
+                pListName, pElementName, pLeftType, pRightType, pIndex);
+        this.eAddPopElement_AddPopElementLeft_AddPopElementRight_AddNewElement_AddPopList_AddPopSeparatedList_AddPopAlternatedList_AddNewList
+                .add(lAddPopSeparatedList);
+        return lAddPopSeparatedList;
+    }
+
+    public MAddPopAlternatedList newAddPopAlternatedList(
+            String pListName,
+            String pElementName,
+            String pLeftType,
+            String pRightType,
+            String pIndex) {
+
+        MAddPopAlternatedList lAddPopAlternatedList = new MAddPopAlternatedList(
+                pListName, pElementName, pLeftType, pRightType, pIndex);
+        this.eAddPopElement_AddPopElementLeft_AddPopElementRight_AddNewElement_AddPopList_AddPopSeparatedList_AddPopAlternatedList_AddNewList
+                .add(lAddPopAlternatedList);
+        return lAddPopAlternatedList;
     }
 
     public MAddNewList newAddNewList(
@@ -174,7 +202,7 @@ public class MNewList {
             String pElementName) {
 
         MAddNewList lAddNewList = new MAddNewList(pListName, pElementName);
-        this.eAddPopElement_AddPopElementLeft_AddPopElementRight_AddNewElement_AddPopList_AddNewList
+        this.eAddPopElement_AddPopElementLeft_AddPopElementRight_AddNewElement_AddPopList_AddPopSeparatedList_AddPopAlternatedList_AddNewList
                 .add(lAddNewList);
         return lAddNewList;
     }
@@ -224,8 +252,8 @@ public class MNewList {
         }
         sb.append(");");
         sb.append(System.getProperty("line.separator"));
-        for (Object oAddPopElement_AddPopElementLeft_AddPopElementRight_AddNewElement_AddPopList_AddNewList : this.eAddPopElement_AddPopElementLeft_AddPopElementRight_AddNewElement_AddPopList_AddNewList) {
-            sb.append(oAddPopElement_AddPopElementLeft_AddPopElementRight_AddNewElement_AddPopList_AddNewList
+        for (Object oAddPopElement_AddPopElementLeft_AddPopElementRight_AddNewElement_AddPopList_AddPopSeparatedList_AddPopAlternatedList_AddNewList : this.eAddPopElement_AddPopElementLeft_AddPopElementRight_AddNewElement_AddPopList_AddPopSeparatedList_AddPopAlternatedList_AddNewList) {
+            sb.append(oAddPopElement_AddPopElementLeft_AddPopElementRight_AddNewElement_AddPopList_AddPopSeparatedList_AddPopAlternatedList_AddNewList
                     .toString());
         }
         return sb.toString();

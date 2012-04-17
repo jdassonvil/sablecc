@@ -83,6 +83,34 @@ $end: node_production_type_enum_entry $
 }
 $end: node $
 
+$comment: ========== entry ========== $
+
+$macro: entry $
+$insert: header $
+$expand: default_package, specified_package, before_first="\n" $
+
+class Entry<E> {
+
+    E element;
+
+    Entry<E> next;
+
+    Entry<E> previous;
+
+    Entry(
+            E element,
+            Entry<E> next,
+            Entry<E> previous) {
+
+        this.element = element;
+        this.next = next;
+        this.previous = previous;
+
+    }
+}
+
+$end: entry$
+
 $comment: ========== node_list ========== $
 
 $macro: node_list $
@@ -141,20 +169,6 @@ public class NodeList<TNode extends Node>extends Node
 	public int size(){
 	
 		return size;
-	}
-	
-	private static class Entry<E>{
-	
-	E element;
-	Entry<E> next;
-	Entry<E> previous;
-	
-		Entry(E element, Entry<E> next,Entry<E> previous) {
-			this.element = element;
-			this.next = next;
-			this.previous = previous;
-		
-		}
 	}
 	
  @Override
@@ -314,6 +328,40 @@ public class PairNodeList<TNodeLeft extends Node, TNodeRight extends Node>
         // TODO Control list bounds
     }
     
+     void addAll(
+            SeparatedNodeList<TNodeLeft, TNodeRight> elements) {
+
+        this.leftHeader.previous.next = elements.leftHeader.next;
+        elements.leftHeader.next.previous = this.leftHeader.previous;
+        this.leftHeader.previous = elements.leftHeader.previous;
+        elements.leftHeader.previous.next = this.leftHeader;
+
+        this.rightHeader.previous.next = elements.rightHeader.next;
+        elements.rightHeader.next.previous = this.rightHeader.previous;
+        this.rightHeader.previous = elements.rightHeader.previous;
+        elements.rightHeader.previous.next = this.rightHeader;
+
+        this.size += elements.size;
+        // TODO Control list bounds
+    }
+    
+     void addAllReverse(
+            SeparatedNodeList<TNodeRight, TNodeLeft> elements) {
+
+            this.leftHeader.previous.next = elements.rightHeader.next;
+            elements.leftHeader.next.previous = this.rightHeader.previous;
+            this.leftHeader.previous = elements.rightHeader.previous;
+            elements.leftHeader.previous.next = this.rightHeader;
+
+            this.rightHeader.previous.next = elements.leftHeader.next;
+            elements.rightHeader.next.previous = this.leftHeader.previous;
+            this.rightHeader.previous = elements.leftHeader.previous;
+            elements.rightHeader.previous.next = this.leftHeader;
+
+        this.size += elements.size;
+        // TODO Control list bounds
+    }
+    
     NodeList<TNodeLeft> getLeft(){
         NodeList<TNodeLeft> list = new NodeList<TNodeLeft>();
         Iterator<TNodeLeft> leftIterator = this.leftIterator();
@@ -395,26 +443,6 @@ public class PairNodeList<TNodeLeft extends Node, TNodeRight extends Node>
             rightIterator.next().apply(walker);
         }
 
-    }
-
-    static class Entry<E> {
-
-        E element;
-
-        Entry<E> next;
-
-        Entry<E> previous;
-
-        Entry(
-                E element,
-                Entry<E> next,
-                Entry<E> previous) {
-
-            this.element = element;
-            this.next = next;
-            this.previous = previous;
-
-        }
     }
 
     private class LeftNodeListItr
@@ -557,25 +585,77 @@ public class SeparatedNodeList<TNodeLeft extends Node, TNodeRight extends Node>
         // TODO Control list bounds
     }
 
-    void addAll(
-            SeparatedNodeList<TNodeLeft, TNodeRight> elements) {
+     void addAll(
+            PairNodeList<TNodeLeft, TNodeRight> elements) {
 
-            this.leftHeader.previous.next = elements.leftHeader.next;
-            elements.leftHeader.next.previous = this.leftHeader.previous;
-            this.leftHeader.previous = elements.leftHeader.previous;
-            elements.leftHeader.previous.next = this.leftHeader;
+        this.leftHeader.previous.next = elements.leftHeader.next;
+        elements.leftHeader.next.previous = this.leftHeader.previous;
+        this.leftHeader.previous = elements.leftHeader.previous;
+        elements.leftHeader.previous.next = this.leftHeader;
 
-            this.rightHeader.previous.next = elements.rightHeader.next;
-            elements.rightHeader.next.previous = this.rightHeader.previous;
-            this.rightHeader.previous = elements.rightHeader.previous;
-            elements.rightHeader.previous.next = this.rightHeader;
+        this.rightHeader.previous.next = elements.rightHeader.next;
+        elements.rightHeader.next.previous = this.rightHeader.previous;
+        this.rightHeader.previous = elements.rightHeader.previous;
+        elements.rightHeader.previous.next = this.rightHeader;
 
         this.size += elements.size;
 
         // TODO Control list bounds
     }
     
-    NodeList<TNodeLeft> getElements(){
+     void addAll(
+            SeparatedNodeList<TNodeLeft, TNodeRight> elements) {
+
+        this.leftHeader.previous.next = elements.leftHeader.next;
+        elements.leftHeader.next.previous = this.leftHeader.previous;
+        this.leftHeader.previous = elements.leftHeader.previous;
+        elements.leftHeader.previous.next = this.leftHeader;
+
+        this.rightHeader.previous.next = elements.rightHeader.next;
+        elements.rightHeader.next.previous = this.rightHeader.previous;
+        this.rightHeader.previous = elements.rightHeader.previous;
+        elements.rightHeader.previous.next = this.rightHeader;
+
+        this.size += elements.size;
+        // TODO Control list bounds
+    }
+    
+    void addAllReverse(
+            PairNodeList<TNodeRight, TNodeLeft> elements) {
+
+            this.leftHeader.previous.next = elements.rightHeader.next;
+            elements.leftHeader.next.previous = this.rightHeader.previous;
+            this.leftHeader.previous = elements.rightHeader.previous;
+            elements.leftHeader.previous.next = this.rightHeader;
+
+            this.rightHeader.previous.next = elements.leftHeader.next;
+            elements.rightHeader.next.previous = this.leftHeader.previous;
+            this.rightHeader.previous = elements.leftHeader.previous;
+            elements.rightHeader.previous.next = this.leftHeader;
+
+        this.size += elements.size;
+
+        // TODO Control list bounds
+    }
+    
+     void addAllReverse(
+            SeparatedNodeList<TNodeRight, TNodeLeft> elements) {
+
+            this.leftHeader.previous.next = elements.rightHeader.next;
+            elements.leftHeader.next.previous = this.rightHeader.previous;
+            this.leftHeader.previous = elements.rightHeader.previous;
+            elements.leftHeader.previous.next = this.rightHeader;
+
+            this.rightHeader.previous.next = elements.leftHeader.next;
+            elements.rightHeader.next.previous = this.leftHeader.previous;
+            this.rightHeader.previous = elements.leftHeader.previous;
+            elements.rightHeader.previous.next = this.leftHeader;
+
+        this.size += elements.size;
+        // TODO Control list bounds
+    }
+    
+    NodeList<TNodeLeft> getLeft(){
         NodeList<TNodeLeft> list = new NodeList<TNodeLeft>();
         Iterator<TNodeLeft> leftIterator = this.iterator();
         
@@ -586,7 +666,7 @@ public class SeparatedNodeList<TNodeLeft extends Node, TNodeRight extends Node>
         return list;    
     }
     
-    NodeList<TNodeRight> getSeparators(){
+    NodeList<TNodeRight> getRight(){
         NodeList<TNodeRight> list = new NodeList<TNodeRight>();
         Iterator<TNodeRight> rightIterator = this.separatorIterator();
         
@@ -649,26 +729,6 @@ public class SeparatedNodeList<TNodeLeft extends Node, TNodeRight extends Node>
     public void applyOnChildren(
             Walker walker) {
 
-    }
-
-    private static class Entry<E> {
-
-        E element;
-
-        Entry<E> next;
-
-        Entry<E> previous;
-
-        Entry(
-                E element,
-                Entry<E> next,
-                Entry<E> previous) {
-
-            this.element = element;
-            this.next = next;
-            this.previous = previous;
-
-        }
     }
 
     private class LeftNodeListItr
@@ -1849,7 +1909,7 @@ $end: new_tree_class$
 $macro: new_list(list_name) $
 $expand: new_tree_class,new_list $
 	$expand:normal_declaration,alternated_declaration,separated_declaration$ n$(list_name) = new $expand:normal_declaration,alternated_declaration,separated_declaration$ ($expand: string_parameter,normal_parameter,new_parameter, separator=", "$);
-$expand: add_pop_element,add_pop_element_left,add_pop_element_right,add_new_element,add_pop_list,add_new_list $
+$expand: add_pop_element,add_pop_element_left,add_pop_element_right,add_new_element,add_pop_list,add_pop_separated_list,add_pop_alternated_list,add_new_list $
 $macro: normal_declaration(normal_list_type) $
 NodeList<N$(normal_list_type)>
 $end: normal_declaration$
@@ -1903,6 +1963,18 @@ $end: add_new_element $
 $macro: add_pop_list(list_name,element_name,element_type,index) $
       n$(list_name).addAll((NodeList<N$(element_type)>)l$(element_name).getNodes().get($index));
 $end: add_pop_list $
+$macro: add_pop_separated_list(list_name,element_name,left_type,right_type,index) $
+      n$(list_name).addAll((SeparatedNodeList<N$(left_type),N$(right_type)>)l$(element_name).getNodes().get($index)$expand: get_left,get_right $);
+$end: add_pop_separated_list $
+$macro: add_pop_alternated_list(list_name,element_name,left_type,right_type,index) $
+      n$(list_name).addAll((PairNodeList<$(left_type),N$(right_type)>)l$(element_name).getNodes().get($index)$expand: get_left,get_right $);
+$end: add_pop_alternated_list $
+$macro: get_left$
+.getLeft()
+$end: get_left$
+$macro: get_right$
+.getRight()
+$end: get_right$
 $macro: add_new_list(list_name,element_name) $
       n$(list_name).addAll($element_name);
 $end: add_new_list $

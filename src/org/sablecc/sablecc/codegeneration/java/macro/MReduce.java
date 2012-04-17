@@ -34,6 +34,14 @@ public class MReduce {
 
     private final List<Object> eAddPopList = new LinkedList<Object>();
 
+    private final List<Object> eAddPopSeparatedList = new LinkedList<Object>();
+
+    private final List<Object> eAddPopAlternatedList = new LinkedList<Object>();
+
+    private final List<Object> eGetLeft = new LinkedList<Object>();
+
+    private final List<Object> eGetRight = new LinkedList<Object>();
+
     private final List<Object> eAddNewList = new LinkedList<Object>();
 
     private final List<Object> eAcceptDecision = new LinkedList<Object>();
@@ -153,6 +161,46 @@ public class MReduce {
         return lAddPopList;
     }
 
+    public MAddPopSeparatedList newAddPopSeparatedList(
+            String pListName,
+            String pElementName,
+            String pLeftType,
+            String pRightType,
+            String pIndex) {
+
+        MAddPopSeparatedList lAddPopSeparatedList = new MAddPopSeparatedList(
+                pListName, pElementName, pLeftType, pRightType, pIndex);
+        this.eAddPopSeparatedList.add(lAddPopSeparatedList);
+        return lAddPopSeparatedList;
+    }
+
+    public MAddPopAlternatedList newAddPopAlternatedList(
+            String pListName,
+            String pElementName,
+            String pLeftType,
+            String pRightType,
+            String pIndex) {
+
+        MAddPopAlternatedList lAddPopAlternatedList = new MAddPopAlternatedList(
+                pListName, pElementName, pLeftType, pRightType, pIndex);
+        this.eAddPopAlternatedList.add(lAddPopAlternatedList);
+        return lAddPopAlternatedList;
+    }
+
+    public MGetLeft newGetLeft() {
+
+        MGetLeft lGetLeft = new MGetLeft();
+        this.eGetLeft.add(lGetLeft);
+        return lGetLeft;
+    }
+
+    public MGetRight newGetRight() {
+
+        MGetRight lGetRight = new MGetRight();
+        this.eGetRight.add(lGetRight);
+        return lGetRight;
+    }
+
     public MAddNewList newAddNewList(
             String pListName,
             String pElementName) {
@@ -231,6 +279,18 @@ public class MReduce {
         }
         for (Object oAddPopList : this.eAddPopList) {
             sb.append(oAddPopList.toString());
+        }
+        for (Object oAddPopSeparatedList : this.eAddPopSeparatedList) {
+            sb.append(oAddPopSeparatedList.toString());
+        }
+        for (Object oAddPopAlternatedList : this.eAddPopAlternatedList) {
+            sb.append(oAddPopAlternatedList.toString());
+        }
+        for (Object oGetLeft : this.eGetLeft) {
+            sb.append(oGetLeft.toString());
+        }
+        for (Object oGetRight : this.eGetRight) {
+            sb.append(oGetRight.toString());
         }
         for (Object oAddNewList : this.eAddNewList) {
             sb.append(oAddNewList.toString());

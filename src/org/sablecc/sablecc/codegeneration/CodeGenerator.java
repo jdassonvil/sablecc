@@ -105,6 +105,7 @@ public class CodeGenerator {
         MLrState mLrState = new MLrState();
         MCstProductionType mCstName = new MCstProductionType();
         MAbstractForest mAbstractForest = new MAbstractForest();
+        MEntry mEntry = new MEntry();
         MNodeList mNodeList = new MNodeList();
         MPairNodeList mPairNodeList = new MPairNodeList();
         MSeparatedNodeList mSeparatedNodeList = new MSeparatedNodeList();
@@ -135,6 +136,7 @@ public class CodeGenerator {
             mPairNodeList.newDefaultPackage(this.grammar.getName_camelCase());
             mSeparatedNodeList.newDefaultPackage(this.grammar
                     .getName_camelCase());
+            mEntry.newDefaultPackage(this.grammar.getName_camelCase());
         }
         else {
             packageDirectory = new File(this.destinationDirectory,
@@ -180,6 +182,8 @@ public class CodeGenerator {
                     this.destinationPackage);
             mSeparatedNodeList.newSpecifiedPackage(
                     this.grammar.getName_camelCase(), this.destinationPackage);
+            mEntry.newSpecifiedPackage(this.grammar.getName_camelCase(),
+                    this.destinationPackage);
         }
 
         packageDirectory.mkdirs();
@@ -1434,6 +1438,17 @@ public class CodeGenerator {
         }
         catch (IOException e) {
             new InternalException("TODO: raise error " + "NodeList.java", e);
+        }
+
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(new File(
+                    packageDirectory, "Entry.java")));
+
+            bw.write(mEntry.toString());
+            bw.close();
+        }
+        catch (IOException e) {
+            new InternalException("TODO: raise error " + "Entry.java", e);
         }
 
         try {
