@@ -68,10 +68,6 @@ public class SProductionTransformation {
             IReferencable reference,
             CardinalityInterval cardinality) {
 
-        if (production == null) {
-            throw new InternalException("production shouldn't be null");
-        }
-
         if (reference == null) {
             throw new InternalException("elements shouldn't be null");
         }
@@ -90,10 +86,6 @@ public class SProductionTransformation {
             IReferencable rightReference,
             CardinalityInterval cardinality,
             boolean separated) {
-
-        if (production == null) {
-            throw new InternalException("production shouldn't be null");
-        }
 
         if (leftReference == null) {
             throw new InternalException("elements shouldn't be null");
@@ -129,6 +121,12 @@ public class SProductionTransformation {
     public Production getProduction() {
 
         return this.production;
+    }
+
+    public void addProduction(
+            Production production) {
+
+        this.production = production;
     }
 
     private void generateElements(

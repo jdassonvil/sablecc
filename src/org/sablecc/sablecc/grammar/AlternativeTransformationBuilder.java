@@ -231,7 +231,7 @@ public class AlternativeTransformationBuilder
 
         Element origin = this.alternative.getElements().get(
                 node.getOriginReference().getIndex());
-        IElement target;
+        SProductionTransformationElement target;
 
         List<SAlternativeTransformationListElement> currentList = this.listElementListStack
                 .pop();
@@ -250,7 +250,14 @@ public class AlternativeTransformationBuilder
 
         }
         else {
-            target = origin;
+            if (this.alternative.getProduction().getTransformation()
+                    .getElements().size() == 0) {
+                throw new InternalException(
+                        "Production transformation should always be generatated");
+                // TODO remove this after debug
+            }
+            target = this.alternative.getProduction().getTransformation()
+                    .getElements().get(0);
         }
 
         currentList
@@ -264,9 +271,9 @@ public class AlternativeTransformationBuilder
     public void visitAlternativeTransformationLeftListReferenceListElement(
             LeftListElement node) {
 
-        Element origin = this.alternative.getElements().get(
-                node.getOriginReference().getIndex());
-        IElement target;
+        Element.ProductionElement origin = (Element.ProductionElement) this.alternative
+                .getElements().get(node.getOriginReference().getIndex());
+        SProductionTransformationElement target;
 
         List<SAlternativeTransformationListElement> currentList = this.listElementListStack
                 .pop();
@@ -285,7 +292,8 @@ public class AlternativeTransformationBuilder
 
         }
         else {
-            target = origin;
+            target = origin.getReference().getTransformation().getElements()
+                    .get(0);
         }
 
         currentList
@@ -299,9 +307,9 @@ public class AlternativeTransformationBuilder
     public void visitAlternativeTransformationRightListReferenceListElement(
             RightListElement node) {
 
-        Element origin = this.alternative.getElements().get(
-                node.getOriginReference().getIndex());
-        IElement target;
+        Element.ProductionElement origin = (Element.ProductionElement) this.alternative
+                .getElements().get(node.getOriginReference().getIndex());
+        SProductionTransformationElement target;
 
         List<SAlternativeTransformationListElement> currentList = this.listElementListStack
                 .pop();
@@ -320,11 +328,12 @@ public class AlternativeTransformationBuilder
 
         }
         else {
-            target = origin;
+            target = origin.getReference().getTransformation().getElements()
+                    .get(0);
         }
 
         currentList
-                .add(new SAlternativeTransformationListElement.LeftListElement(
+                .add(new SAlternativeTransformationListElement.RightListElement(
                         origin, target));
 
         this.listElementListStack.push(currentList);

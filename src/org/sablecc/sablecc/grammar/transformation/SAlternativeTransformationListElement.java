@@ -285,13 +285,13 @@ public abstract class SAlternativeTransformationListElement
     public static class NormalListElement
             extends SAlternativeTransformationListElement {
 
-        private IElement targetReference;
+        private SProductionTransformationElement targetReference;
 
         private Element originReference;
 
         public NormalListElement(
                 Element originReference,
-                IElement targetReference) {
+                SProductionTransformationElement targetReference) {
 
             if (originReference == null || targetReference == null) {
                 throw new InternalException("reference shouldn't be null");
@@ -301,7 +301,7 @@ public abstract class SAlternativeTransformationListElement
             this.originReference = originReference;
         }
 
-        public IElement getTargetReference() {
+        public SProductionTransformationElement getTargetReference() {
 
             return this.targetReference;
         }
@@ -318,10 +318,11 @@ public abstract class SAlternativeTransformationListElement
 
             LinkedList<SAlternativeTransformationListElement> inlineResult = new LinkedList<SAlternativeTransformationListElement>();
 
-            if (this.targetReference instanceof Element.ProductionElement
-                    && ((Element.ProductionElement) this.targetReference)
-                            .getReference().equals(
-                                    inlinedAlternative.getProduction())) {
+            if (this.originReference instanceof Element.ProductionElement
+                    && ((Element.ProductionElement) this.originReference)
+                            .getName().equals(
+                                    inlinedAlternative.getProduction()
+                                            .getName())) {
 
                 for (SAlternativeTransformationElement element : inlinedAlternative
                         .getTransformation().getElements()) {
@@ -354,17 +355,10 @@ public abstract class SAlternativeTransformationListElement
             }
             else {
 
-                IElement target;
-                if (this.targetReference instanceof Element) {
-                    target = oldToNewElement.get(this.targetReference);
-                }
-                else {
-                    target = this.targetReference;
-                }
                 inlineResult
                         .add(new SAlternativeTransformationListElement.NormalListElement(
                                 oldToNewElement.get(this.originReference),
-                                target));
+                                this.targetReference));
             }
 
             return inlineResult;
@@ -388,17 +382,7 @@ public abstract class SAlternativeTransformationListElement
         @Override
         public String toString() {
 
-            if (this.targetReference instanceof Element.ProductionElement) {
-                Element.ProductionElement element = (Element.ProductionElement) this.targetReference;
-                return (element.getName().equals("") ? element.getReference()
-                        .getName() : element.getName()) + "...";
-            }
-            else if (this.targetReference instanceof Element.TokenElement) {
-                Element.TokenElement element = (Element.TokenElement) this.targetReference;
-                return (element.getName().equals("") ? element.getTypeName()
-                        : element.getName()) + "...";
-            }
-            else if (this.targetReference instanceof SProductionTransformationElement.NormalElement) {
+            if (this.targetReference instanceof SProductionTransformationElement.NormalElement) {
                 SProductionTransformationElement.NormalElement normalement = (SProductionTransformationElement.NormalElement) this.targetReference;
                 return this.originReference.getName()
                         + "."
@@ -408,7 +392,7 @@ public abstract class SAlternativeTransformationListElement
             }
             else if (this.targetReference instanceof SProductionTransformationElement.SeparatedElement
                     || this.targetReference instanceof SProductionTransformationElement.AlternatedElement) {
-                SProductionTransformationElement separatedElement = (SProductionTransformationElement) this.targetReference;
+                SProductionTransformationElement separatedElement = this.targetReference;
                 return this.originReference.getName() + "." + "$"
                         + separatedElement.getIndex() + "...";
             }
@@ -424,13 +408,13 @@ public abstract class SAlternativeTransformationListElement
     public static class LeftListElement
             extends SAlternativeTransformationListElement {
 
-        private IElement targetReference;
+        private SProductionTransformationElement targetReference;
 
         private Element originReference;
 
         public LeftListElement(
                 Element originReference,
-                IElement targetReference) {
+                SProductionTransformationElement targetReference) {
 
             if (targetReference == null || originReference == null) {
                 throw new InternalException("reference shouldn't be null");
@@ -440,7 +424,7 @@ public abstract class SAlternativeTransformationListElement
             this.originReference = originReference;
         }
 
-        public IElement getTargetReference() {
+        public SProductionTransformationElement getTargetReference() {
 
             return this.targetReference;
         }
@@ -464,10 +448,11 @@ public abstract class SAlternativeTransformationListElement
 
             LinkedList<SAlternativeTransformationListElement> inlineResult = new LinkedList<SAlternativeTransformationListElement>();
 
-            if (this.targetReference instanceof Element.ProductionElement
-                    && ((Element.ProductionElement) this.targetReference)
-                            .getReference().equals(
-                                    inlinedAlternative.getProduction())) {
+            if (this.originReference instanceof Element.ProductionElement
+                    && ((Element.ProductionElement) this.originReference)
+                            .getName().equals(
+                                    inlinedAlternative.getProduction()
+                                            .getName())) {
 
                 for (SAlternativeTransformationElement element : inlinedAlternative
                         .getTransformation().getElements()) {
@@ -500,17 +485,10 @@ public abstract class SAlternativeTransformationListElement
             }
             else {
 
-                IElement target;
-                if (this.targetReference instanceof Element) {
-                    target = oldToNewElement.get(this.targetReference);
-                }
-                else {
-                    target = this.targetReference;
-                }
                 inlineResult
                         .add(new SAlternativeTransformationListElement.LeftListElement(
                                 oldToNewElement.get(this.originReference),
-                                target));
+                                this.targetReference));
             }
 
             return inlineResult;
@@ -535,13 +513,13 @@ public abstract class SAlternativeTransformationListElement
     public static class RightListElement
             extends SAlternativeTransformationListElement {
 
-        private IElement targetReference;
+        private SProductionTransformationElement targetReference;
 
         private Element originReference;
 
         public RightListElement(
                 Element originReference,
-                IElement targetReference) {
+                SProductionTransformationElement targetReference) {
 
             if (targetReference == null || originReference == null) {
                 throw new InternalException("reference shouldn't be null");
@@ -551,7 +529,7 @@ public abstract class SAlternativeTransformationListElement
             this.originReference = originReference;
         }
 
-        public IElement getTargetReference() {
+        public SProductionTransformationElement getTargetReference() {
 
             return this.targetReference;
         }
@@ -575,10 +553,11 @@ public abstract class SAlternativeTransformationListElement
 
             LinkedList<SAlternativeTransformationListElement> inlineResult = new LinkedList<SAlternativeTransformationListElement>();
 
-            if (this.targetReference instanceof Element.ProductionElement
-                    && ((Element.ProductionElement) this.targetReference)
-                            .getReference().equals(
-                                    inlinedAlternative.getProduction())) {
+            if (this.originReference instanceof Element.ProductionElement
+                    && ((Element.ProductionElement) this.originReference)
+                            .getName().equals(
+                                    inlinedAlternative.getProduction()
+                                            .getName())) {
 
                 for (SAlternativeTransformationElement element : inlinedAlternative
                         .getTransformation().getElements()) {
@@ -611,17 +590,10 @@ public abstract class SAlternativeTransformationListElement
             }
             else {
 
-                IElement target;
-                if (this.targetReference instanceof Element) {
-                    target = oldToNewElement.get(this.targetReference);
-                }
-                else {
-                    target = this.targetReference;
-                }
                 inlineResult
                         .add(new SAlternativeTransformationListElement.RightListElement(
                                 oldToNewElement.get(this.originReference),
-                                target));
+                                this.targetReference));
             }
 
             return inlineResult;
