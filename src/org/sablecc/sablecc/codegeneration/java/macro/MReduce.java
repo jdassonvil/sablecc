@@ -38,6 +38,10 @@ public class MReduce {
 
     private final List<Object> eAddPopAlternatedList = new LinkedList<Object>();
 
+    private final List<Object> eAddPopReverseSeparatedList = new LinkedList<Object>();
+
+    private final List<Object> eAddPopReverseAlternatedList = new LinkedList<Object>();
+
     private final List<Object> eGetLeft = new LinkedList<Object>();
 
     private final List<Object> eGetRight = new LinkedList<Object>();
@@ -187,6 +191,32 @@ public class MReduce {
         return lAddPopAlternatedList;
     }
 
+    public MAddPopReverseSeparatedList newAddPopReverseSeparatedList(
+            String pListName,
+            String pElementName,
+            String pLeftType,
+            String pRightType,
+            String pIndex) {
+
+        MAddPopReverseSeparatedList lAddPopReverseSeparatedList = new MAddPopReverseSeparatedList(
+                pListName, pElementName, pLeftType, pRightType, pIndex);
+        this.eAddPopReverseSeparatedList.add(lAddPopReverseSeparatedList);
+        return lAddPopReverseSeparatedList;
+    }
+
+    public MAddPopReverseAlternatedList newAddPopReverseAlternatedList(
+            String pListName,
+            String pElementName,
+            String pLeftType,
+            String pRightType,
+            String pIndex) {
+
+        MAddPopReverseAlternatedList lAddPopReverseAlternatedList = new MAddPopReverseAlternatedList(
+                pListName, pElementName, pLeftType, pRightType, pIndex);
+        this.eAddPopReverseAlternatedList.add(lAddPopReverseAlternatedList);
+        return lAddPopReverseAlternatedList;
+    }
+
     public MGetLeft newGetLeft() {
 
         MGetLeft lGetLeft = new MGetLeft();
@@ -285,6 +315,12 @@ public class MReduce {
         }
         for (Object oAddPopAlternatedList : this.eAddPopAlternatedList) {
             sb.append(oAddPopAlternatedList.toString());
+        }
+        for (Object oAddPopReverseSeparatedList : this.eAddPopReverseSeparatedList) {
+            sb.append(oAddPopReverseSeparatedList.toString());
+        }
+        for (Object oAddPopReverseAlternatedList : this.eAddPopReverseAlternatedList) {
+            sb.append(oAddPopReverseAlternatedList.toString());
         }
         for (Object oGetLeft : this.eGetLeft) {
             sb.append(oGetLeft.toString());

@@ -13,7 +13,6 @@ public class MGetLeft {
 
         StringBuilder sb = new StringBuilder();
         sb.append(".getLeft()");
-        sb.append(System.getProperty("line.separator"));
         return sb.toString();
     }
 

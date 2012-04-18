@@ -4,7 +4,7 @@ package org.sablecc.sablecc.codegeneration.java.macro;
 
 import java.util.*;
 
-public class MAddPopAlternatedList {
+public class MAddPopReverseSeparatedList {
 
     private final String pListName;
 
@@ -16,11 +16,11 @@ public class MAddPopAlternatedList {
 
     private final String pIndex;
 
-    private final MAddPopAlternatedList mAddPopAlternatedList = this;
+    private final MAddPopReverseSeparatedList mAddPopReverseSeparatedList = this;
 
     private final List<Object> eGetLeft_GetRight = new LinkedList<Object>();
 
-    MAddPopAlternatedList(
+    MAddPopReverseSeparatedList(
             String pListName,
             String pElementName,
             String pLeftType,
@@ -90,27 +90,27 @@ public class MAddPopAlternatedList {
 
     private String rListName() {
 
-        return this.mAddPopAlternatedList.pListName();
+        return this.mAddPopReverseSeparatedList.pListName();
     }
 
     private String rLeftType() {
 
-        return this.mAddPopAlternatedList.pLeftType();
+        return this.mAddPopReverseSeparatedList.pLeftType();
     }
 
     private String rRightType() {
 
-        return this.mAddPopAlternatedList.pRightType();
+        return this.mAddPopReverseSeparatedList.pRightType();
     }
 
     private String rElementName() {
 
-        return this.mAddPopAlternatedList.pElementName();
+        return this.mAddPopReverseSeparatedList.pElementName();
     }
 
     private String rIndex() {
 
-        return this.mAddPopAlternatedList.pIndex();
+        return this.mAddPopReverseSeparatedList.pIndex();
     }
 
     @Override
@@ -119,7 +119,7 @@ public class MAddPopAlternatedList {
         StringBuilder sb = new StringBuilder();
         sb.append("      n");
         sb.append(rListName());
-        sb.append(".addAll((PairNodeList<N");
+        sb.append(".addAllReverse((SeparatedNodeList<N");
         sb.append(rLeftType());
         sb.append(",N");
         sb.append(rRightType());
