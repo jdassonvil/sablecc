@@ -341,9 +341,9 @@ public abstract class SProductionTransformationElement
                 throw new InternalException("coreReference shouldn't be null");
             }
 
-            if (coreReference.getElementType() != ElementType.SEPARATED) {
+            if (coreReference.getElementType() != ElementType.ALTERNATED) {
                 throw new InternalException(
-                        "The core reference must be alternated in a alternated separated element");
+                        "The core reference must be alternated in an alternated element");
             }
 
             this.leftName = coreReference.getLeft();

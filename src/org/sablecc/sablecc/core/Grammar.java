@@ -77,7 +77,7 @@ public class Grammar
             fillGlobalNameSpace(ast);
             findInlineExpressions(ast);
             findLexerPriorities(ast);
-            verifyReferences();
+            verifyandResolveReferences();
             verifyPriorities();
         }
         else {
@@ -88,7 +88,7 @@ public class Grammar
             findTransformations(ast);
             findLexerPriorities(ast);
 
-            verifyReferences();
+            verifyandResolveReferences();
             verifyPriorities();
 
             if (hasATree()) {
@@ -427,7 +427,10 @@ public class Grammar
         ast.apply(new DeclarationFinder.LexerPrioritiesFinder(this));
     }
 
-    private void verifyReferences() {
+    private void verifyandResolveReferences() {
+
+        // The reference solvers should call in this
+        // order to sucessfully complete.
 
         if (GrammarCompiler.RESTRICTED_SYNTAX) {
             apply(new ReferenceVerifier.LexerReferenceVerifier(this));

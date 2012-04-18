@@ -645,7 +645,7 @@ public abstract class AlternativeTransformationListElement
                             .getElementType() == ElementType.ALTERNATED
                     || this.targetReference instanceof ProductionTransformationElement
                     && ((ProductionTransformationElement) this.targetReference)
-                            .getElementType() == ProductionTransformationElement.ElementType.SEPARATED) {
+                            .getElementType() == ProductionTransformationElement.ElementType.ALTERNATED) {
                 if (leftName == null) {
                     this.type = new Type.SimpleType.AlternatedType(rightName,
                             cardinality);
