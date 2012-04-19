@@ -14,7 +14,7 @@ public class MNewList {
 
     private final List<Object> eNormalDeclaration_AlternatedDeclaration_SeparatedDeclaration = new LinkedList<Object>();
 
-    private final List<Object> eStringParameter_NormalParameter_NewParameter = new LinkedList<Object>();
+    private final List<Object> eStringParameter_NormalParameter_SeparatedParameter_AlternatedParameter_NewParameter = new LinkedList<Object>();
 
     private final List<Object> eAddPopElement_AddPopElementLeft_AddPopElementRight_AddNewElement_AddPopList_AddPopSeparatedList_AddPopAlternatedList_AddPopReverseSeparatedList_AddPopReverseAlternatedList_AddNewList = new LinkedList<Object>();
 
@@ -81,7 +81,7 @@ public class MNewList {
             String pString) {
 
         MStringParameter lStringParameter = new MStringParameter(pString);
-        this.eStringParameter_NormalParameter_NewParameter
+        this.eStringParameter_NormalParameter_SeparatedParameter_AlternatedParameter_NewParameter
                 .add(lStringParameter);
         return lStringParameter;
     }
@@ -93,16 +93,43 @@ public class MNewList {
 
         MNormalParameter lNormalParameter = new MNormalParameter(pElementType,
                 pElementName, pIndex);
-        this.eStringParameter_NormalParameter_NewParameter
+        this.eStringParameter_NormalParameter_SeparatedParameter_AlternatedParameter_NewParameter
                 .add(lNormalParameter);
         return lNormalParameter;
+    }
+
+    public MSeparatedParameter newSeparatedParameter(
+            String pLeftElementType,
+            String pRightElementType,
+            String pElementName,
+            String pIndex) {
+
+        MSeparatedParameter lSeparatedParameter = new MSeparatedParameter(
+                pLeftElementType, pRightElementType, pElementName, pIndex);
+        this.eStringParameter_NormalParameter_SeparatedParameter_AlternatedParameter_NewParameter
+                .add(lSeparatedParameter);
+        return lSeparatedParameter;
+    }
+
+    public MAlternatedParameter newAlternatedParameter(
+            String pLeftElementType,
+            String pRightElementType,
+            String pElementName,
+            String pIndex) {
+
+        MAlternatedParameter lAlternatedParameter = new MAlternatedParameter(
+                pLeftElementType, pRightElementType, pElementName, pIndex);
+        this.eStringParameter_NormalParameter_SeparatedParameter_AlternatedParameter_NewParameter
+                .add(lAlternatedParameter);
+        return lAlternatedParameter;
     }
 
     public MNewParameter newNewParameter(
             String pElementName) {
 
         MNewParameter lNewParameter = new MNewParameter(pElementName);
-        this.eStringParameter_NormalParameter_NewParameter.add(lNewParameter);
+        this.eStringParameter_NormalParameter_SeparatedParameter_AlternatedParameter_NewParameter
+                .add(lNewParameter);
         return lNewParameter;
     }
 
@@ -267,14 +294,14 @@ public class MNewList {
         sb.append(" (");
         {
             boolean first = true;
-            for (Object oStringParameter_NormalParameter_NewParameter : this.eStringParameter_NormalParameter_NewParameter) {
+            for (Object oStringParameter_NormalParameter_SeparatedParameter_AlternatedParameter_NewParameter : this.eStringParameter_NormalParameter_SeparatedParameter_AlternatedParameter_NewParameter) {
                 if (first) {
                     first = false;
                 }
                 else {
                     sb.append(", ");
                 }
-                sb.append(oStringParameter_NormalParameter_NewParameter
+                sb.append(oStringParameter_NormalParameter_SeparatedParameter_AlternatedParameter_NewParameter
                         .toString());
             }
         }

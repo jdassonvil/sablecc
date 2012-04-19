@@ -48,12 +48,11 @@ public class MSeparatedDeclaration {
     public String toString() {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("NodeList<N");
+        sb.append("SeparatedNodeList<N");
         sb.append(rLeftListType());
         sb.append(",N");
         sb.append(rRightListType());
         sb.append(">");
-        sb.append(System.getProperty("line.separator"));
         return sb.toString();
     }
 

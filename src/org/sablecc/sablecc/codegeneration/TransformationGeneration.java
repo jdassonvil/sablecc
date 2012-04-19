@@ -61,6 +61,7 @@ public class TransformationGeneration
         this.reducedAlternative = reducedAlternative;
         this.macroStack.push(reduceDecision);
         this.alternativeToCamelFullName = alternativeToCamelFullName;
+
     }
 
     private String getNextVarId(
@@ -138,6 +139,9 @@ public class TransformationGeneration
         IElement reference = node.getTargetReference();
         Object currentMacro = this.macroStack.peek();
 
+        String elementName = to_camelCase(this.grammar.getSimplifiedGrammar()
+                .getOldElement(node.getOriginReference()).getName());
+
         if (reference instanceof TokenElement) {
 
             OldElement matchedElement = this.reducedAlternative
@@ -146,11 +150,11 @@ public class TransformationGeneration
             if (currentMacro instanceof MNewTreeClass) {
                 ((MNewTreeClass) currentMacro).newNormalParameter(
                         to_CamelCase(matchedElement.getTypeName()),
-                        matchedElement.getName(), "0");
+                        elementName, "0");
             }
             else if (currentMacro instanceof MReduceDecision) {
-                ((MReduceDecision) currentMacro).newAddLToForest(matchedElement
-                        .getName());
+                ((MReduceDecision) currentMacro).newAddPopToForest(elementName,
+                        "0");
             }
             else {
                 throw new InternalException("Unhandled "
@@ -165,11 +169,11 @@ public class TransformationGeneration
             if (currentMacro instanceof MNewTreeClass) {
                 ((MNewTreeClass) currentMacro).newNormalParameter(
                         to_CamelCase(matchedElement.getTypeName()),
-                        matchedElement.getName(), "0");
+                        elementName, "0");
             }
             else if (currentMacro instanceof MReduceDecision) {
-                ((MReduceDecision) currentMacro).newAddLToForest(matchedElement
-                        .getName());
+                ((MReduceDecision) currentMacro).newAddPopToForest(elementName,
+                        "0");
             }
             else {
                 throw new InternalException("Unhandled "
@@ -186,16 +190,11 @@ public class TransformationGeneration
                             .getCoreReference()).getName_CamelCase();
 
                     if (currentMacro instanceof MNewTreeClass) {
-                        String elementName = to_camelCase(normalElement
-                                .getProductionTransformation().getProduction()
-                                .getName());
                         ((MNewTreeClass) currentMacro).newNormalParameter(
                                 prodCamelCaseType, elementName,
                                 normalElement.getIndex() + "");
                     }
                     else if (currentMacro instanceof MReduceDecision) {
-                        String elementName = to_camelCase(normalElement
-                                .getName());
                         ((MReduceDecision) currentMacro)
                                 .newAddLToForest(elementName);
                     }
@@ -207,9 +206,57 @@ public class TransformationGeneration
 
             }
             else if (reference instanceof SProductionTransformationElement.SeparatedElement) {
+                SProductionTransformationElement.SeparatedElement separatedElement = (SProductionTransformationElement.SeparatedElement) reference;
+
+                String elementLeftName = computeElementType(separatedElement
+                        .getLeftTreeReference());
+                String elementRightName = computeElementType(separatedElement
+                        .getRightTreeReference());
+
+                if (currentMacro instanceof MNewTreeClass) {
+                    ((MNewTreeClass) currentMacro).newSeparatedParameter(
+                            elementLeftName,
+                            elementRightName,
+                            elementName,
+                            ((SProductionTransformationElement) reference)
+                                    .getIndex() + "");
+                }
+                else if (currentMacro instanceof MReduceDecision) {
+
+                    ((MReduceDecision) currentMacro)
+                            .newAddLToForest(elementName);
+                }
+                else {
+                    throw new InternalException("Unhandled "
+                            + currentMacro.getClass());
+                }
 
             }
             else if (reference instanceof SProductionTransformationElement.AlternatedElement) {
+                SProductionTransformationElement.AlternatedElement alternatedElement = (SProductionTransformationElement.AlternatedElement) reference;
+
+                String elementLeftName = computeElementType(alternatedElement
+                        .getLeftTreeReference());
+                String elementRightName = computeElementType(alternatedElement
+                        .getRightTreeReference());
+
+                if (currentMacro instanceof MNewTreeClass) {
+                    ((MNewTreeClass) currentMacro).newAlternatedParameter(
+                            elementLeftName,
+                            elementRightName,
+                            elementName,
+                            ((SProductionTransformationElement) reference)
+                                    .getIndex() + "");
+                }
+                else if (currentMacro instanceof MReduceDecision) {
+
+                    ((MReduceDecision) currentMacro)
+                            .newAddLToForest(elementName);
+                }
+                else {
+                    throw new InternalException("Unhandled "
+                            + currentMacro.getClass());
+                }
 
             }
             else {
@@ -219,6 +266,25 @@ public class TransformationGeneration
 
         }
 
+    }
+
+    private String computeElementType(
+            IReferencable reference) {
+
+        if (reference instanceof Tree.TreeProduction) {
+            return ((Tree.TreeProduction) reference).getName_CamelCase();
+        }
+        else if (reference instanceof LexerExpression.NamedExpression) {
+            return ((LexerExpression.NamedExpression) reference)
+                    .getName_CamelCase();
+        }
+        else if (reference instanceof LexerExpression.InlineExpression) {
+            return ((LexerExpression.InlineExpression) reference)
+                    .getInternalName_CamelCase();
+        }
+        else {
+            throw new InternalException("Unhandled reference type");
+        }
     }
 
     private String computeListType(
@@ -503,8 +569,11 @@ public class TransformationGeneration
                 SProductionTransformationElement.SeparatedElement separatedElement = (SProductionTransformationElement.SeparatedElement) node
                         .getTargetReference();
 
-                if (to_CamelCase(separatedElement.getLeftName()).equals(
-                        listDescriptor.getLeftListType())) {
+                String leftElementTransformationName = computeElementType(separatedElement
+                        .getLeftTreeReference());
+
+                if (leftElementTransformationName.equals(listDescriptor
+                        .getLeftListType())) {
                     list.newAddPopSeparatedList(listDescriptor.getListName(),
                             elementName, listDescriptor.getLeftListType(),
                             listDescriptor.getRightListType(), node
@@ -525,8 +594,11 @@ public class TransformationGeneration
                 SProductionTransformationElement.AlternatedElement alternatedElement = (SProductionTransformationElement.AlternatedElement) node
                         .getTargetReference();
 
-                if (to_CamelCase(alternatedElement.getLeftName()).equals(
-                        listDescriptor.getLeftListType())) {
+                String leftElementTransformationName = computeElementType(alternatedElement
+                        .getLeftTreeReference());
+
+                if (leftElementTransformationName.equals(listDescriptor
+                        .getLeftListType())) {
                     list.newAddPopAlternatedList(listDescriptor.getListName(),
                             elementName, listDescriptor.getLeftListType(),
                             listDescriptor.getRightListType(), node
@@ -569,10 +641,10 @@ public class TransformationGeneration
                 SProductionTransformationElement.AlternatedElement transformationElement = (SProductionTransformationElement.AlternatedElement) node
                         .getTargetReference();
 
-                leftElementType = to_CamelCase(transformationElement
-                        .getLeftName());
-                rightElementType = to_CamelCase(transformationElement
-                        .getRightName());
+                leftElementType = computeElementType(transformationElement
+                        .getLeftTreeReference());
+                rightElementType = computeElementType(transformationElement
+                        .getRightTreeReference());
 
                 MAddPopAlternatedList mAddPopAlternatedList = list
                         .newAddPopAlternatedList(this.listStack.peek()
@@ -585,10 +657,10 @@ public class TransformationGeneration
                 SProductionTransformationElement.SeparatedElement transformationElement = (SProductionTransformationElement.SeparatedElement) node
                         .getTargetReference();
 
-                leftElementType = to_CamelCase(transformationElement
-                        .getLeftName());
-                rightElementType = to_CamelCase(transformationElement
-                        .getRightName());
+                leftElementType = computeElementType(transformationElement
+                        .getLeftTreeReference());
+                rightElementType = computeElementType(transformationElement
+                        .getRightTreeReference());
 
                 MAddPopSeparatedList mAddPopSeparatedList = list
                         .newAddPopSeparatedList(this.listStack.peek()
@@ -622,10 +694,10 @@ public class TransformationGeneration
                 SProductionTransformationElement.AlternatedElement transformationElement = (SProductionTransformationElement.AlternatedElement) node
                         .getTargetReference();
 
-                leftElementType = to_CamelCase(transformationElement
-                        .getLeftName());
-                rightElementType = to_CamelCase(transformationElement
-                        .getRightName());
+                leftElementType = computeElementType(transformationElement
+                        .getLeftTreeReference());
+                rightElementType = computeElementType(transformationElement
+                        .getRightTreeReference());
 
                 MAddPopAlternatedList mAddPopAlternatedList = list
                         .newAddPopAlternatedList(this.listStack.peek()
@@ -638,10 +710,10 @@ public class TransformationGeneration
                 SProductionTransformationElement.SeparatedElement transformationElement = (SProductionTransformationElement.SeparatedElement) node
                         .getTargetReference();
 
-                leftElementType = to_CamelCase(transformationElement
-                        .getLeftName());
-                rightElementType = to_CamelCase(transformationElement
-                        .getRightName());
+                leftElementType = computeElementType(transformationElement
+                        .getLeftTreeReference());
+                rightElementType = computeElementType(transformationElement
+                        .getRightTreeReference());
 
                 MAddPopSeparatedList mAddPopSeparatedList = list
                         .newAddPopSeparatedList(this.listStack.peek()

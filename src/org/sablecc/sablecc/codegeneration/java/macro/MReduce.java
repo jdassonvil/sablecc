@@ -16,6 +16,10 @@ public class MReduce {
 
     private final List<Object> eNormalParameter = new LinkedList<Object>();
 
+    private final List<Object> eSeparatedParameter = new LinkedList<Object>();
+
+    private final List<Object> eAlternatedParameter = new LinkedList<Object>();
+
     private final List<Object> eNewParameter = new LinkedList<Object>();
 
     private final List<Object> eNullParameter = new LinkedList<Object>();
@@ -75,6 +79,30 @@ public class MReduce {
                 pElementName, pIndex);
         this.eNormalParameter.add(lNormalParameter);
         return lNormalParameter;
+    }
+
+    public MSeparatedParameter newSeparatedParameter(
+            String pLeftElementType,
+            String pRightElementType,
+            String pElementName,
+            String pIndex) {
+
+        MSeparatedParameter lSeparatedParameter = new MSeparatedParameter(
+                pLeftElementType, pRightElementType, pElementName, pIndex);
+        this.eSeparatedParameter.add(lSeparatedParameter);
+        return lSeparatedParameter;
+    }
+
+    public MAlternatedParameter newAlternatedParameter(
+            String pLeftElementType,
+            String pRightElementType,
+            String pElementName,
+            String pIndex) {
+
+        MAlternatedParameter lAlternatedParameter = new MAlternatedParameter(
+                pLeftElementType, pRightElementType, pElementName, pIndex);
+        this.eAlternatedParameter.add(lAlternatedParameter);
+        return lAlternatedParameter;
     }
 
     public MNewParameter newNewParameter(
@@ -282,6 +310,12 @@ public class MReduce {
         }
         for (Object oNormalParameter : this.eNormalParameter) {
             sb.append(oNormalParameter.toString());
+        }
+        for (Object oSeparatedParameter : this.eSeparatedParameter) {
+            sb.append(oSeparatedParameter.toString());
+        }
+        for (Object oAlternatedParameter : this.eAlternatedParameter) {
+            sb.append(oAlternatedParameter.toString());
         }
         for (Object oNewParameter : this.eNewParameter) {
             sb.append(oNewParameter.toString());

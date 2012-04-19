@@ -53,7 +53,6 @@ public class MAlternatedDeclaration {
         sb.append(",N");
         sb.append(rRightListType());
         sb.append(">");
-        sb.append(System.getProperty("line.separator"));
         return sb.toString();
     }
 

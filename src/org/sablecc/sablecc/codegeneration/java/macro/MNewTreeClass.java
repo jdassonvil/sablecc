@@ -14,7 +14,7 @@ public class MNewTreeClass {
 
     private final List<Object> eNewTreeClass_NewList = new LinkedList<Object>();
 
-    private final List<Object> eNormalParameter_NullParameter_NewParameter_EndParameter = new LinkedList<Object>();
+    private final List<Object> eNormalParameter_NullParameter_SeparatedParameter_AlternatedParameter_NewParameter_EndParameter = new LinkedList<Object>();
 
     MNewTreeClass(
             String pElementType,
@@ -55,7 +55,7 @@ public class MNewTreeClass {
 
         MNormalParameter lNormalParameter = new MNormalParameter(pElementType,
                 pElementName, pIndex);
-        this.eNormalParameter_NullParameter_NewParameter_EndParameter
+        this.eNormalParameter_NullParameter_SeparatedParameter_AlternatedParameter_NewParameter_EndParameter
                 .add(lNormalParameter);
         return lNormalParameter;
     }
@@ -63,16 +63,42 @@ public class MNewTreeClass {
     public MNullParameter newNullParameter() {
 
         MNullParameter lNullParameter = new MNullParameter();
-        this.eNormalParameter_NullParameter_NewParameter_EndParameter
+        this.eNormalParameter_NullParameter_SeparatedParameter_AlternatedParameter_NewParameter_EndParameter
                 .add(lNullParameter);
         return lNullParameter;
+    }
+
+    public MSeparatedParameter newSeparatedParameter(
+            String pLeftElementType,
+            String pRightElementType,
+            String pElementName,
+            String pIndex) {
+
+        MSeparatedParameter lSeparatedParameter = new MSeparatedParameter(
+                pLeftElementType, pRightElementType, pElementName, pIndex);
+        this.eNormalParameter_NullParameter_SeparatedParameter_AlternatedParameter_NewParameter_EndParameter
+                .add(lSeparatedParameter);
+        return lSeparatedParameter;
+    }
+
+    public MAlternatedParameter newAlternatedParameter(
+            String pLeftElementType,
+            String pRightElementType,
+            String pElementName,
+            String pIndex) {
+
+        MAlternatedParameter lAlternatedParameter = new MAlternatedParameter(
+                pLeftElementType, pRightElementType, pElementName, pIndex);
+        this.eNormalParameter_NullParameter_SeparatedParameter_AlternatedParameter_NewParameter_EndParameter
+                .add(lAlternatedParameter);
+        return lAlternatedParameter;
     }
 
     public MNewParameter newNewParameter(
             String pElementName) {
 
         MNewParameter lNewParameter = new MNewParameter(pElementName);
-        this.eNormalParameter_NullParameter_NewParameter_EndParameter
+        this.eNormalParameter_NullParameter_SeparatedParameter_AlternatedParameter_NewParameter_EndParameter
                 .add(lNewParameter);
         return lNewParameter;
     }
@@ -80,7 +106,7 @@ public class MNewTreeClass {
     public MEndParameter newEndParameter() {
 
         MEndParameter lEndParameter = new MEndParameter();
-        this.eNormalParameter_NullParameter_NewParameter_EndParameter
+        this.eNormalParameter_NullParameter_SeparatedParameter_AlternatedParameter_NewParameter_EndParameter
                 .add(lEndParameter);
         return lEndParameter;
     }
@@ -119,20 +145,20 @@ public class MNewTreeClass {
         sb.append(" = new N");
         sb.append(rElementType());
         sb.append(" (-1, -1");
-        if (this.eNormalParameter_NullParameter_NewParameter_EndParameter
+        if (this.eNormalParameter_NullParameter_SeparatedParameter_AlternatedParameter_NewParameter_EndParameter
                 .size() > 0) {
             sb.append(", ");
         }
         {
             boolean first = true;
-            for (Object oNormalParameter_NullParameter_NewParameter_EndParameter : this.eNormalParameter_NullParameter_NewParameter_EndParameter) {
+            for (Object oNormalParameter_NullParameter_SeparatedParameter_AlternatedParameter_NewParameter_EndParameter : this.eNormalParameter_NullParameter_SeparatedParameter_AlternatedParameter_NewParameter_EndParameter) {
                 if (first) {
                     first = false;
                 }
                 else {
                     sb.append(", ");
                 }
-                sb.append(oNormalParameter_NullParameter_NewParameter_EndParameter
+                sb.append(oNormalParameter_NullParameter_SeparatedParameter_AlternatedParameter_NewParameter_EndParameter
                         .toString());
             }
         }

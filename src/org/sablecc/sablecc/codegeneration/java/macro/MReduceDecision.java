@@ -12,6 +12,8 @@ public class MReduceDecision {
 
     private final List<Object> eAddLToForest_AddNullToForest_AddNToForest = new LinkedList<Object>();
 
+    private final List<Object> eAddPopToForest = new LinkedList<Object>();
+
     MReduceDecision(
             MReduce mReduce) {
 
@@ -19,6 +21,16 @@ public class MReduceDecision {
             throw new NullPointerException();
         }
         this.mReduce = mReduce;
+    }
+
+    public MAddPopToForest newAddPopToForest(
+            String pElementName,
+            String pIndex) {
+
+        MAddPopToForest lAddPopToForest = new MAddPopToForest(pElementName,
+                pIndex);
+        this.eAddPopToForest.add(lAddPopToForest);
+        return lAddPopToForest;
     }
 
     public MNewTreeClass newNewTreeClass(
@@ -79,6 +91,9 @@ public class MReduceDecision {
         }
         for (Object oAddLToForest_AddNullToForest_AddNToForest : this.eAddLToForest_AddNullToForest_AddNToForest) {
             sb.append(oAddLToForest_AddNullToForest_AddNToForest.toString());
+        }
+        for (Object oAddPopToForest : this.eAddPopToForest) {
+            sb.append(oAddPopToForest.toString());
         }
         sb.append("      stack.push(new AbstractForest(CSTProductionType.");
         sb.append(rReducedProduction());
