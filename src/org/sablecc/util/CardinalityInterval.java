@@ -150,6 +150,14 @@ public final class CardinalityInterval
                 this.upperBound.add(anInterval.upperBound));
     }
 
+    public CardinalityInterval union(
+            CardinalityInterval anInterval) {
+
+        return new CardinalityInterval(
+                this.lowerBound.min(anInterval.lowerBound),
+                this.upperBound.max(this.upperBound));
+    }
+
     @Override
     public boolean equals(
             Object obj) {

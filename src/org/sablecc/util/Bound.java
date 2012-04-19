@@ -233,6 +233,14 @@ public class Bound
     public Bound min(
             Bound aBound) {
 
+        if (equals(MIN)) {
+            return this;
+        }
+
+        if (aBound.equals(MIN)) {
+            return aBound;
+        }
+
         if (this.value.min(aBound.getValue()).equals(this.value)) {
             return this;
         }
@@ -243,6 +251,14 @@ public class Bound
 
     public Bound max(
             Bound aBound) {
+
+        if (equals(MAX)) {
+            return this;
+        }
+
+        if (aBound.equals(MAX)) {
+            return aBound;
+        }
 
         if (this.value.max(aBound.getValue()).equals(this.value)) {
             return this;
