@@ -235,6 +235,7 @@ public class AlternativeTransformationBuilder
 
         List<SAlternativeTransformationListElement> currentList = this.listElementListStack
                 .pop();
+        boolean a = node.isTransformed();
 
         if (node.isTransformed()) {
             ProductionTransformationElement reference = (ProductionTransformationElement) node

@@ -60,9 +60,68 @@ public class SAlternativeTransformation {
         this.alternative = alternative;
 
         for (Element element : elements) {
-            this.elements
-                    .add(new SAlternativeTransformationElement.ReferenceElement(
-                            element, element));
+            if (element instanceof Element.TokenElement) {
+                this.elements
+                        .add(new SAlternativeTransformationElement.ReferenceElement(
+                                element, element));
+            }
+            else {
+                SProductionTransformation productionTransformation = ((Element.ProductionElement) element)
+                        .getReference().getTransformation();
+                SProductionTransformationElement firstElement = productionTransformation
+                        .getElements().get(0);
+
+                if (firstElement instanceof SProductionTransformationElement.NormalElement
+                        && ((SProductionTransformationElement.NormalElement) firstElement)
+                                .getCardinality().isIncludedIn(
+                                        CardinalityInterval.ZERO_ONE)) {
+                    this.elements
+                            .add(new SAlternativeTransformationElement.ReferenceElement(
+                                    element, productionTransformation
+                                            .getElements().get(0)));
+                }
+                else {
+                    LinkedList<SAlternativeTransformationListElement> transformationListElements = new LinkedList<SAlternativeTransformationListElement>();
+                    transformationListElements
+                            .add(new SAlternativeTransformationListElement.NormalListElement(
+                                    element, productionTransformation
+                                            .getElements().get(0)));
+                    Type.SimpleType listType;
+
+                    if (firstElement instanceof SProductionTransformationElement.NormalElement) {
+                        listType = new Type.SimpleType.HomogeneousType(
+                                ((SProductionTransformationElement.NormalElement) firstElement)
+                                        .getName(), firstElement
+                                        .getCardinality());
+                    }
+                    else if (firstElement instanceof SProductionTransformationElement.SeparatedElement) {
+                        listType = new Type.SimpleType.SeparatedType(
+                                ((SProductionTransformationElement.SeparatedElement) firstElement)
+                                        .getLeftName(),
+                                ((SProductionTransformationElement.SeparatedElement) firstElement)
+                                        .getRightName(), firstElement
+                                        .getCardinality());
+
+                    }
+                    else if (firstElement instanceof SProductionTransformationElement.AlternatedElement) {
+                        listType = new Type.SimpleType.AlternatedType(
+                                ((SProductionTransformationElement.AlternatedElement) firstElement)
+                                        .getLeftName(),
+                                ((SProductionTransformationElement.AlternatedElement) firstElement)
+                                        .getRightName(), firstElement
+                                        .getCardinality());
+                    }
+                    else {
+                        throw new InternalException("Unhandle list type");
+                    }
+
+                    this.elements
+                            .add(new SAlternativeTransformationElement.ListElement(
+                                    transformationListElements, listType));
+                }
+
+            }
+
         }
     }
 

@@ -52,14 +52,7 @@ public class SProductionTransformation {
     public SProductionTransformation(
             Production production) {
 
-        if (production == null) {
-            throw new InternalException("production shouldn't be null");
-        }
-
         this.production = production;
-
-        this.elements.add(new SProductionTransformationElement.NormalElement(
-                this));
     }
 
     public SProductionTransformation(
@@ -118,6 +111,59 @@ public class SProductionTransformation {
         return this.elements;
     }
 
+    public void addElement(
+            SProductionTransformationElement element) {
+
+        this.elements.add(element);
+    }
+
+    public void addElement(
+            ProductionTransformationElement element,
+            CardinalityInterval cardinality) {
+
+        if (cardinality == null) {
+            cardinality = element.getCardinality();
+        }
+        switch (element.getElementType()) {
+        case NORMAL:
+            this.elements
+                    .add(new SProductionTransformationElement.NormalElement(
+                            this,
+                            ((ProductionTransformationElement.SingleElement) element)
+                                    .getElement(),
+                            ((ProductionTransformationElement.SingleElement) element)
+                                    .getReference(), cardinality));
+
+            break;
+        case SEPARATED:
+            this.elements
+                    .add(new SProductionTransformationElement.SeparatedElement(
+                            this,
+                            ((ProductionTransformationElement.DoubleElement) element)
+                                    .getLeft(),
+                            ((ProductionTransformationElement.DoubleElement) element)
+                                    .getRight(),
+                            ((ProductionTransformationElement.DoubleElement) element)
+                                    .getLeftReference(),
+                            ((ProductionTransformationElement.DoubleElement) element)
+                                    .getRightReference(), cardinality));
+            break;
+        case ALTERNATED:
+            this.elements
+                    .add(new SProductionTransformationElement.AlternatedElement(
+                            this,
+                            ((ProductionTransformationElement.DoubleElement) element)
+                                    .getLeft(),
+                            ((ProductionTransformationElement.DoubleElement) element)
+                                    .getRight(),
+                            ((ProductionTransformationElement.DoubleElement) element)
+                                    .getLeftReference(),
+                            ((ProductionTransformationElement.DoubleElement) element)
+                                    .getRightReference(), cardinality));
+            break;
+        }
+    }
+
     public Production getProduction() {
 
         return this.production;
@@ -135,26 +181,7 @@ public class SProductionTransformation {
         for (ProductionTransformationElement element : coreReference
                 .getElements()) {
 
-            switch (element.getElementType()) {
-            case NORMAL:
-                this.elements
-                        .add(new SProductionTransformationElement.NormalElement(
-                                this,
-                                (ProductionTransformationElement.SingleElement) element));
-                break;
-            case SEPARATED:
-                this.elements
-                        .add(new SProductionTransformationElement.SeparatedElement(
-                                this,
-                                (ProductionTransformationElement.DoubleElement) element));
-                break;
-            case ALTERNATED:
-                this.elements
-                        .add(new SProductionTransformationElement.AlternatedElement(
-                                this,
-                                (ProductionTransformationElement.DoubleElement) element));
-                break;
-            }
+            this.addElement(element, null);
         }
 
     }

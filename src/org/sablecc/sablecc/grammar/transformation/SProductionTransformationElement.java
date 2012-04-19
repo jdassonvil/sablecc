@@ -42,6 +42,8 @@ public abstract class SProductionTransformationElement
 
     public abstract int getIndex();
 
+    public abstract CardinalityInterval getCardinality();
+
     public SProductionTransformation getProductionTransformation() {
 
         return this.productionTransformation;
@@ -104,6 +106,7 @@ public abstract class SProductionTransformationElement
             this.cardinality = CardinalityInterval.ONE_ONE;
         }
 
+        @Override
         public CardinalityInterval getCardinality() {
 
             return this.cardinality;
@@ -224,6 +227,7 @@ public abstract class SProductionTransformationElement
             return this.rightName;
         }
 
+        @Override
         public CardinalityInterval getCardinality() {
 
             return this.cardinality;
@@ -248,7 +252,13 @@ public abstract class SProductionTransformationElement
         @Override
         public String toString() {
 
-            return "(" + this.leftName + " Separated " + this.rightName + ")";
+            return "("
+                    + this.leftName
+                    + " Separated "
+                    + this.rightName
+                    + ")"
+                    + (this.cardinality.equals(CardinalityInterval.ONE_ONE) ? ""
+                            : this.cardinality);
         }
     }
 
@@ -275,6 +285,7 @@ public abstract class SProductionTransformationElement
             return this.rightName;
         }
 
+        @Override
         public CardinalityInterval getCardinality() {
 
             return this.cardinality;
@@ -366,7 +377,13 @@ public abstract class SProductionTransformationElement
         @Override
         public String toString() {
 
-            return "(" + this.leftName + " " + this.rightName + ")";
+            return "("
+                    + this.leftName
+                    + " "
+                    + this.rightName
+                    + ")"
+                    + (this.cardinality.equals(CardinalityInterval.ONE_ONE) ? ""
+                            : this.cardinality);
         }
 
     }

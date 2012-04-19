@@ -81,6 +81,13 @@ public class SGrammar {
                         coreProd.getTransformation(), production));
             }
             else {
+                SProductionTransformation transformation = new SProductionTransformation(
+                        production);
+
+                transformation
+                        .addElement(new SProductionTransformationElement.NormalElement(
+                                transformation));
+
                 production.addTransformation(new SProductionTransformation(
                         production));
             }

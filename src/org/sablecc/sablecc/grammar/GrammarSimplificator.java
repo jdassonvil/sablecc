@@ -611,9 +611,21 @@ public class GrammarSimplificator
                 throw new InternalException("The element shouldn't be dangling");
             }
 
-            this.newTransformation = new SProductionTransformation(null,
-                    this.parserElement.getElement(), this.parserElement,
-                    this.cardinality);
+            if (parserElement.getReference() instanceof Token) {
+                this.newTransformation = new SProductionTransformation(null,
+                        this.parserElement.getElement(), this.parserElement,
+                        this.cardinality);
+            }
+            else if (parserElement.getReference() instanceof Parser.ParserProduction) {
+                Parser.ParserProduction parserProduction = (Parser.ParserProduction) parserElement
+                        .getReference();
+                this.newTransformation = new SProductionTransformation(null);
+                this.newTransformation.addElement(
+                        parserProduction.getTransformation().getElements()
+                                .get(0),
+                        parserProduction.getTransformation().getElements()
+                                .get(0).getCardinality().union(cardinality));
+            }
 
             if (cardinality.equals(CardinalityInterval.ZERO_ONE)) {
 
@@ -655,8 +667,14 @@ public class GrammarSimplificator
             Production qmarkProd = new Production(
                     this.grammar.getNextProductionId(), qmarkName);
 
-            qmarkProd.addAlternative(newAlternative(qmarkProd,
-                    this.sElement.clone()));
+            LinkedList<Element> elements = new LinkedList<Element>();
+            elements.add(this.sElement.clone());
+            Alternative firstAlternative = new Alternative(qmarkProd, elements);
+
+            firstAlternative.addTransformation(new SAlternativeTransformation(
+                    firstAlternative, elements));
+
+            qmarkProd.addAlternative(firstAlternative);
             qmarkProd.addAlternative(new Alternative(qmarkProd));
 
             this.newProduction = qmarkProd;

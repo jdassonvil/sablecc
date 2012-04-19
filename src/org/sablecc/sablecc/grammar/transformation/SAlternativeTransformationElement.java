@@ -170,15 +170,28 @@ public abstract class SAlternativeTransformationElement
             }
             else if (this.targetReference instanceof SProductionTransformationElement.NormalElement) {
                 SProductionTransformationElement.NormalElement normalement = (SProductionTransformationElement.NormalElement) this.targetReference;
-                return normalement.getProductionTransformation()
-                        .getProduction().getName()
+                return this.originReference.getName()
                         + "."
                         + (normalement.getName().equals("") ? "$"
                                 + normalement.getIndex() : normalement
                                 .getName());
             }
+            else if (this.targetReference instanceof SProductionTransformationElement.SeparatedElement) {
+                SProductionTransformationElement.SeparatedElement separatedElement = (SProductionTransformationElement.SeparatedElement) this.targetReference;
+
+                return this.originReference.getName() + "." + "$"
+                        + separatedElement.getIndex();
+
+            }
+            else if (this.targetReference instanceof SProductionTransformationElement.AlternatedElement) {
+                SProductionTransformationElement.AlternatedElement alternatedElement = (SProductionTransformationElement.AlternatedElement) this.targetReference;
+
+                return this.originReference.getName() + "." + "$"
+                        + alternatedElement.getIndex();
+
+            }
             else {
-                throw new InternalException("Undhandel"
+                throw new InternalException("Undhandle"
                         + this.targetReference.getClass());
             }
         }
