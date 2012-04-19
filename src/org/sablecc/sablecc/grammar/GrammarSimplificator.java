@@ -56,6 +56,54 @@ public class GrammarSimplificator
         GrammarSimplificator.grammar = grammar;
 
     }
+    
+    
+    //This method find a valid name for character declared inline
+    //that can't be used in a java identifier.
+    private static String computeValidName(
+            String name) {
+
+        StringBuilder sb = new StringBuilder();
+        
+        //TODO Complete these list
+
+        for (char c : name.toCharArray()) {
+
+            switch (c) {
+
+            case ',':
+                sb.append("comma");
+                break;
+            case '_':
+                sb.append("underscore");
+                break;
+            case '.':
+                sb.append("period");
+                break;
+            case ':':
+                sb.append("semicolon");
+                break;
+            case '?':
+                sb.append("questionMark");
+                break;
+            case '+':
+                sb.append("plus");
+                break;
+            case '-':
+                sb.append("minus");
+                break;
+            case '*':
+                sb.append("star");
+                break;
+            case '/':
+                sb.append("slash");
+                break;
+            default:
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
 
     private static String computeNewProductionName(
             Element sourceElement,
@@ -64,7 +112,7 @@ public class GrammarSimplificator
         String name = sourceElement.getTypeName();
 
         if (sourceElement.getTypeName().startsWith("'")) {
-            name = name.substring(1, name.length() - 1);
+            name = computeValidName(name.substring(1, name.length() - 1));
         }
 
         name = "$" + name;
@@ -98,16 +146,23 @@ public class GrammarSimplificator
             Element rightSourceElement,
             CardinalityInterval cardinality) {
 
-        String name = "$" + leftSourceElement.getTypeName();
+        String name = leftSourceElement.getTypeName();
 
         if (leftSourceElement.getTypeName().startsWith("'")) {
-            name = name.substring(1, name.length() - 1) + "Separator";
+            name = computeValidName(name.substring(1, name.length() - 1)
+                    + "Separator");
         }
 
         if (rightSourceElement.getTypeName().startsWith("'")) {
-            name += rightSourceElement.getTypeName().substring(1,
-                    rightSourceElement.getTypeName().length() - 1);
+            name += computeValidName(rightSourceElement
+                    .getTypeName()
+                    .substring(1, rightSourceElement.getTypeName().length() - 1));
         }
+        else {
+            name += rightSourceElement.getTypeName();
+        }
+
+        name = "$" + name;
 
         if (cardinality.equals(CardinalityInterval.ZERO_ONE)) {
             name += "_qmark";
@@ -138,16 +193,22 @@ public class GrammarSimplificator
             Element rightSourceElement,
             CardinalityInterval cardinality) {
 
-        String name = "$" + leftSourceElement.getTypeName();
+        String name = leftSourceElement.getTypeName();
 
         if (leftSourceElement.getTypeName().startsWith("'")) {
-            name = name.substring(1, name.length() - 1);
+            name = computeValidName(name.substring(1, name.length() - 1));
         }
 
         if (rightSourceElement.getTypeName().startsWith("'")) {
-            name += rightSourceElement.getTypeName().substring(1,
-                    rightSourceElement.getTypeName().length() - 1);
+            name += computeValidName(rightSourceElement
+                    .getTypeName()
+                    .substring(1, rightSourceElement.getTypeName().length() - 1));
         }
+        else {
+            name += rightSourceElement.getTypeName();
+        }
+
+        name = "$" + name;
 
         if (cardinality.equals(CardinalityInterval.ZERO_ONE)) {
             name += "_qmark";
