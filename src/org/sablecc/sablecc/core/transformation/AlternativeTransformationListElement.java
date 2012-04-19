@@ -25,7 +25,6 @@ import org.sablecc.sablecc.core.*;
 import org.sablecc.sablecc.core.Parser.ParserElement.ElementType;
 import org.sablecc.sablecc.core.analysis.*;
 import org.sablecc.sablecc.core.interfaces.*;
-import org.sablecc.sablecc.grammar.transformation.*;
 import org.sablecc.sablecc.syntax3.node.*;
 import org.sablecc.util.*;
 
@@ -134,7 +133,7 @@ public abstract class AlternativeTransformationListElement
 
         public boolean isTransformed() {
 
-            return this.targetReference instanceof SProductionTransformationElement;
+            return this.targetReference instanceof ProductionTransformationElement;
         }
 
     }
@@ -708,7 +707,7 @@ public abstract class AlternativeTransformationListElement
 
         public boolean isTransformed() {
 
-            return this.targetReference instanceof SProductionTransformationElement;
+            return this.targetReference instanceof ProductionTransformationElement;
         }
 
     }
@@ -1067,7 +1066,7 @@ public abstract class AlternativeTransformationListElement
 
         public boolean isTransformed() {
 
-            return this.targetReference instanceof SProductionTransformationElement;
+            return this.targetReference instanceof ProductionTransformationElement;
         }
 
     }
@@ -1403,7 +1402,7 @@ public abstract class AlternativeTransformationListElement
 
         public boolean isTransformed() {
 
-            return this.targetReference instanceof SProductionTransformationElement;
+            return this.targetReference instanceof ProductionTransformationElement;
         }
     }
 
