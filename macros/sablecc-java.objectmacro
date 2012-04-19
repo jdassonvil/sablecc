@@ -1922,7 +1922,7 @@ $expand: new_tree_class,new_list $
 	$expand:normal_declaration,alternated_declaration,separated_declaration$ n$(list_name) = new $expand:normal_declaration,alternated_declaration,separated_declaration$ ($expand: string_parameter,normal_parameter,separated_parameter,alternated_parameter,new_parameter, separator=", "$);
 $expand: add_pop_element,add_pop_element_left,add_pop_element_right,add_new_element,add_pop_list,add_pop_separated_list,add_pop_alternated_list,add_pop_reverse_separated_list,add_pop_reverse_alternated_list,add_new_list $
 $macro: normal_declaration(normal_list_type) $
-NodeList<N$(normal_list_type)>
+NodeList<N$(normal_list_type)>$no_eol$
 $end: normal_declaration$
 $macro: alternated_declaration(left_list_type,right_list_type) $
 PairNodeList<N$(left_list_type),N$(right_list_type)>$no_eol$
@@ -1984,16 +1984,16 @@ $macro: add_pop_list(list_name,element_name,element_type,index) $
       n$(list_name).addAll((NodeList<N$(element_type)>)l$(element_name).getNodes().get($index));
 $end: add_pop_list $
 $macro: add_pop_separated_list(list_name,element_name,left_type,right_type,index) $
-      n$(list_name).addAll((SeparatedNodeList<N$(left_type),N$(right_type)>)l$(element_name).getNodes().get($index)$expand: get_left,get_right $);
+      n$(list_name).addAll(((SeparatedNodeList<N$(left_type),N$(right_type)>)l$(element_name).getNodes().get($index))$expand: get_left,get_right $);
 $end: add_pop_separated_list $
 $macro: add_pop_alternated_list(list_name,element_name,left_type,right_type,index) $
-      n$(list_name).addAll((PairNodeList<N$(left_type),N$(right_type)>)l$(element_name).getNodes().get($index)$expand: get_left,get_right $);
+      n$(list_name).addAll(((PairNodeList<N$(left_type),N$(right_type)>)l$(element_name).getNodes().get($index))$expand: get_left,get_right $);
 $end: add_pop_alternated_list $
 $macro: add_pop_reverse_separated_list(list_name,element_name,left_type,right_type,index) $
-      n$(list_name).addAllReverse((SeparatedNodeList<N$(left_type),N$(right_type)>)l$(element_name).getNodes().get($index)$expand: get_left,get_right $);
+      n$(list_name).addAllReverse(((SeparatedNodeList<N$(left_type),N$(right_type)>)l$(element_name).getNodes().get($index))$expand: get_left,get_right $);
 $end: add_pop_reverse_separated_list $
 $macro: add_pop_reverse_alternated_list(list_name,element_name,left_type,right_type,index) $
-      n$(list_name).addAllReverse((PairNodeList<N$(left_type),N$(right_type)>)l$(element_name).getNodes().get($index)$expand: get_left,get_right $);
+      n$(list_name).addAllReverse(((PairNodeList<N$(left_type),N$(right_type)>)l$(element_name).getNodes().get($index))$expand: get_left,get_right $);
 $end: add_pop_reverse_alternated_list $
 $macro: get_left$
 .getLeft()$no_eol$

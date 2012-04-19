@@ -34,7 +34,6 @@ public class MNormalDeclaration {
         sb.append("NodeList<N");
         sb.append(rNormalListType());
         sb.append(">");
-        sb.append(System.getProperty("line.separator"));
         return sb.toString();
     }
 

@@ -119,7 +119,7 @@ public class MAddPopReverseSeparatedList {
         StringBuilder sb = new StringBuilder();
         sb.append("      n");
         sb.append(rListName());
-        sb.append(".addAllReverse((SeparatedNodeList<N");
+        sb.append(".addAllReverse(((SeparatedNodeList<N");
         sb.append(rLeftType());
         sb.append(",N");
         sb.append(rRightType());
@@ -127,7 +127,7 @@ public class MAddPopReverseSeparatedList {
         sb.append(rElementName());
         sb.append(".getNodes().get(");
         sb.append(rIndex());
-        sb.append(")");
+        sb.append("))");
         for (Object oGetLeft_GetRight : this.eGetLeft_GetRight) {
             sb.append(oGetLeft_GetRight.toString());
         }
