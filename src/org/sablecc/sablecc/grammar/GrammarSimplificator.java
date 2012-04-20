@@ -56,16 +56,15 @@ public class GrammarSimplificator
         GrammarSimplificator.grammar = grammar;
 
     }
-    
-    
-    //This method find a valid name for character declared inline
-    //that can't be used in a java identifier.
+
+    // This method find a valid name for character declared inline
+    // that can't be used in a java identifier.
     private static String computeValidName(
             String name) {
 
         StringBuilder sb = new StringBuilder();
-        
-        //TODO Complete these list
+
+        // TODO Complete these list
 
         for (char c : name.toCharArray()) {
 
@@ -149,9 +148,10 @@ public class GrammarSimplificator
         String name = leftSourceElement.getTypeName();
 
         if (leftSourceElement.getTypeName().startsWith("'")) {
-            name = computeValidName(name.substring(1, name.length() - 1)
-                    + "Separator");
+            name = computeValidName(name.substring(1, name.length() - 1));
         }
+
+        name += "Separator";
 
         if (rightSourceElement.getTypeName().startsWith("'")) {
             name += computeValidName(rightSourceElement
@@ -198,6 +198,8 @@ public class GrammarSimplificator
         if (leftSourceElement.getTypeName().startsWith("'")) {
             name = computeValidName(name.substring(1, name.length() - 1));
         }
+
+        name += "_";
 
         if (rightSourceElement.getTypeName().startsWith("'")) {
             name += computeValidName(rightSourceElement
@@ -1161,25 +1163,6 @@ public class GrammarSimplificator
 
         }
 
-        private Alternative newAlternative(
-                Production production,
-                Element element) {
-
-            LinkedList<Element> elements = new LinkedList<Element>();
-            elements.add(element);
-            return newAlternative(production, elements);
-        }
-
-        private Alternative newAlternative(
-                Production production,
-                LinkedList<Element> elements) {
-
-            Alternative alternative = new Alternative(production, elements);
-            alternative.addTransformation(new SAlternativeTransformation(
-                    alternative, elements));
-            return alternative;
-        }
-
         private Alternative newListAlternative(
                 Production production,
                 LinkedList<Element> elements,
@@ -1187,8 +1170,9 @@ public class GrammarSimplificator
 
             Alternative alternative = new Alternative(production, elements);
             alternative.addTransformation(new SAlternativeTransformation(
-                    transformationElements, alternative, this.parserElement
-                            .getType()));
+                    transformationElements, alternative,
+                    new Type.SimpleType.HomogeneousType(this.sElement
+                            .getTypeName(), this.cardinality)));
             return alternative;
         }
 
@@ -1264,6 +1248,8 @@ public class GrammarSimplificator
 
         private void plusCase() {
 
+            // (a Sep b)+ = a (b a)*;
+
             String plusName = computeNewSeparatedProductionName(
                     this.sLeftElement, this.sRightElement, this.cardinality);
 
@@ -1296,7 +1282,7 @@ public class GrammarSimplificator
             else {
                 secondElement = new Element.ProductionElement("",
                         newAlternatedProduction(this.parserElement,
-                                this.sLeftElement, this.sRightElement,
+                                this.sRightElement, this.sLeftElement,
                                 CardinalityInterval.ZERO_OR_MORE));
             }
 
@@ -1321,6 +1307,8 @@ public class GrammarSimplificator
 
         private void starCase() {
 
+            // (a Sep b)* = (a Sep b)+ | ;
+
             String starName = computeNewSeparatedProductionName(
                     this.sLeftElement, this.sRightElement, this.cardinality);
 
@@ -1342,8 +1330,8 @@ public class GrammarSimplificator
             }
             else {
                 firstElement = new Element.ProductionElement("",
-                        newAlternatedProduction(this.parserElement,
-                                this.sRightElement, this.sLeftElement,
+                        newSeparatedProduction(this.parserElement,
+                                this.sLeftElement, this.sRightElement,
                                 CardinalityInterval.ONE_OR_MORE));
             }
 
@@ -1763,8 +1751,10 @@ public class GrammarSimplificator
 
             Alternative alternative = new Alternative(production, elements);
             alternative.addTransformation(new SAlternativeTransformation(
-                    transformationElements, alternative, this.parserElement
-                            .getType()));
+                    transformationElements, alternative,
+                    new Type.SimpleType.SeparatedType(this.sLeftElement
+                            .getTypeName(), this.sRightElement.getTypeName(),
+                            this.cardinality)));
             return alternative;
         }
     }
@@ -1852,10 +1842,6 @@ public class GrammarSimplificator
                     .add(new SAlternativeTransformationListElement.NormalListElement(
                             firstAlternativeElements.get(0),
                             this.newTransformation.getElements().get(0)));
-            firstAltTransformationElements
-                    .add(new SAlternativeTransformationListElement.ReferenceElement(
-                            firstAlternativeElements.get(1),
-                            firstAlternativeElements.get(1)));
             firstAltTransformationElements
                     .add(new SAlternativeTransformationListElement.ReferenceElement(
                             firstAlternativeElements.get(1),
@@ -2300,8 +2286,10 @@ public class GrammarSimplificator
 
             Alternative alternative = new Alternative(production, elements);
             alternative.addTransformation(new SAlternativeTransformation(
-                    transformationElements, alternative, this.parserElement
-                            .getType()));
+                    transformationElements, alternative,
+                    new Type.SimpleType.AlternatedType(this.sLeftElement
+                            .getTypeName(), this.sRightElement.getTypeName(),
+                            this.cardinality)));
             return alternative;
         }
 
