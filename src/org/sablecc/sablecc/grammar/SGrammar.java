@@ -88,8 +88,7 @@ public class SGrammar {
                         .addElement(new SProductionTransformationElement.NormalElement(
                                 transformation));
 
-                production.addTransformation(new SProductionTransformation(
-                        production));
+                production.addTransformation(transformation);
             }
 
             this.productions.put(production.getName(), production);
