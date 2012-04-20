@@ -189,6 +189,11 @@ public class CodeGenerator {
         packageDirectory.mkdirs();
 
         Context context = this.grammar.getGlobalAnonymousContext();
+        Automaton lexer = this.grammar.getLexer().getAutomaton();
+
+        /*
+         * Generate token 
+         */
 
         for (LexerExpression token : context.getLexerExpressionTokens()) {
             if (token instanceof LexerExpression.NamedExpression) {
@@ -267,7 +272,9 @@ public class CodeGenerator {
             }
         }
 
-        Automaton lexer = this.grammar.getLexer().getAutomaton();
+        /*
+         * Generate Symbol
+         */
 
         for (Symbol symbol : lexer.getAlphabet().getSymbols()) {
             mSymbol.newSymbolDeclaration(symbol.getSimpleName());
@@ -301,6 +308,10 @@ public class CodeGenerator {
                         .toString(), symbol.getSimpleName());
             }
         }
+
+        /*
+         * Generate lexer states
+         */
 
         for (State state : lexer.getStates()) {
             if (state.isAcceptState()) {
@@ -418,8 +429,8 @@ public class CodeGenerator {
         }
 
         /*
-         * Génération des classes de l'AST
-         */
+         * Generate AST Class 
+         * */
 
         Map<IReferencable, String> alternativeToCamelFullName = new HashMap<IReferencable, String>();
 
@@ -1121,7 +1132,7 @@ public class CodeGenerator {
         }
 
         /*
-         * Generate CST production names
+         * Generate CST production name
          *          
          **/
 
@@ -1310,14 +1321,13 @@ public class CodeGenerator {
                                             alternativeToCamelFullName));
 
                         }
-                        for (OldElement element : elements) {
 
-                            String element_CamelCaseName = to_camelCase(element
-                                    .getName());
+                        for (OldElement element : elements) {
 
                             boolean elementIsEndToken;
                             if (element instanceof OldTokenElement) {
                                 OldTokenElement tokenElement = (OldTokenElement) element;
+
                                 if (tokenElement.getToken().getName()
                                         .equals("$end")) {
                                     elementIsEndToken = true;
@@ -1331,9 +1341,6 @@ public class CodeGenerator {
                             }
                             if (elementIsEndToken) {
                                 mReduce.newEndParameter();
-                            }
-                            else {
-                                // mReduce.newNormalParameter(element_CamelCaseName);
                             }
                         }
                     }

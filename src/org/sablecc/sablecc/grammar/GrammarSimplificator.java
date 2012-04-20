@@ -151,7 +151,7 @@ public class GrammarSimplificator
             name = computeValidName(name.substring(1, name.length() - 1));
         }
 
-        name += "Separator";
+        name += "_SeparatedBy_";
 
         if (rightSourceElement.getTypeName().startsWith("'")) {
             name += computeValidName(rightSourceElement

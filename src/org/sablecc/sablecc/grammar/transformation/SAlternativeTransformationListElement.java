@@ -505,7 +505,16 @@ public abstract class SAlternativeTransformationListElement
         @Override
         public String toString() {
 
-            return this.targetReference.toString() + ".Left";
+            if (this.targetReference instanceof SProductionTransformationElement.SeparatedElement
+                    || this.targetReference instanceof SProductionTransformationElement.AlternatedElement) {
+                SProductionTransformationElement doubleElement = this.targetReference;
+                return this.originReference.getName() + "." + "$"
+                        + doubleElement.getIndex() + ".Left";
+            }
+            else {
+                throw new InternalException("Undhandle"
+                        + this.targetReference.getClass());
+            }
         }
 
     }
@@ -610,7 +619,18 @@ public abstract class SAlternativeTransformationListElement
         @Override
         public String toString() {
 
-            return this.targetReference.toString() + ".Right";
+            if (this.targetReference instanceof SProductionTransformationElement.SeparatedElement
+                    || this.targetReference instanceof SProductionTransformationElement.AlternatedElement) {
+                SProductionTransformationElement doubleElement = this.targetReference;
+
+                return this.originReference.getName() + "." + "$"
+                        + doubleElement.getIndex() + ".Right";
+            }
+            else {
+                throw new InternalException("Undhandle"
+                        + this.targetReference.getClass());
+            }
+
         }
 
     }
