@@ -366,7 +366,7 @@ public class PairNodeList<TNodeLeft extends Node, TNodeRight extends Node>
         NodeList<TNodeLeft> list = new NodeList<TNodeLeft>();
         Iterator<TNodeLeft> leftIterator = this.leftIterator();
         
-        while(this.leftIterator().hasNext()){
+        while(leftIterator.hasNext()){
             list.add(leftIterator.next());
         }
         
@@ -377,7 +377,7 @@ public class PairNodeList<TNodeLeft extends Node, TNodeRight extends Node>
         NodeList<TNodeRight> list = new NodeList<TNodeRight>();
         Iterator<TNodeRight> rightIterator = this.rightIterator();
         
-        while(this.rightIterator().hasNext()){
+        while(rightIterator.hasNext()){
             list.add(rightIterator.next());
         }
         
@@ -659,7 +659,7 @@ public class SeparatedNodeList<TNodeLeft extends Node, TNodeRight extends Node>
         NodeList<TNodeLeft> list = new NodeList<TNodeLeft>();
         Iterator<TNodeLeft> leftIterator = this.iterator();
         
-        while(this.iterator().hasNext()){
+        while(leftIterator.hasNext()){
             list.add(leftIterator.next());
         }
         
@@ -670,7 +670,7 @@ public class SeparatedNodeList<TNodeLeft extends Node, TNodeRight extends Node>
         NodeList<TNodeRight> list = new NodeList<TNodeRight>();
         Iterator<TNodeRight> rightIterator = this.separatorIterator();
         
-        while(this.separatorIterator().hasNext()){
+        while(rightIterator.hasNext()){
             list.add(rightIterator.next());
         }
         

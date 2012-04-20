@@ -250,7 +250,7 @@ public class MPairNodeList {
         sb.append(System.getProperty("line.separator"));
         sb.append("        ");
         sb.append(System.getProperty("line.separator"));
-        sb.append("        while(this.leftIterator().hasNext()){");
+        sb.append("        while(leftIterator.hasNext()){");
         sb.append(System.getProperty("line.separator"));
         sb.append("            list.add(leftIterator.next());");
         sb.append(System.getProperty("line.separator"));
@@ -272,7 +272,7 @@ public class MPairNodeList {
         sb.append(System.getProperty("line.separator"));
         sb.append("        ");
         sb.append(System.getProperty("line.separator"));
-        sb.append("        while(this.rightIterator().hasNext()){");
+        sb.append("        while(rightIterator.hasNext()){");
         sb.append(System.getProperty("line.separator"));
         sb.append("            list.add(rightIterator.next());");
         sb.append(System.getProperty("line.separator"));

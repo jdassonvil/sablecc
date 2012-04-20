@@ -284,7 +284,7 @@ public class MSeparatedNodeList {
         sb.append(System.getProperty("line.separator"));
         sb.append("        ");
         sb.append(System.getProperty("line.separator"));
-        sb.append("        while(this.iterator().hasNext()){");
+        sb.append("        while(leftIterator.hasNext()){");
         sb.append(System.getProperty("line.separator"));
         sb.append("            list.add(leftIterator.next());");
         sb.append(System.getProperty("line.separator"));
@@ -306,7 +306,7 @@ public class MSeparatedNodeList {
         sb.append(System.getProperty("line.separator"));
         sb.append("        ");
         sb.append(System.getProperty("line.separator"));
-        sb.append("        while(this.separatorIterator().hasNext()){");
+        sb.append("        while(rightIterator.hasNext()){");
         sb.append(System.getProperty("line.separator"));
         sb.append("            list.add(rightIterator.next());");
         sb.append(System.getProperty("line.separator"));
